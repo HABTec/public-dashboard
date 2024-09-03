@@ -14,7 +14,6 @@ import RoomIcon from "@mui/icons-material/ControlPoint";
 import HealthPostIcon from "@mui/icons-material/MedicalInformation";
 
 const Legend = ({ legendDatas }) => {
- 
   const [showDetails, setShowDetails] = useState(false);
   const map = useMap();
 
@@ -218,7 +217,7 @@ const Legend = ({ legendDatas }) => {
 
     ReactDOM.render(legendContent, legendDiv);
 
-    const legendControl = L.control({ position: "bottomleft" });
+    const legendControl = L.control({ position: "bottomright" });
     legendControl.onAdd = () => legendDiv;
     legendControl.addTo(map);
 
