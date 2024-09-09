@@ -1,24 +1,16 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
+import React, { useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Polygon,
   Tooltip,
-  useMap,
   Marker,
   Popup,
   Circle,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SvgIcon,
-} from "@mui/material";
+import { SvgIcon } from "@mui/material";
 import ReactDOMServer from "react-dom/server";
 import {
   Home as HomeIcon,
@@ -28,48 +20,11 @@ import Legend from "./Legend";
 import { useMapLogic } from "../hooks/useMapLogic";
 import RoomIcon from "@mui/icons-material/ControlPoint";
 import HealthPostIcon from "@mui/icons-material/MedicalInformation";
-
-const TileLayerControl = ({ tileLayer, setTileLayer, tileLayers }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    const controlDiv = L.DomUtil.create(
-      "div",
-      "leaflet-control-layers leaflet-control"
-    );
-
-    const formControl = (
-      <FormControl variant="outlined" style={{ minWidth: 120 }}>
-        <InputLabel id="tile-layer-select-label">Base Map</InputLabel>
-        <Select
-          labelId="tile-layer-select-label"
-          id="tile-layer-select"
-          value={tileLayer}
-          onChange={(e) => setTileLayer(e.target.value)}
-          label="Base Map"
-        >
-          {Object.keys(tileLayers).map((layer) => (
-            <MenuItem key={layer} value={layer}>
-              {layer}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    );
-
-    ReactDOM.render(formControl, controlDiv);
-
-    const customControl = L.control({ position: "topright" });
-    customControl.onAdd = () => controlDiv;
-    customControl.addTo(map);
-
-    return () => {
-      customControl.remove();
-    };
-  }, [map, tileLayer, setTileLayer, tileLayers]);
-
-  return null;
-};
+import {
+  TileLayerControl,
+  BlankWhiteLayer,
+  WhiteTileLayer,
+} from "./TileComponent";
 
 const createCustomIcon = (iconComponent, color) =>
   new L.DivIcon({
@@ -80,38 +35,11 @@ const createCustomIcon = (iconComponent, color) =>
     iconSize: [10, 10],
   });
 
-const WhiteTileLayer = L.GridLayer.extend({
-  createTile: function (coords) {
-    const tile = document.createElement("div");
-    tile.style.width = "256px";
-    tile.style.height = "256px";
-    tile.style.background = "white";
-    return tile;
-  },
-});
-
-const BlankWhiteLayer = () => {
-  const map = useMap();
-
-  useEffect(() => {
-    const whiteLayer = new WhiteTileLayer();
-    whiteLayer.addTo(map);
-
-    return () => {
-      map.removeLayer(whiteLayer);
-    };
-  }, [map]);
-
-  return null;
-};
-
 const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
-  console.log("mapViews here", mapViews);
   const [tileLayer, setTileLayer] = useState(
     basemap === "none" ? "osm" : basemap
   );
   const legendData = [];
-  console.log("tile layer", tileLayer);
 
   const tileLayers = {
     osm: {
@@ -236,7 +164,6 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   };
 
   const renderThematicPolygons = (viewData) => {
-    console.log("hidden thematic", viewData);
     const legendMn = Math.min(
       ...viewData.mapData.map((d) => Math.min(...d.data))
     );
@@ -245,7 +172,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     );
     const legendNumColors = viewData.regionColors?.length || 0;
     const legendRegionColors = viewData.regionColors || [];
-    console.log("mx and mn", legendMx, legendMn);
+
     legendData.push({
       name: "thematic",
       displayName: viewData.displayName,
@@ -305,7 +232,6 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     );
 
     const legendRegionColors = viewData.regionColors || [];
-    console.log("mx and mn", legendMx, legendMn);
 
     legendData.push({
       name: "bubble",
@@ -337,51 +263,70 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
       const dataValue =
         regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
 
-      // radius based on the data value
+      // Radius based on the data value
       const radius = (dataValue / (legendMx - legendMn)) * 70;
 
-      // color for the region
+      // Color for the region
       const regionColor = viewData.regionColors.find(
         (rc) => rc.region === region.na
       );
       const color = regionColor ? regionColor.color : "#3388ff";
       const opacity = viewData.opacity;
 
-      return (
-        <Circle
-          key={`${region.id}-${regionIndex}`}
-          center={coordinates}
-          radius={radius * 1000}
-          fillColor={color}
+      // Render the polygon structure
+      const polygons = fetchedCoordinates.map((polygon, polygonIndex) => (
+        <Polygon
+          key={`${region.id}-${polygonIndex}-${regionIndex}`}
+          positions={polygon}
           color="#000"
-          fillOpacity={opacity}
+          fillOpacity={0}
           weight={1}
           eventHandlers={{
             mouseover: (e) => handleMouseEnter(e, region),
-            mouseout: (e) => handleMouseLeave(e),
+            mouseout: (e) => handleMouseLeave(e, 1),
           }}
         >
           <Tooltip>
-            <span>
-              {region.na}
-              {viewData.regionList
-                .filter((name) => name === region.na)
-                .map((name, num) =>
-                  viewData.mapData.map((regionData) => (
-                    <li key={num}>
-                      {regionData.label}: {regionData.data[num]}
-                    </li>
-                  ))
-                )}
-            </span>
+            <span>{region.na}</span>
           </Tooltip>
-        </Circle>
+        </Polygon>
+      ));
+
+      return (
+        <>
+          {polygons}
+          <Circle
+            key={`${region.id}-${regionIndex}`}
+            center={coordinates}
+            radius={radius * 1000}
+            fillColor={color}
+            color="#000"
+            fillOpacity={opacity}
+            weight={1}
+            eventHandlers={{
+              mouseover: (e) => handleMouseEnter(e, region),
+              mouseout: (e) => handleMouseLeave(e),
+            }}
+          >
+            <Tooltip>
+              <span>
+                {region.na}
+                {viewData.regionList
+                  .filter((name) => name === region.na)
+                  .map((name, num) =>
+                    viewData.mapData.map((regionData) => (
+                      <li key={num}>
+                        {regionData.label}: {regionData.data[num]}
+                      </li>
+                    ))
+                  )}
+              </span>
+            </Tooltip>
+          </Circle>
+        </>
       );
     });
   };
-
-  console.log("parsed_map order", parsedMapViews);
-
 
   const defaultBounds = L.latLngBounds([3.0, 33.0], [15.0, 48.0]);
   return (
@@ -414,7 +359,6 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
           case "thematic":
             if (viewData?.thematicMapType === "BUBBLE") {
               return renderBubbleMap(viewData);
-
             } else if (viewData?.thematicMapType === "CHOROPLETH") {
               return renderThematicPolygons(viewData);
             }
