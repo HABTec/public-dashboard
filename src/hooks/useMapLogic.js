@@ -87,14 +87,15 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
   const handleMouseEnter = (e, region) => {
     setHoveredRegion(region);
     e.target.setStyle({
-      weight: 5,
+      weight: 3,
     });
   };
 
-  const handleMouseLeave = (e) => {
+  const handleMouseLeave = (e, weight = 2) => {
+    console.log("mouse leave", e);
     setHoveredRegion(null);
     e.target.setStyle({
-      weight: 2,
+      weight: weight,
     });
   };
 
