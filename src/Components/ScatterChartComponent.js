@@ -26,8 +26,9 @@ const CustomItemTooltipContent = (props) => {
 
 const ScatterChartComponent = ({ chartConfig, chartData, chartInfo, item }) => {
   let customChartConfig = [];
+
   let dataItems = new Set(chartData.rows.map((r) => r[0]));
-  if (dataItems.size == 2)
+  if (dataItems.size == 2) {
     dataItems.forEach((dataItem, index) => {
       if (index == 1) return;
       customChartConfig.push({
@@ -51,32 +52,60 @@ const ScatterChartComponent = ({ chartConfig, chartData, chartInfo, item }) => {
       });
     });
 
-  return (
-    <ScatterChart
-      tooltip={{ trigger: "item", itemContent: CustomItemTooltipContent }}
-      series={[customChartConfig[0]]}
-      grid={{ vertical: true, horizontal: true }}
-      yAxis={[{ label: chartConfig.series[1].label }]}
-      xAxis={[{ label: chartConfig.series[0].label }]}
-    >
-      {chartInfo?.axes?.map((axis) => {
-        if (axis?.baseLine == undefined && axis.targetLine == undefined)
-          return null;
+    return (
+      <ScatterChart
+        tooltip={{ trigger: "item", itemContent: CustomItemTooltipContent }}
+        series={[customChartConfig[0]]}
+        grid={{ vertical: true, horizontal: true }}
+        yAxis={[{ label: chartConfig.series[1].label }]}
+        xAxis={[{ label: chartConfig.series[0].label }]}
+      >
+        {chartInfo?.axes?.map((axis) => {
+          if (axis?.baseLine == undefined && axis.targetLine == undefined)
+            return null;
 
-        return axis?.index == 0 ? (
-          axis.baseLine && axis.targetLine ? (
+          return axis?.index == 0 ? (
+            axis.baseLine && axis.targetLine ? (
+              <>
+                <ChartsReferenceLine
+                  lineStyle={{ strokeDasharray: "10 5" }}
+                  labelStyle={{ fontSize: "10" }}
+                  y={axis?.baseLine?.value}
+                  label={axis?.baseLine?.title?.text}
+                  labelAlign="start"
+                />
+                <ChartsReferenceLine
+                  lineStyle={{ strokeDasharray: "10 5" }}
+                  labelStyle={{ fontSize: "10" }}
+                  y={axis?.targetLine?.value}
+                  label={axis?.targetLine?.title?.text}
+                  labelAlign="start"
+                />
+              </>
+            ) : (
+              <ChartsReferenceLine
+                lineStyle={{ strokeDasharray: "10 5" }}
+                labelStyle={{ fontSize: "10" }}
+                y={axis?.baseLine?.value ?? axis?.targetLine?.value}
+                label={
+                  axis?.baseLine?.title?.text ?? axis?.targetLine?.title?.text
+                }
+                labelAlign="start"
+              />
+            )
+          ) : axis.baseLine && axis.targetLine ? (
             <>
               <ChartsReferenceLine
                 lineStyle={{ strokeDasharray: "10 5" }}
                 labelStyle={{ fontSize: "10" }}
-                y={axis?.baseLine?.value}
+                x={axis?.baseLine?.value}
                 label={axis?.baseLine?.title?.text}
                 labelAlign="start"
               />
               <ChartsReferenceLine
                 lineStyle={{ strokeDasharray: "10 5" }}
                 labelStyle={{ fontSize: "10" }}
-                y={axis?.targetLine?.value}
+                x={axis?.targetLine?.value}
                 label={axis?.targetLine?.title?.text}
                 labelAlign="start"
               />
@@ -85,42 +114,19 @@ const ScatterChartComponent = ({ chartConfig, chartData, chartInfo, item }) => {
             <ChartsReferenceLine
               lineStyle={{ strokeDasharray: "10 5" }}
               labelStyle={{ fontSize: "10" }}
-              y={axis?.baseLine?.value ?? axis?.targetLine?.value}
+              x={axis?.baseLine?.value ?? axis?.targetLine?.value}
               label={
                 axis?.baseLine?.title?.text ?? axis?.targetLine?.title?.text
               }
               labelAlign="start"
             />
-          )
-        ) : axis.baseLine && axis.targetLine ? (
-          <>
-            <ChartsReferenceLine
-              lineStyle={{ strokeDasharray: "10 5" }}
-              labelStyle={{ fontSize: "10" }}
-              x={axis?.baseLine?.value}
-              label={axis?.baseLine?.title?.text}
-              labelAlign="start"
-            />
-            <ChartsReferenceLine
-              lineStyle={{ strokeDasharray: "10 5" }}
-              labelStyle={{ fontSize: "10" }}
-              x={axis?.targetLine?.value}
-              label={axis?.targetLine?.title?.text}
-              labelAlign="start"
-            />
-          </>
-        ) : (
-          <ChartsReferenceLine
-            lineStyle={{ strokeDasharray: "10 5" }}
-            labelStyle={{ fontSize: "10" }}
-            x={axis?.baseLine?.value ?? axis?.targetLine?.value}
-            label={axis?.baseLine?.title?.text ?? axis?.targetLine?.title?.text}
-            labelAlign="start"
-          />
-        );
-      })}
-    </ScatterChart>
-  );
+          );
+        })}
+      </ScatterChart>
+    );
+  } else {
+    return <>No data</>;
+  }
 };
 
 export default ScatterChartComponent;
