@@ -191,6 +191,10 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
       const color = regionColor ? regionColor.color : "";
       const opacity = color ? viewData.opacity : 0;
 
+      const dataIndex = viewData.regionList.findIndex(
+        (name) => name === region.na
+      );
+
       return coordinates.map((polygon, polygonIndex) => (
         <Polygon
           key={`${region.id}-${polygonIndex}-${regionIndex}`}
@@ -207,15 +211,12 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
           <Tooltip>
             <span>
               {region.na}
-              {viewData.regionList
-                .filter((name) => name === region.na)
-                .map((name, num) =>
-                  viewData.mapData.map((regionData) => (
-                    <li key={num}>
-                      {regionData.label}: {regionData.data[num]}
-                    </li>
-                  ))
-                )}
+              {dataIndex !== -1 && (
+                <li key={`${dataIndex} - ${viewData.regionList[dataIndex]}`}>
+                  {viewData.mapData[0].label}:{" "}
+                  {viewData.mapData[0].data[dataIndex]}
+                </li>
+              )}
             </span>
           </Tooltip>
         </Polygon>
@@ -223,7 +224,31 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     });
   };
 
-  const renderBubbleMap = (viewData) => {
+  const calculatePolygonCentroid = (polygon) => {
+    let area = 0;
+    let centroidLat = 0;
+    let centroidLng = 0;
+
+    // Loop through each vertex of the polygon
+    for (let i = 0; i < polygon.length - 1; i++) {
+      const [lat1, lng1] = polygon[i];
+      const [lat2, lng2] = polygon[i + 1];
+
+      const a = lat1 * lng2 - lat2 * lng1;
+      area += a;
+      centroidLat += (lat1 + lat2) * a;
+      centroidLng += (lng1 + lng2) * a;
+    }
+
+    // Finalize centroid calculation
+    area = area / 2;
+    centroidLat = centroidLat / (6 * area);
+    centroidLng = centroidLng / (6 * area);
+
+    return [centroidLat, centroidLng];
+  };
+
+  const renderBubbleMap = (viewData, orgDrawn) => {
     const legendMn = Math.min(
       ...viewData.mapData.map((d) => Math.min(...d.data))
     );
@@ -244,19 +269,13 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
 
     return viewData?.sortedShape?.map((region, regionIndex) => {
       const fetchedCoordinates = parseCoordinates(region.co);
-      let lat = 0,
-        lng = 0,
-        length = 0;
-      if (fetchedCoordinates.length > 0) {
-        fetchedCoordinates.forEach((coord) =>
-          coord.forEach((coordinates) => {
-            lat += coordinates[0];
-            lng += coordinates[1];
-            length += 1;
-          })
-        );
-      }
-      const coordinates = [lat / length, lng / length];
+
+
+      // Calculate centroid using manual method for each polygon
+      const centroids = fetchedCoordinates.map(calculatePolygonCentroid);
+
+      // Use the first centroid as the center (if there are multiple polygons)
+      const coordinates = centroids.length > 0 ? centroids[0] : [0, 0];
 
       const regionListIndex = viewData.regionList.indexOf(region.na);
 
@@ -292,9 +311,13 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
         </Polygon>
       ));
 
+      const dataIndex = viewData.regionList.findIndex(
+        (name) => name === region.na
+      );
+
       return (
         <>
-          {polygons}
+          {orgDrawn ? "" : polygons}
           <Circle
             key={`${region.id}-${regionIndex}`}
             center={coordinates}
@@ -311,15 +334,12 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
             <Tooltip>
               <span>
                 {region.na}
-                {viewData.regionList
-                  .filter((name) => name === region.na)
-                  .map((name, num) =>
-                    viewData.mapData.map((regionData) => (
-                      <li key={num}>
-                        {regionData.label}: {regionData.data[num]}
-                      </li>
-                    ))
-                  )}
+                {dataIndex !== -1 && (
+                  <li key={`${dataIndex} - ${viewData.regionList[dataIndex]}`}>
+                    {viewData.mapData[0].label}:{" "}
+                    {viewData.mapData[0].data[dataIndex]}
+                  </li>
+                )}
               </span>
             </Tooltip>
           </Circle>
@@ -328,6 +348,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     });
   };
 
+  var orgDrawn = false;
   const defaultBounds = L.latLngBounds([3.0, 33.0], [15.0, 48.0]);
   return (
     <MapContainer
@@ -349,6 +370,8 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
       />
 
       {parsedMapViews?.map((viewData) => {
+        console.log("view data", viewData);
+        
         switch (viewData?.layer) {
           case "facility":
             return renderFacilityMarkers(viewData);
@@ -357,10 +380,13 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
             return renderOrgUnitPolygons(viewData);
 
           case "thematic":
-            if (viewData?.thematicMapType === "BUBBLE") {
-              return renderBubbleMap(viewData);
-            } else if (viewData?.thematicMapType === "CHOROPLETH") {
+            if (viewData?.thematicMapType === "CHOROPLETH") {
+              orgDrawn = true;
               return renderThematicPolygons(viewData);
+            } else if (viewData?.thematicMapType === "BUBBLE") {
+              const draw = orgDrawn;
+              orgDrawn = true;
+              return renderBubbleMap(viewData, draw);
             }
             break;
 

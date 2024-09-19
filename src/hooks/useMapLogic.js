@@ -92,7 +92,6 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
   };
 
   const handleMouseLeave = (e, weight = 2) => {
-    console.log("mouse leave", e);
     setHoveredRegion(null);
     e.target.setStyle({
       weight: weight,
@@ -138,8 +137,6 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         .domain([mn, mx])
         .colors(numColors);
     }
-
-    console.log("region color2", regionList, colorScale, colorScaleArray);
 
     const regionColors = regionList?.map((regionName, index) => {
       const value = combinedData[index];
@@ -187,9 +184,28 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
   };
 
   const layerOrder = ["orgUnit", "thematic", "facility"];
+  // const parsedMapViews = mapViews
+  //   .map((view) => {
+  //     const chartConfig = processChartData(chartDatas[view.id]);
+
+  //     if (view.layer === "thematic" && chartConfig.series.length === 0) {
+  //       return null;
+  //     }
+
+  //     return processMapLayer(
+  //       chartConfig,
+  //       view?.displayName,
+  //       shapes[view.id],
+  //       view?.colorScale ?? "#ffffd4,#fed98e,#fe9929,#d95f0e,#993404",
+  //       view?.opacity,
+  //       view.layer,
+  //       view?.thematicMapType
+  //     );
+  //   })
+  //   .filter(Boolean)
+  //   .sort((a, b) => layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer));
   const parsedMapViews = mapViews
     .map((view) => {
-      console.log("view here", view, mapViews, chartDatas);
       const chartConfig = processChartData(chartDatas[view.id]);
 
       if (view.layer === "thematic" && chartConfig.series.length === 0) {
@@ -207,7 +223,16 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       );
     })
     .filter(Boolean)
-    .sort((a, b) => layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer));
+    .sort((a, b) => {
+      if (a.layer === "thematic" && b.layer === "thematic") {
+        const thematicOrder = ["CHOROPLETH", "BUBBLE"];
+        return (
+          thematicOrder.indexOf(a.thematicMapType) -
+          thematicOrder.indexOf(b.thematicMapType)
+        );
+      }
+      return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
+    });
 
   return {
     parsedMapViews,
