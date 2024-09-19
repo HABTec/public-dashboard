@@ -24,6 +24,9 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
         const promises = orderedMapViews.map(async (view) => {
           let filters = getFilters(view.filters, mainProps?.filters);
           let dimension = getDimensions(view);
+          let aggregationTypeFilter = view.aggregationType
+            ? "&aggregationType=" + view.aggregationType
+            : "";
           let ou_dimension = getOuDimensions(view.rows, { type: "MAP" });
 
           let geoFeaturesUrl = `${apiBase}api/geoFeatures.json?ou=${ou_dimension}&displayProperty=NAME`;
@@ -34,7 +37,7 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
             try {
               // url += dimension + filters;
               let analyticsData = await fetch(
-                encodeURI(url + dimension + filters)
+                encodeURI(url + dimension + filters + aggregationTypeFilter)
               );
               let chartData = await analyticsData.json();
               console.log("chartData", analyticsData, chartData);
