@@ -20,6 +20,7 @@ import Legend from "./Legend";
 import { useMapLogic } from "../hooks/useMapLogic";
 import RoomIcon from "@mui/icons-material/ControlPoint";
 import HealthPostIcon from "@mui/icons-material/MedicalInformation";
+import polylabel from "polylabel";
 import {
   TileLayerControl,
   BlankWhiteLayer,
@@ -224,29 +225,212 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     });
   };
 
-  const calculatePolygonCentroid = (polygon) => {
-    let area = 0;
-    let centroidLat = 0;
-    let centroidLng = 0;
+  // Using manual approach to find the visual center of a polygon
 
-    // Loop through each vertex of the polygon
-    for (let i = 0; i < polygon.length - 1; i++) {
-      const [lat1, lng1] = polygon[i];
-      const [lat2, lng2] = polygon[i + 1];
+  // const renderBubbleMap = (viewData, orgDrawn) => {
+  //   const legendMn = Math.min(
+  //     ...viewData.mapData.map((d) => Math.min(...d.data))
+  //   );
+  //   const legendMx = Math.max(
+  //     ...viewData.mapData.map((d) => Math.max(...d.data))
+  //   );
 
-      const a = lat1 * lng2 - lat2 * lng1;
-      area += a;
-      centroidLat += (lat1 + lat2) * a;
-      centroidLng += (lng1 + lng2) * a;
-    }
+  //   const legendRegionColors = viewData.regionColors || [];
 
-    // Finalize centroid calculation
-    area = area / 2;
-    centroidLat = centroidLat / (6 * area);
-    centroidLng = centroidLng / (6 * area);
+  //   legendData.push({
+  //     name: "bubble",
+  //     displayName: viewData.displayName,
+  //     mn: legendMn,
+  //     mx: legendMx,
+  //     colorScaleArray: viewData.colorScaleArray,
+  //     regionColors: legendRegionColors,
+  //   });
 
-    return [centroidLat, centroidLng];
-  };
+  //   return viewData?.sortedShape?.map((region, regionIndex) => {
+  //     const fetchedCoordinates = parseCoordinates(region.co);
+
+  //     // Calculate visual center for each polygon
+  //     const visualCenters = fetchedCoordinates.map(findVisualCenter);
+
+  //     // Use the first visual center (if there are multiple polygons)
+  //     const coordinates = visualCenters.length > 0 ? visualCenters[0] : [0, 0];
+
+  //     const regionListIndex = viewData.regionList.indexOf(region.na);
+
+  //     const dataValue =
+  //       regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
+
+  //     // Radius based on the data value
+  //     const radius = (dataValue / (legendMx - legendMn)) * 90;
+
+  //     // Color for the region
+  //     const regionColor = viewData.regionColors.find(
+  //       (rc) => rc.region === region.na
+  //     );
+  //     const color = regionColor ? regionColor.color : "#3388ff";
+  //     const opacity = viewData.opacity;
+
+  //     // Render the polygon structure
+  //     const polygons = fetchedCoordinates.map((polygon, polygonIndex) => (
+  //       <Polygon
+  //         key={`${region.id}-${polygonIndex}-${regionIndex}`}
+  //         positions={polygon}
+  //         color="#000"
+  //         fillOpacity={0}
+  //         weight={1}
+  //         eventHandlers={{
+  //           mouseover: (e) => handleMouseEnter(e, region),
+  //           mouseout: (e) => handleMouseLeave(e, 1),
+  //         }}
+  //       >
+  //         <Tooltip>
+  //           <span>{region.na}</span>
+  //         </Tooltip>
+  //       </Polygon>
+  //     ));
+
+  //     const dataIndex = viewData.regionList.findIndex(
+  //       (name) => name === region.na
+  //     );
+
+  //     return (
+  //       <>
+  //         {orgDrawn ? "" : polygons}
+  //         <Circle
+  //           key={`${region.id}-${regionIndex}`}
+  //           center={coordinates}
+  //           radius={radius * 1000}
+  //           fillColor={color}
+  //           color="#000"
+  //           fillOpacity={opacity}
+  //           weight={1}
+  //           eventHandlers={{
+  //             mouseover: (e) => handleMouseEnter(e, region),
+  //             mouseout: (e) => handleMouseLeave(e),
+  //           }}
+  //         >
+  //           <Tooltip>
+  //             <span>
+  //               {region.na}
+  //               {dataIndex !== -1 && (
+  //                 <li key={`${dataIndex} - ${viewData.regionList[dataIndex]}`}>
+  //                   {viewData.mapData[0].label}:{" "}
+  //                   {viewData.mapData[0].data[dataIndex]}
+  //                 </li>
+  //               )}
+  //             </span>
+  //           </Tooltip>
+  //         </Circle>
+  //       </>
+  //     );
+  //   });
+  // };
+
+  // // Function to find the visual center of a polygon (simplified quadtree-like approach)
+  // function findVisualCenter(polygonCoordinates) {
+  //   const bounds = getBoundingBox(polygonCoordinates);
+  //   let bestPoint = null;
+  //   let maxDistance = -Infinity;
+
+  //   const gridSize = 10; // Adjust this to control precision
+  //   const step = Math.max(bounds.width, bounds.height) / gridSize;
+
+  //   for (let x = bounds.minX; x <= bounds.maxX; x += step) {
+  //     for (let y = bounds.minY; y <= bounds.maxY; y += step) {
+  //       const point = [x, y];
+  //       if (isPointInPolygon(point, polygonCoordinates)) {
+  //         const distance = calculateDistanceToEdges(point, polygonCoordinates);
+  //         if (distance > maxDistance) {
+  //           maxDistance = distance;
+  //           bestPoint = point;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   return bestPoint || getCentroid(polygonCoordinates); // Fallback to centroid if no point is found
+  // }
+
+  // // Utility functions
+
+  // // Get bounding box for the polygon
+  // function getBoundingBox(polygon) {
+  //   const xs = polygon.map((p) => p[0]);
+  //   const ys = polygon.map((p) => p[1]);
+  //   return {
+  //     minX: Math.min(...xs),
+  //     maxX: Math.max(...xs),
+  //     minY: Math.min(...ys),
+  //     maxY: Math.max(...ys),
+  //     width: Math.max(...xs) - Math.min(...xs),
+  //     height: Math.max(...ys) - Math.min(...ys),
+  //   };
+  // }
+
+  // // Check if a point is inside a polygon
+  // function isPointInPolygon(point, polygon) {
+  //   const [px, py] = point;
+  //   let isInside = false;
+
+  //   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+  //     const [xi, yi] = polygon[i];
+  //     const [xj, yj] = polygon[j];
+
+  //     const intersect =
+  //       yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi;
+  //     if (intersect) isInside = !isInside;
+  //   }
+
+  //   return isInside;
+  // }
+
+  // // Calculate the distance from a point to the polygon edges
+  // function calculateDistanceToEdges(point, polygon) {
+  //   // Calculate the minimum distance from the point to the edges of the polygon
+  //   let minDistance = Infinity;
+  //   for (let i = 0; i < polygon.length; i++) {
+  //     const edgeStart = polygon[i];
+  //     const edgeEnd = polygon[(i + 1) % polygon.length];
+  //     const distance = pointToSegmentDistance(point, edgeStart, edgeEnd);
+  //     minDistance = Math.min(minDistance, distance);
+  //   }
+  //   return minDistance;
+  // }
+
+  // // Calculate the distance from a point to a line segment
+  // function pointToSegmentDistance(point, segmentStart, segmentEnd) {
+  //   const [px, py] = point;
+  //   const [sx, sy] = segmentStart;
+  //   const [ex, ey] = segmentEnd;
+
+  //   const segmentLengthSquared = (ex - sx) ** 2 + (ey - sy) ** 2;
+  //   if (segmentLengthSquared === 0) return Math.hypot(px - sx, py - sy); // Segment is a point
+
+  //   // Project point onto the line segment, clamping to the segment endpoints
+  //   let t =
+  //     ((px - sx) * (ex - sx) + (py - sy) * (ey - sy)) / segmentLengthSquared;
+  //   t = Math.max(0, Math.min(1, t));
+
+  //   const closestPointOnSegment = [sx + t * (ex - sx), sy + t * (ey - sy)];
+  //   return Math.hypot(
+  //     px - closestPointOnSegment[0],
+  //     py - closestPointOnSegment[1]
+  //   );
+  // }
+
+  // // Fallback to the centroid calculation if needed
+  // function getCentroid(polygon) {
+  //   let xSum = 0,
+  //     ySum = 0,
+  //     n = polygon.length;
+  //   polygon.forEach(([x, y]) => {
+  //     xSum += x;
+  //     ySum += y;
+  //   });
+  //   return [xSum / n, ySum / n];
+  // }
+
+  // Using polylabel to find the visual center of a polygon
 
   const renderBubbleMap = (viewData, orgDrawn) => {
     const legendMn = Math.min(
@@ -270,20 +454,27 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     return viewData?.sortedShape?.map((region, regionIndex) => {
       const fetchedCoordinates = parseCoordinates(region.co);
 
+      // Use polylabel to find the optimal visual center for each polygon
+      const visualCenters = fetchedCoordinates.map((polygon) =>
+        polylabel([polygon], 0.000001)
+      );
 
-      // Calculate centroid using manual method for each polygon
-      const centroids = fetchedCoordinates.map(calculatePolygonCentroid);
+      const bestCenter = visualCenters.reduce(
+        (best, current) => (current.distance > best.distance ? current : best),
+        visualCenters[0]
+      );
 
-      // Use the first centroid as the center (if there are multiple polygons)
-      const coordinates = centroids.length > 0 ? centroids[0] : [0, 0];
-
+      console.log("bestCenters", bestCenter, visualCenters);
+      // Use the first visual center (if there are multiple polygons)
+      // const coordinates = visualCenters.length > 0 ? visualCenters[0] : [0, 0];
+      const coordinates = bestCenter;
       const regionListIndex = viewData.regionList.indexOf(region.na);
 
       const dataValue =
         regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
 
       // Radius based on the data value
-      const radius = (dataValue / (legendMx - legendMn)) * 70;
+      const radius = (dataValue / (legendMx - legendMn)) * 90;
 
       // Color for the region
       const regionColor = viewData.regionColors.find(
@@ -371,7 +562,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
 
       {parsedMapViews?.map((viewData) => {
         console.log("view data", viewData);
-        
+
         switch (viewData?.layer) {
           case "facility":
             return renderFacilityMarkers(viewData);
