@@ -38,6 +38,7 @@ const createCustomIcon = (iconComponent, color) =>
   });
 
 const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
+  // console.log("check map", mapViews)
   const [tileLayer, setTileLayer] = useState(
     basemap === "none" ? "osm" : basemap
   );
@@ -340,7 +341,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   var orgDrawn = false;
   const defaultBounds = L.latLngBounds([3.0, 33.0], [15.0, 48.0]);
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow:"hidden", flexWrap:"wrap"}}>
       <div style={{ flexGrow: 1 }}>
         <MapContainer
           bounds={mapBounds.isValid() ? mapBounds : defaultBounds}

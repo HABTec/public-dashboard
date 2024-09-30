@@ -7,8 +7,8 @@ const sampleData = [
   { year: 2018, label: 'Meskerem 2018' },
   { year: 2019, label: 'Meskerem 2019' },
   { year: 2020, label: 'Meskerem 2020' },
-  // { year: 2021, label: 'Meskerem 2021' },
-  // { year: 2022, label: 'Meskerem 2022' },
+  { year: 2021, label: 'Meskerem 2021' },
+  { year: 2022, label: 'Meskerem 2022' },
 ];
 
 const Timeline = ({ mapData_ = sampleData, onTimeChange }) => {
@@ -64,6 +64,7 @@ const Timeline = ({ mapData_ = sampleData, onTimeChange }) => {
               borderRight: 'none', // Remove the right border for all except the last box
             }}
             onClick={() => handleYearChange(data.year)}
+            title={data.label}
           >
             {/* {data.label} */}
           </Box>
