@@ -22,7 +22,11 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
 
         // Process ordered mapViews
         const promises = orderedMapViews.map(async (view) => {
+          // console.log("view", view);
           let filters = getFilters(view.filters, mainProps?.filters);
+          if (view.renderingStrategy == "TIMELINE") {
+            filters.replace("filter", "dimension");
+          }
           let dimension = getDimensions(view);
           let aggregationTypeFilter = view.aggregationType
             ? "&aggregationType=" + view.aggregationType
@@ -34,6 +38,9 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
           const response = await fetch(encodeURI(geoFeaturesUrl));
           const shapeData = await response.json();
           if (view.layer == "thematic") {
+            if (view.renderingStrategy === "TIMELINE") {
+              filters = filters.replace("filter", "dimension");
+            }
             try {
               // url += dimension + filters;
               let analyticsData = await fetch(
@@ -41,6 +48,7 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
               );
               let chartData = await analyticsData.json();
               console.log("chartData", analyticsData, chartData);
+              console.log("url guessed", filters);
               setChartData((prevChartData) => ({
                 ...prevChartData,
                 [view.id]: chartData,
@@ -84,8 +92,7 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
     return <div>Loading...</div>;
   }
 
-  console.log("data", data);
-  // console.log("shape charts_data", chartData, data.mapViews);
+  console.log("data", data, "shapes", shapes, "chartData", chartData);
 
   return (
     <Map

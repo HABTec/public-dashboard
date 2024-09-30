@@ -7,7 +7,169 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
   const [hoveredRegion, setHoveredRegion] = useState(null);
   let mapBounds = null;
 
+  // const processChartData = (chartData) => {
+  //   console.log("deep chart data", chartData)
+  //   const chartConfig = {
+  //     series: [],
+  //     yAxis: {
+  //       categories: [],
+  //       crosshair: true,
+  //     },
+  //   };
+
+  //   if (chartData) {
+  //     const rows = chartData.rows?.toSorted((a, b) => {
+  //       let avalue = Number(a.length > 1 ? a[1] : a[0]);
+  //       let bvalue = Number(b.length > 1 ? b[1] : b[0]);
+  //       return avalue - bvalue;
+  //     });
+  //     console.log("deep",rows)
+
+  //     if (!Array.isArray(rows)) {
+  //       return chartConfig;
+  //     }
+
+  //     for (const row of rows) {
+  //       chartConfig?.data?.push({
+  //         label: getItemName(chartData, row[0]),
+  //         value: Number(row[1]),
+  //       });
+  //     }
+
+  //     let columnSeries = {};
+  //     if (chartData) {
+  //       for (const row of rows) {
+  //         let n = getItemName(chartData, row[0]);
+  //         let xAxisNames = getItemName(chartData, row[1]);
+
+  //         if (!columnSeries[n]) {
+  //           columnSeries[n] = [];
+  //         }
+  //         columnSeries[n].push(Number(row[2]));
+  //         if (chartConfig.yAxis.categories.indexOf(xAxisNames) === -1) {
+  //           chartConfig.yAxis.categories.push(xAxisNames);
+  //         }
+  //       }
+
+  //       for (const key of Object.keys(columnSeries)) {
+  //         chartConfig.series.push({
+  //           data: columnSeries[key],
+  //           label: key,
+  //         });
+  //       }
+  //     }
+  //   }
+  //   return chartConfig;
+  // };
+
+  // const processChartData = (chartData) => {
+  //   console.log("deep chart data", chartData);
+
+  //   const chartConfig = {
+  //     series: [],
+  //     yAxis: {
+  //       categories: [],
+  //       crosshair: true,
+  //     },
+  //   };
+
+  //   if (!chartData || !Array.isArray(chartData.rows)) {
+  //     return chartConfig;
+  //   }
+
+  //   const rows = chartData.rows?.toSorted((a, b) => {
+  //     // Sort based on the second element if length > 1, otherwise the first
+  //     let avalue = Number(a.length > 1 ? a[1] : a[0]);
+  //     let bvalue = Number(b.length > 1 ? b[1] : b[0]);
+  //     return avalue - bvalue;
+  //   });
+
+  //   console.log("deep", rows);
+
+  //   let columnSeries = {};
+
+  //   // Check for new data format (rows with 4 elements)
+  //   const isTimelineData = rows[0]?.length === 4;
+
+  //   if (isTimelineData) {
+  //     // (4 elements: category, regionCode, time, value)
+  //     for (const row of rows) {
+  //       const [primaryCategory, subCategory, timePeriod, value] = row;
+
+  //       const primaryName = getItemName(chartData, primaryCategory);
+  //       const subCategoryName = getItemName(chartData, subCategory);
+
+  //       // Initialize series for the primary category if it doesn't exist
+  //       if (!columnSeries[primaryName]) {
+  //         columnSeries[primaryName] = {};
+  //       }
+
+  //       // Initialize data array for the subcategory (timeline series) if not exists
+  //       if (!columnSeries[primaryName][subCategoryName]) {
+  //         columnSeries[primaryName][subCategoryName] = [];
+  //       }
+
+  //       // Add value to the corresponding time period
+  //       columnSeries[primaryName][subCategoryName].push({
+  //         time: timePeriod,
+  //         value: Number(value),
+  //       });
+
+  //       // Add time period to yAxis categories if not present
+  //       if (chartConfig.yAxis.categories.indexOf(timePeriod) === -1) {
+  //         chartConfig.yAxis.categories.push(timePeriod);
+  //       }
+  //     }
+
+  //     // Sort yAxis categories (time periods) to ensure they are in chronological order
+  //     chartConfig.yAxis.categories.sort();
+
+  //     // Prepare final series data for the chartConfig
+  //     for (const primaryName in columnSeries) {
+  //       for (const subCategoryName in columnSeries[primaryName]) {
+  //         // Sort the data points by the time (to ensure chronological order)
+  //         const sortedDataPoints = columnSeries[primaryName][
+  //           subCategoryName
+  //         ].sort((a, b) => a.time - b.time);
+
+  //         const dataPoints = sortedDataPoints.map((dp) => dp.value);
+
+  //         chartConfig.series.push({
+  //           name: `${primaryName} (${subCategoryName})`,
+  //           data: dataPoints,
+  //         });
+  //       }
+  //     }
+  //   } else {
+  //     // Handle original data format (3 elements: category, subcategory, value)
+  //     for (const row of rows) {
+  //       let primaryName = getItemName(chartData, row[0]);
+  //       let subCategoryName = getItemName(chartData, row[1]);
+
+  //       if (!columnSeries[primaryName]) {
+  //         columnSeries[primaryName] = [];
+  //       }
+  //       columnSeries[primaryName].push(Number(row[2]));
+
+  //       if (chartConfig.yAxis.categories.indexOf(subCategoryName) === -1) {
+  //         chartConfig.yAxis.categories.push(subCategoryName);
+  //       }
+  //     }
+
+  //     for (const key in columnSeries) {
+  //       chartConfig.series.push({
+  //         name: key,
+  //         data: columnSeries[key],
+  //       });
+  //     }
+  //   }
+
+  //   return chartConfig;
+  // };
+
   const processChartData = (chartData) => {
+    console.log("deep chart data", chartData);
+
     const chartConfig = {
       series: [],
       yAxis: {
@@ -16,47 +178,102 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       },
     };
 
-    if (chartData) {
-      const rows = chartData.rows?.toSorted((a, b) => {
-        let avalue = Number(a.length > 1 ? a[1] : a[0]);
-        let bvalue = Number(b.length > 1 ? b[1] : b[0]);
-        return avalue - bvalue;
-      });
+    if (!chartData || !Array.isArray(chartData.rows)) {
+      return chartConfig;
+    }
 
-      if (!Array.isArray(rows)) {
-        return chartConfig;
-      }
+    const rows = chartData.rows?.toSorted((a, b) => {
+      // Sort based on the second element if length > 1, otherwise the first
+      let avalue = Number(a.length > 1 ? a[1] : a[0]);
+      let bvalue = Number(b.length > 1 ? b[1] : b[0]);
+      return avalue - bvalue;
+    });
 
+    console.log("deep", rows);
+
+    let columnSeries = {};
+    let allTimePeriods = new Set();
+
+    // Check for new data format (rows with 4 elements)
+    const isTimelineData = rows[0]?.length === 4;
+
+    if (isTimelineData) {
+      // Handle timeline data (4 elements: category, subcategory, time, value)
       for (const row of rows) {
-        chartConfig?.data?.push({
-          label: getItemName(chartData, row[0]),
-          value: Number(row[1]),
+        const [primaryCategory, subCategory, timePeriod, value] = row;
+
+        const primaryName = getItemName(chartData, primaryCategory);
+        const subCategoryName = getItemName(chartData, subCategory);
+
+        // Initialize series for the primary category if it doesn't exist
+        if (!columnSeries[primaryName]) {
+          columnSeries[primaryName] = {};
+        }
+
+        // Initialize data array for the subcategory (timeline series) if not exists
+        if (!columnSeries[primaryName][subCategoryName]) {
+          columnSeries[primaryName][subCategoryName] = [];
+        }
+
+        // Add time period to the global set of time periods
+        allTimePeriods.add(timePeriod);
+
+        // Add value to the corresponding time period
+        columnSeries[primaryName][subCategoryName].push({
+          time: timePeriod,
+          value: Number(value),
         });
       }
 
-      let columnSeries = {};
-      if (chartData) {
-        for (const row of rows) {
-          let n = getItemName(chartData, row[0]);
-          let xAxisNames = getItemName(chartData, row[1]);
+      // Convert Set to a sorted array of time periods and assign to yAxis categories
+      chartConfig.yAxis.categories = Array.from(allTimePeriods).sort();
 
-          if (!columnSeries[n]) {
-            columnSeries[n] = [];
-          }
-          columnSeries[n].push(Number(row[2]));
-          if (chartConfig.yAxis.categories.indexOf(xAxisNames) === -1) {
-            chartConfig.yAxis.categories.push(xAxisNames);
-          }
-        }
+      // Prepare final series data for the chartConfig
+      for (const primaryName in columnSeries) {
+        for (const subCategoryName in columnSeries[primaryName]) {
+          // Sort the data points by the time (to ensure chronological order)
+          const sortedDataPoints = columnSeries[primaryName][
+            subCategoryName
+          ].sort((a, b) => a.time - b.time);
 
-        for (const key of Object.keys(columnSeries)) {
+          // Create a full data array that includes 0 for missing time periods
+          const dataPoints = chartConfig.yAxis.categories.map((timePeriod) => {
+            const foundDataPoint = sortedDataPoints.find(
+              (dp) => dp.time === timePeriod
+            );
+            return foundDataPoint ? foundDataPoint.value : 0;
+          });
+
           chartConfig.series.push({
-            data: columnSeries[key],
-            label: key,
+            name: `${primaryName} (${subCategoryName})`,
+            data: dataPoints,
           });
         }
       }
+    } else {
+      // Handle original data format (3 elements: category, subcategory, value)
+      for (const row of rows) {
+        let primaryName = getItemName(chartData, row[0]);
+        let subCategoryName = getItemName(chartData, row[1]);
+
+        if (!columnSeries[primaryName]) {
+          columnSeries[primaryName] = [];
+        }
+        columnSeries[primaryName].push(Number(row[2]));
+
+        if (chartConfig.yAxis.categories.indexOf(subCategoryName) === -1) {
+          chartConfig.yAxis.categories.push(subCategoryName);
+        }
+      }
+
+      for (const key in columnSeries) {
+        chartConfig.series.push({
+          name: key,
+          data: columnSeries[key],
+        });
+      }
     }
+
     return chartConfig;
   };
 
@@ -116,8 +333,10 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     colorScale,
     opacity,
     layer,
-    thematicMapType
+    thematicMapType,
+    renderingStrategy
   ) => {
+    console.log("chartConfig", chartConfig);
     const mapData = chartConfig?.series;
     const regionList = chartConfig?.yAxis?.categories;
     const numColors = regionList?.length;
@@ -180,30 +399,12 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       opacity,
       layer,
       thematicMapType,
+      renderingStrategy,
     };
   };
 
   const layerOrder = ["orgUnit", "thematic", "facility"];
-  // const parsedMapViews = mapViews
-  //   .map((view) => {
-  //     const chartConfig = processChartData(chartDatas[view.id]);
 
-  //     if (view.layer === "thematic" && chartConfig.series.length === 0) {
-  //       return null;
-  //     }
-
-  //     return processMapLayer(
-  //       chartConfig,
-  //       view?.displayName,
-  //       shapes[view.id],
-  //       view?.colorScale ?? "#ffffd4,#fed98e,#fe9929,#d95f0e,#993404",
-  //       view?.opacity,
-  //       view.layer,
-  //       view?.thematicMapType
-  //     );
-  //   })
-  //   .filter(Boolean)
-  //   .sort((a, b) => layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer));
   const parsedMapViews = mapViews
     .map((view) => {
       const chartConfig = processChartData(chartDatas[view.id]);
@@ -219,7 +420,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view?.colorScale ?? "#ffffd4,#fed98e,#fe9929,#d95f0e,#993404",
         view?.opacity,
         view.layer,
-        view?.thematicMapType
+        view?.thematicMapType,
+        view?.renderingStrategy
       );
     })
     .filter(Boolean)
@@ -233,6 +435,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       }
       return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
     });
+
+  // console.log("parsedcomp", parsedMapViews)
 
   return {
     parsedMapViews,
