@@ -212,9 +212,6 @@ export default function Dashboard() {
                 selectedSavedChart={selectedSavedChart}
                 setSelectedSavedChart={setSelectedSavedChart}
               />
-              {/* ReactDOM.render(
-              <MapChart chartData={chartData} chartInfo={chartInfo} />,
-              document.getElementById('root') ); */}
             </Grid>
             <Copyright sx={{ pt: 4 }} />
           </Container>

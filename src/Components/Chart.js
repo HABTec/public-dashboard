@@ -115,7 +115,11 @@ export default function Chart({
   };
 
   const dashboardMenuList = () => {
-    return dashboards.map((dashboard) => (
+    const dashboardToRender = dashboards.filter(
+      (dashboard) => dashboard.name.slice(-1) === "."
+    );
+
+    return dashboardToRender.map((dashboard) => (
       <MenuItem key={dashboard.id} value={dashboard.id}>
         {dashboard.name}
       </MenuItem>
