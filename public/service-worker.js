@@ -1,4 +1,4 @@
-const CACHE_NAME = "public-dashboard-v1.0.0";
+const CACHE_NAME = "public-dashboard-v1.0.01";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -15,7 +15,14 @@ self.addEventListener("install", (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache);
+        /* return cache.addAll(urlsToCache); */
+        return Promise.all(
+          urlsToCache.map(async (url) => {
+            return cache.add(url).catch((error) => {
+              console.error(`Failed to cache ${url}:`, error);
+            });
+          })
+        );
       })
       .catch((error) => {
         console.error("Failed to cache during install:", error);
@@ -63,6 +70,13 @@ self.addEventListener("fetch", (event) => {
           const responseToCache = response.clone();
 
           caches.open(CACHE_NAME).then((cache) => {
+            let url = event.request.url;
+            if (
+              url.startsWith("chrome-extension") ||
+              url.includes("extension") ||
+              !(url.indexOf("http") === 0)
+            )
+              return;
             cache.put(event.request, responseToCache);
           });
 
