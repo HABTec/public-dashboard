@@ -70,6 +70,13 @@ self.addEventListener("fetch", (event) => {
           const responseToCache = response.clone();
 
           caches.open(CACHE_NAME).then((cache) => {
+            let url = event.request.url;
+            if (
+              url.startsWith("chrome-extension") ||
+              url.includes("extension") ||
+              !(url.indexOf("http") === 0)
+            )
+              return;
             cache.put(event.request, responseToCache);
           });
 
