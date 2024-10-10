@@ -145,6 +145,9 @@ function DashboardItem(props) {
         return response.json();
       })
       .then((data) => {
+        if (data.status && data.status == "ERROR") {
+          throw new Error(data.message);
+        }
         if (item.type == "MAP") {
           console.log("another Item", item);
           console.log("mapViews", data);
@@ -204,9 +207,14 @@ function DashboardItem(props) {
           });
       })
       .catch((data) => {
-        snackbar.showMessage("Failed to load data!", undefined, undefined, {
-          type: "error",
-        });
+        snackbar.showMessage(
+          "Failed to load data! " + data,
+          undefined,
+          undefined,
+          {
+            type: "error",
+          }
+        );
         setLoading(false);
       });
   }, [props.filters]);
