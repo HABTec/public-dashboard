@@ -44,6 +44,7 @@ import {
   MenuItem,
   ListItemText,
   Button,
+  Box,
 } from "@mui/material";
 import AreaChartComponent from "./AreaChartComponent";
 import Title from "./Title";
@@ -221,7 +222,7 @@ function DashboardItem(props) {
 
   const type = props?.item?.type.toLowerCase();
   const title = props?.item[type]?.displayName;
-  let chartType = chartInfo?.type.toLowerCase();
+  let chartType = chartInfo?.type?.toLowerCase();
   const [fullScreenItem, setFullScreenItem] = React.useState(null);
   const item = props?.item;
   const id = item[type]?.id;
@@ -1101,7 +1102,13 @@ function DashboardItem(props) {
 function DashboardItems(props) {
   console.log("first props", props);
   if (props?.items?.length == 0) {
-    return <div>Empty Dashboard</div>;
+    return (
+      <Grid item xs={12}>
+        <Box display={"flex"} justifyContent={"center"}>
+          Empty Dashboard
+        </Box>
+      </Grid>
+    );
   }
   return props?.items?.map((item, i) => {
     return (
