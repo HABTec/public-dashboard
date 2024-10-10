@@ -1,4 +1,4 @@
-const CACHE_NAME = "public-dashboard-v1.0.0";
+const CACHE_NAME = "public-dashboard-v1.0.01";
 const urlsToCache = [
   "/",
   "/index.html",
