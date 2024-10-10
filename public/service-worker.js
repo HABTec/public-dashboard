@@ -15,7 +15,14 @@ self.addEventListener("install", (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache);
+        /* return cache.addAll(urlsToCache); */
+        return Promise.all(
+          urlsToCache.map(async (url) => {
+            return cache.add(url).catch((error) => {
+              console.error(`Failed to cache ${url}:`, error);
+            });
+          })
+        );
       })
       .catch((error) => {
         console.error("Failed to cache during install:", error);
