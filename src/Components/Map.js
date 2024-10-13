@@ -578,6 +578,10 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
               const draw = orgDrawn;
               orgDrawn = true;
               return renderBubbleMap(viewData, draw);
+            } else {
+              // thematicMapType set the default render to CHOROPLETH
+              orgDrawn = true;
+              return renderThematicPolygons(viewData);
             }
             break;
 
