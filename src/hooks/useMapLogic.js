@@ -96,14 +96,37 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         const minValue = Math.min(
           ...timePeriodData[timePeriod].map((d) => d.value)
         );
-
+        console.log("maxValue", maxValue, "minValue", minValue, timePeriodData);
         timePeriodData[timePeriod].forEach((dataPoint) => {
-          // Handle case where maxValue == minValue to avoid division by zero
-          let normalizedValue =
-            maxValue === minValue
-              ? 0.5
-              : (dataPoint.value - minValue) / (maxValue - minValue);
-          let color = getColorForValue(normalizedValue); // Define a function for the color
+         
+          const colorRange = [
+            "#993404",
+            "#fed98e",
+            "#fe9929",
+            "#d95f0e",
+            "#ffffd4",
+          ];
+          const dataLength = timePeriodData[timePeriod].length;
+         
+          let color = getColorForValue(
+            dataPoint.value,
+            minValue,
+            maxValue,
+            colorRange,
+            dataLength
+          );
+          console.log(
+            "color",
+            color,
+            "dataPoint value",
+            dataPoint.value,
+            "time",
+            timePeriod,
+            "maxValue",
+            maxValue,
+            "minValue",
+            minValue
+          );
 
           // Store the color for this region and time period
           if (!regionColors[dataPoint.region]) {
@@ -113,13 +136,14 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         });
       });
 
-      // Prepare final series data for the chartConfig
+      // Inside your loop where you process each primaryName and subCategoryName
       for (const primaryName in columnSeries) {
         for (const subCategoryName in columnSeries[primaryName]) {
           const sortedDataPoints = columnSeries[primaryName][
             subCategoryName
           ].sort((a, b) => a.time - b.time);
 
+          // Get the data points for each time period
           const dataPoints = chartConfig.yAxis.categories.map((timePeriod) => {
             const foundDataPoint = sortedDataPoints.find(
               (dp) => dp.time === timePeriod
@@ -127,16 +151,37 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
             return foundDataPoint ? foundDataPoint.value : 0;
           });
 
-          // Create color mapping for each point
-          const colorPerPoint = chartConfig.yAxis.categories.map(
-            (timePeriod) => regionColors[primaryName]?.[timePeriod] || "#000000"
+          // Find the min and max values for this specific subcategory over all time periods
+          const maxValue = Math.max(...dataPoints);
+          const minValue = Math.min(...dataPoints);
+
+          // Map data points to corresponding colors for each time period
+          const colorPerPoint = dataPoints.map((value) => {
+            return getColorForValue(value, minValue, maxValue, [
+              "#993404",
+              "#fed98e",
+              "#fe9929",
+              "#d95f0e",
+              "#ffffd4",
+            ]);
+          });
+
+          console.log(
+            "colorPerPoint",
+            colorPerPoint,
+            "primaryName",
+            primaryName,
+            "maximum",
+            maxValue,
+            "minimum",
+            minValue
           );
 
           chartConfig.series.push({
             name: `${primaryName} (${subCategoryName})`,
             data: dataPoints,
             marker: {
-              fillColor: colorPerPoint, // Set the color for each data point
+              fillColor: colorPerPoint, // Assign the dynamically computed colors
             },
           });
         }
@@ -168,17 +213,58 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     return chartConfig;
   };
 
-  // Helper function to get a color based on normalized value
-  const getColorForValue = (value) => {
-    // Example: interpolate between blue (low) and red (high)
-    const lowColor = [0, 0, 255]; // Blue
-    const highColor = [255, 0, 0]; // Red
+  const getColorForValue = (value, mn, mx, colorScaleArray) => {
+    console.log(
+      "value",
+      value,
+      "mn",
+      mn,
+      "mx",
+      mx,
+      "colorScaleArray",
+      colorScaleArray
+    );
+    const intervalCount = colorScaleArray.length / 2;
 
-    const r = Math.round(lowColor[0] + value * (highColor[0] - lowColor[0]));
-    const g = Math.round(lowColor[1] + value * (highColor[1] - lowColor[1]));
-    const b = Math.round(lowColor[2] + value * (highColor[2] - lowColor[2]));
+    let intervals;
+    if (mn === mx) {
+      // Handle case where mn and mx are the same (special case)
+      intervals = [{ start: mn, end: mn + 1 }];
+    } else {
+      const intervalSize = (mx - mn) / intervalCount;
+      intervals = Array.from({ length: intervalCount }, (_, i) => {
+        const start = mn + i * intervalSize;
+        const end = mn + (i + 1) * intervalSize;
+        return { start, end };
+      });
+    }
 
-    return `rgb(${r},${g},${b})`;
+    // Calculate the midpoint color for each interval using chroma.js
+    const midpointColors = intervals.map(({ start, end }) => {
+      const midpoint = (start + end) / 2;
+      return chroma.scale(colorScaleArray).domain([mn, mx])(midpoint).hex();
+    });
+
+    // Find which interval the given value belongs to
+    const matchingIntervalIndex = intervals.findIndex(
+      ({ start, end }) => value >= start && value < end
+    );
+
+    console.log(
+      "matchingIntervalIndex",
+      matchingIntervalIndex,
+      "value",
+      value,
+      mx,
+      midpointColors,
+      colorScaleArray
+    );
+    // If the value is outside the defined range, return the extreme colors
+    if (value <= mn) return colorScaleArray[colorScaleArray.length - 1]; // Return the lowest color
+    if (value >= mx) return colorScaleArray[0]; // Return the highest color
+
+    // Return the corresponding midpoint color for the found interval
+    return midpointColors[matchingIntervalIndex];
   };
 
   const flattenCoordinates = (arr) => {
@@ -270,6 +356,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         color: colorScale && colorScaleArray[colorIndex],
       };
     });
+
+    console.log("regionColors", regionColors);
 
     const sortedShape = shape.slice().sort((a, b) => {
       const areaA = parseCoordinates(a.co).reduce(

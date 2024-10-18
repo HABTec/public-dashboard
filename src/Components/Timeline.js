@@ -4,15 +4,17 @@ import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 const Timeline = ({ timelineData, onTimeChange }) => {
+  console.log("timelineData__", timelineData);
   const [selectedPeriod, setSelectedPeriod] = useState(
-    timelineData[0]?.year + timelineData[0]?.month
+    timelineData[0]?.year + timelineData[0]?.month + timelineData[0]?.day
   );
   const [isPlaying, setIsPlaying] = useState(false);
 
   const isLastPeriod = () => {
     const lastPeriod =
       timelineData[timelineData.length - 1]?.year +
-      timelineData[timelineData.length - 1]?.month;
+      timelineData[timelineData.length - 1]?.month +
+      timelineData[timelineData.length - 1]?.day;
     return selectedPeriod === lastPeriod;
   };
 
@@ -23,16 +25,18 @@ const Timeline = ({ timelineData, onTimeChange }) => {
       if (isLastPeriod()) {
         const firstYear = timelineData[0]?.year;
         const firstMonth = timelineData[0]?.month;
-        handleYearChange(firstYear, firstMonth, 0);
+        const firstDay = timelineData[0]?.day;
+        handleYearChange(firstYear, firstMonth, firstDay, 0);
       }
 
       setIsPlaying(true);
     }
   };
 
-  const handleYearChange = (newYear, newMonth, index) => {
-    setSelectedPeriod(newYear + newMonth);
-    onTimeChange(newYear, newMonth, index);
+  const handleYearChange = (newYear, newMonth, newDay = "", index) => {
+    console.log("twisce selected", newYear, newMonth, newDay);
+    setSelectedPeriod(newYear + newMonth + newDay);
+    onTimeChange(newYear, newMonth, newDay, index);
   };
 
   useEffect(() => {
@@ -40,7 +44,7 @@ const Timeline = ({ timelineData, onTimeChange }) => {
       const interval = setInterval(() => {
         setSelectedPeriod((prevPeriod) => {
           const currentIndex = timelineData.findIndex(
-            (data) => data.year + data.month === prevPeriod
+            (data) => data.year + data.month + data.day === prevPeriod
           );
           const nextIndex = currentIndex + 1;
 
@@ -52,8 +56,9 @@ const Timeline = ({ timelineData, onTimeChange }) => {
 
           const nextYear = timelineData[nextIndex]?.year;
           const nextMonth = timelineData[nextIndex]?.month;
-          onTimeChange(nextYear, nextMonth, nextIndex);
-          return nextYear + nextMonth; // Move to next period
+          const nextDay = timelineData[nextIndex]?.day;
+          onTimeChange(nextYear, nextMonth, nextDay, nextIndex);
+          return nextYear + nextMonth + nextDay; // Move to next period
         });
       }, 1000); // Adjust speed as needed
 
@@ -76,12 +81,12 @@ const Timeline = ({ timelineData, onTimeChange }) => {
       >
         {timelineData.map((data, index) => (
           <Box
-            key={`${data.year} + ${data.month}`}
+            key={`${data.year} + ${data.month} + ${index}`}
             sx={{
               flexGrow: 1,
               height: "40px",
               backgroundColor:
-                selectedPeriod === data.year + data.month
+                selectedPeriod === data.year + data.month + data.day
                   ? "#4287f5"
                   : "#f5f5f5",
               display: "flex",
@@ -93,7 +98,9 @@ const Timeline = ({ timelineData, onTimeChange }) => {
               border: "1px solid #000",
               borderRight: "none",
             }}
-            onClick={() => handleYearChange(data.year, data.month, index)}
+            onClick={() =>
+              handleYearChange(data.year, data.month, data.day, index)
+            }
             title={data.label}
           />
         ))}

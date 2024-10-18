@@ -21,9 +21,10 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   const [timelineData, setTimelineData] = useState(null);
   const [timelineDataPeriod, setTimelineDataPeriod] = useState(null);
   const legendData = [];
+  console.log("mapViews__", mapViews, selectedTimeline);
 
-  const handleTimeChange = (year, month, index) => {
-    setSelectedYear(year + month);
+  const handleTimeChange = (year, month, day, index) => {
+    setSelectedYear(year + month + day);
 
     const newTimeline = timelineData[index];
     console.log("timelineData__ to be rendered", newTimeline, index);
@@ -83,6 +84,8 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     handleMouseLeave
   );
 
+  console.log("parsedMapViews__", parsedMapViews);
+
   // Set timeline data only once when mapViews change
   useEffect(() => {
     const timelineViewData = parsedMapViews?.find(
@@ -114,6 +117,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     >
       <div style={{ flexGrow: 1 }}>
         <MapContainer
+          key={selectedTimeline ? selectedTimeline + mapViews.id : mapViews.id}
           bounds={mapBounds.isValid() ? mapBounds : defaultBounds}
           style={{ height: "100%", width: "100%" }}
         >
@@ -138,11 +142,12 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                 case "facility":
                   return renderFacilityMarkers(viewData);
 
+              
                 case "orgUnit":
                   return renderOrgUnitPolygons(viewData);
 
                 case "thematic":
-                  if (viewData?.thematicMapType === "CHOROPLETH") {
+                  if (viewData?.thematicMapType === "CHOROPLETH" || selectedTimeline?.thematicMapType === undefined) {
                     orgDrawn = true;
                     return renderThematicPolygons(viewData);
                   } else if (viewData?.thematicMapType === "BUBBLE") {
@@ -168,6 +173,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                 case "thematic":
                   if (selectedTimeline?.thematicMapType === "CHOROPLETH") {
                     orgDrawn = true;
+                    console.log("rendering agai", selectedTimeline)
                     return renderThematicPolygons(selectedTimeline);
                   } else if (selectedTimeline?.thematicMapType === "BUBBLE") {
                     const draw = orgDrawn;

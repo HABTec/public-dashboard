@@ -1,5 +1,5 @@
 import { Marker, Polygon, Circle, Tooltip, Popup } from "react-leaflet";
-import React from "react";
+import React, { useState } from "react";
 import polylabel from "polylabel";
 import { SvgIcon } from "@mui/material";
 import {
@@ -40,6 +40,36 @@ export const useRenderMapLayers = (
     "Hamle",
     "Nehasse",
   ];
+
+  const shortMonthNameToIndex = {
+    Jan: 5,
+    Feb: 6,
+    Mar: 7,
+    Apr: 8,
+    May: 9,
+    Jun: 10,
+    Jul: 11,
+    Aug: 12,
+    Sep: 1,
+    Oct: 2,
+    Nov: 3,
+    Dec: 4,
+  };
+
+  const rgbToHex = (rgb) => {
+    // Extract the RGB values from the string
+    const rgbValues = rgb.match(/\d+/g);
+
+    // Convert each value to hex and pad with '0' if necessary
+    const hex = rgbValues
+      .map((value) => {
+        const hexValue = parseInt(value).toString(16);
+        return hexValue.length === 1 ? "0" + hexValue : hexValue;
+      })
+      .join(""); // Join the hex values into a single string
+
+    return `#${hex}`; // Return the hex color
+  };
 
   const renderFacilityMarkers = (viewData) => {
     legendData.push({
@@ -124,6 +154,7 @@ export const useRenderMapLayers = (
   };
 
   const renderThematicPolygons = (viewData) => {
+    console.log("thematic", viewData);
     const legendMn = Math.min(
       ...viewData.mapData.map((d) => Math.min(...d.data))
     );
@@ -143,48 +174,58 @@ export const useRenderMapLayers = (
       regionColors: legendRegionColors,
     });
 
+    console.log("legendData", legendData);
+
     return viewData.sortedShape.map((region, regionIndex) => {
       const coordinates = parseCoordinates(region.co);
       const regionColor = viewData.regionColors.find(
         (rc) => rc.region === region.na
       );
+
+      // console.log(viewData.regionColors, "Region colors", region.co)
+
       const color = regionColor ? regionColor.color : "";
       const opacity = color ? viewData.opacity : 0;
+      // console.log("thematic color", color, "opacity", opacity, ">>", regionColor, "<<");
 
       const dataIndex = viewData.regionList.findIndex(
         (name) => name === region.na
       );
-
-      return coordinates.map((polygon, polygonIndex) => (
-        <Polygon
-          key={`${region.id}-${polygonIndex}-${regionIndex}`}
-          positions={polygon}
-          fillColor={color}
-          color="#000"
-          fillOpacity={opacity}
-          weight={2}
-          eventHandlers={{
-            mouseover: (e) => handleMouseEnter(e, region),
-            mouseout: (e) => handleMouseLeave(e),
-          }}
-        >
-          <Tooltip>
-            <span>
-              {region.na}
-              {dataIndex !== -1 && (
-                <li key={`${dataIndex} - ${viewData.regionList[dataIndex]}`}>
-                  {viewData.mapData[0].name}:{" "}
-                  {viewData.mapData[0].data[dataIndex]}
-                </li>
-              )}
-            </span>
-          </Tooltip>
-        </Polygon>
-      ));
+      // console.log(coordinates, ">>>")
+      return coordinates.map((polygon, polygonIndex) => {
+        // console.log(">>>>>>>>>>>", polygon[0], polygonIndex, color)
+        return (
+          <Polygon
+            key={`${region.id}-${polygonIndex}-${regionIndex}-${color}`}
+            positions={polygon}
+            fillColor={color}
+            color={"#000"}
+            fillOpacity={opacity}
+            weight={2}
+            eventHandlers={{
+              mouseover: (e) => handleMouseEnter(e, region),
+              mouseout: (e) => handleMouseLeave(e),
+            }}
+          >
+            <Tooltip>
+              <span>
+                {region.na}
+                {dataIndex !== -1 && (
+                  <li key={`${dataIndex} - ${viewData.regionList[dataIndex]}`}>
+                    {viewData.mapData[0].name}:{" "}
+                    {viewData.mapData[0].data[dataIndex]}
+                  </li>
+                )}
+              </span>
+            </Tooltip>
+          </Polygon>
+        );
+      });
     });
   };
 
   const renderBubbleMap = (viewData, orgDrawn) => {
+    console.log("bubble map data", viewData);
     const legendMn = Math.min(
       ...viewData.mapData.map((d) => Math.min(...d.data))
     );
@@ -216,22 +257,34 @@ export const useRenderMapLayers = (
       );
 
       const coordinates = bestCenter;
+      console.log("center coord", coordinates);
       const regionListIndex = viewData.regionList.indexOf(region.na);
 
       const dataValue =
         regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
 
       const radius = (dataValue / (legendMx - legendMn)) * 90;
+      console.log(
+        "radius",
+        radius,
+        "dataValue",
+        dataValue,
+        "legendMx",
+        legendMx,
+        "legendMn",
+        legendMn
+      );
 
       const regionColor = viewData.regionColors.find(
         (rc) => rc.region === region.na
       );
       const color = regionColor ? regionColor.color : "#3388ff";
       const opacity = viewData.opacity;
+      // console.log("bubble color", color, "region", region.na);
 
       const polygons = fetchedCoordinates.map((polygon, polygonIndex) => (
         <Polygon
-          key={`${region.id}-${polygonIndex}-${regionIndex}`}
+          key={`${region.id}-${polygonIndex}-${regionIndex}-${color}`}
           positions={polygon}
           color="#000"
           fillOpacity={0}
@@ -255,7 +308,7 @@ export const useRenderMapLayers = (
         <>
           {orgDrawn ? "" : polygons}
           <Circle
-            key={`${region.id}-${regionIndex}`}
+            key={`${region.id}-${regionIndex}-${color}`}
             center={coordinates}
             radius={radius * 1000}
             fillColor={color}
@@ -287,34 +340,77 @@ export const useRenderMapLayers = (
   const renderTimelineDatas = (viewData) => {
     console.log("timeline data rendering", viewData);
     const periods = viewData.regionList;
+    let minValue = Infinity,
+      maxValue = -Infinity;
+
+    // Find the global min and max values across all periods
+    periods.forEach((period, periodIndex) => {
+      viewData.mapData.forEach((data) => {
+        const value = data.data[periodIndex];
+        if (value < minValue) minValue = value;
+        if (value > maxValue) maxValue = value;
+      });
+    });
+
+    const intervalCount = 5; // Define the number of intervals for color mapping
+    const intervalSize = (maxValue - minValue) / intervalCount;
+
+    // Create color intervals, similar to your legend logic
+    const intervals = Array.from({ length: intervalCount }, (_, i) => {
+      const start = minValue + i * intervalSize;
+      const end = minValue + (i + 1) * intervalSize;
+      return { start, end };
+    });
+
     return periods.map((period, periodIndex) => {
-      const regionColors = viewData.mapData.map((data, dataIndex) => {
+      // Assign colors to each region based on their data values for the current period
+      const regionColors = viewData.mapData.map((data) => {
+        const value = data.data[periodIndex];
+
+        // Normalize the value between minValue and maxValue
+        const normalizedValue = (value - minValue) / (maxValue - minValue);
+
+        // Use normalized value to find the corresponding color
+        const colorIndex = Math.floor(
+          normalizedValue * (viewData.colorScaleArray.length - 1)
+        );
+        const color = viewData.colorScaleArray[colorIndex];
+
         return {
-          region: data.name.match(/\(([^)]+)\)/)[1],
-          value: data.data[periodIndex],
-          color: data.marker.fillColor[periodIndex],
+          region: data.name.match(/\(([^)]+)\)/)[1], // Extract region name
+          value: value,
+          color: color,
         };
       });
 
-      const regionList = viewData.mapData.map((data, dataIndex) => {
+      const regionList = viewData.mapData.map((data) => {
         return data.name.match(/\(([^)]+)\)/)[1];
       });
-      var name;
-      const data = viewData.mapData.map((data, dataIndex) => {
+
+      let name;
+      const data = viewData.mapData.map((data) => {
         name = data.name.split(" (")[0];
         return data.data[periodIndex];
       });
 
-      // const mapData = viewData.mapData.map((data, dataIndex) => {
-      //   return { name: data.name.split(" (")[0], data: data.data[periodIndex] };
-      // });
-
       const timePeriods = viewData.regionList.map((period) => {
-        const year = period.substring(0, 4);
-        const month = period.substring(4, 6);
-        const label = `${ethiopianMonths[parseInt(month, 10) - 1]} ${year}`;
+        let year, month, day, label;
+        day = "";
+        if (period.length === 6) {
+          year = period.substring(0, 4);
+          month = period.substring(4, 6);
+          label = `${ethiopianMonths[parseInt(month, 10) - 1]} ${year}`;
+        } else if (period.length === 9) {
+          year = period.substring(0, 4);
+          const shortMonth = period.substring(4, 7);
+          day = period.substring(7);
+          const quarter = period.substring(7);
+          const monthIndex = shortMonthNameToIndex[shortMonth];
+          month = monthIndex;
+          label = `${ethiopianMonths[monthIndex - 1]} ${year} ${quarter}`;
+        }
 
-        return { year, month, label };
+        return { year, month, day, label };
       });
 
       return {
