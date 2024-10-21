@@ -660,7 +660,7 @@ function DashboardItem(props) {
                   },
                 ]}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
-                yAxis={[yAxisMaxMin]}
+                yAxis={[{ ...yAxisMaxMin }]}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
