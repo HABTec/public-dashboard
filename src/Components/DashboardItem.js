@@ -170,7 +170,6 @@ function DashboardItem(props) {
         let ou_dimension = getOuDimensions(data.rows, { type: "map" });
 
         let url = apiBase;
-        console.log("item here", item);
 
         if (
           item.type === "VISUALIZATION" ||
@@ -190,7 +189,6 @@ function DashboardItem(props) {
           } else {
             url += "api/analytics.json?";
           }
-          console.log("xxxxx", data, url);
         } else if (item.type === "EVENT_CHART") {
           id = item.eventChart.id;
           url +=
@@ -295,7 +293,6 @@ function DashboardItem(props) {
             return avalue - bvalue;
           })
         : chartData.rows;
-    console.log("second entrance", chartType);
 
     let xAxisConfig = chartInfo?.axes.find((axis) => axis.index == 0);
     let yAxisConfig = chartInfo?.axes.find((axis) => axis.index == 1);
@@ -371,7 +368,6 @@ function DashboardItem(props) {
 
       let columnSeries = {};
       let categories = [];
-      console.log("here chart Data", chartData, chartType);
       if (chartData) {
         for (const row of rows) {
           let n = getItemName(chartData, row[0]);
@@ -738,11 +734,6 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
       const percent = chartData.rows[0][1] / 100;
 
-      console.log(
-        chartInfo.targetLineValue,
-        "is target defined",
-        chartInfo.baseLineValue
-      );
       return (
         <>
           <GaugeChart
