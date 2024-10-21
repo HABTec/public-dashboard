@@ -106,7 +106,7 @@ function DashboardItem(props) {
       url +=
         "api/visualizations/" +
         id +
-        ".json?fields=id,displayName,aggregationType,dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+        ".json?fields=id,displayName,aggregationType,sortOrder,dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -178,7 +178,19 @@ function DashboardItem(props) {
           item.type === "REPORT_TABLE"
         ) {
           id = item.visualization.id;
-          url += "api/analytics.json?";
+
+          if (data?.sortOrder) {
+            if (data?.sortOrder < 0) {
+              url += "api/analytics.json?order=ASC&";
+            } else if (data?.sortOrder > 0) {
+              url += "api/analytics.json?order=DESC&";
+            } else {
+              url += "api/analytics.json?";
+            }
+          } else {
+            url += "api/analytics.json?";
+          }
+          console.log("xxxxx", data, url);
         } else if (item.type === "EVENT_CHART") {
           id = item.eventChart.id;
           url +=
@@ -274,12 +286,15 @@ function DashboardItem(props) {
       }
     }
 
-    // sort rows
-    const rows = chartData.rows?.toSorted((a, b) => {
-      let avalue = Number(a.length > 1 ? a[1] : a[0]);
-      let bvalue = Number(b.length > 1 ? b[1] : b[0]);
-      return avalue - bvalue;
-    });
+    // sort rows by period if order is not set
+    const rows =
+      chartInfo?.sortOrder == 0
+        ? chartData.rows?.toSorted((a, b) => {
+            let avalue = Number(a.length > 1 ? a[1] : a[0]);
+            let bvalue = Number(b.length > 1 ? b[1] : b[0]);
+            return avalue - bvalue;
+          })
+        : chartData.rows;
     console.log("second entrance", chartType);
 
     let xAxisConfig = chartInfo?.axes.find((axis) => axis.index == 0);
