@@ -282,6 +282,23 @@ function DashboardItem(props) {
     });
     console.log("second entrance", chartType);
 
+    let xAxisConfig = chartInfo?.axes.find((axis) => axis.index == 0);
+    let yAxisConfig = chartInfo?.axes.find((axis) => axis.index == 1);
+
+    let xAxisMaxMin = xAxisConfig
+      ? {
+          max: xAxisConfig.maxValue,
+          min: xAxisConfig.minValue,
+        }
+      : undefined;
+
+    let yAxisMaxMin = yAxisConfig
+      ? {
+          max: yAxisConfig.maxValue,
+          min: yAxisConfig.minValue,
+        }
+      : undefined;
+
     chartType = customeChartType ?? chartType;
     if (chartType === "pie") {
       chartConfig = {
@@ -416,11 +433,17 @@ function DashboardItem(props) {
               layout="vertical"
               sx={ChartStyle}
               series={chartConfig.series}
+              yAxis={[
+                {
+                  ...yAxisMaxMin,
+                },
+              ]}
               xAxis={[
                 {
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
+                  ...xAxisMaxMin,
                 },
               ]}
               margin={{ top: 40 + 30 * chartConfig.series.length }}
@@ -459,9 +482,19 @@ function DashboardItem(props) {
                 y: "line", // Or 'none'
               }}
               layout="horizontal"
+              slotProps={{
+                legend: {
+                  labelStyle: {
+                    fontSize: 14,
+                  },
+                },
+              }}
               series={chartConfig.series}
+              xAxis={[xAxisMaxMin ? { ...xAxisMaxMin } : null]}
+              margin={{ top: 40 + 30 * chartConfig.series.length }}
               yAxis={[
                 {
+                  ...yAxisMaxMin,
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
@@ -561,11 +594,13 @@ function DashboardItem(props) {
                     barGapRatio: 0.4,
                     scaleType: "band",
                     id: "x-axis-id",
+                    ...xAxisMaxMin,
                   },
                 ]}
                 series={chartConfig.series}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
                 sx={ChartStyle}
+                yAxis={[{ ...yAxisMaxMin }]}
               >
                 <BarPlot layout="horizontal" />
                 <LinePlot />
@@ -610,9 +645,11 @@ function DashboardItem(props) {
                     data: chartConfig.yAxis.categories,
                     barGapRatio: 0.4,
                     scaleType: "band",
+                    ...xAxisMaxMin,
                   },
                 ]}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
+                yAxis={[yAxisMaxMin]}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
@@ -716,6 +753,8 @@ function DashboardItem(props) {
             chartData={chartData}
             chartInfo={chartInfo}
             item={item}
+            xAxisMaxMin={xAxisMaxMin}
+            yAxisMaxMin={yAxisMaxMin}
           />
         </>
       );
