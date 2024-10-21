@@ -181,21 +181,20 @@ export default function Chart({
           <OrgUnitFilterModal onConfirmed={handelFilterSelect} />
         </Paper>
       </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column", 
-          justifyContent: "space-between",
-          ml: "2rem",
-          fontWeight: "bold",
-          width: "100%",
-        }}
-      >
-        {dashboard && dashboard.displayDescription && (
-          <p>{dashboard.displayDescription}</p>
-        )}
-      </Box>
+      <Grid item xs={12} md={12} lg={12}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          {dashboard && dashboard.displayDescription && (
+            <p>{dashboard.displayDescription}</p>
+          )}
+        </Box>
+      </Grid>
 
       <DashboardItems
         savedReports={savedReports}
