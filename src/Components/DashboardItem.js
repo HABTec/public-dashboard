@@ -1,6 +1,8 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
+
+import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import {
   PieChart,
   BarChart,
@@ -487,6 +489,12 @@ function DashboardItem(props) {
         }
         if (chartType === "text") return <TextChart item={item} />;
         if (chartType === "bar") {
+          //find the longest text in the series
+          let longestText = 0;
+          chartConfig.yAxis.categories.forEach((text) => {
+            if (text.length > longestText) longestText = text.length;
+          });
+
           return (
             <BarChart
               axisHighlight={{
@@ -501,22 +509,23 @@ function DashboardItem(props) {
                 },
               }}
               series={chartConfig.series}
-              xAxis={[xAxisMaxMin ? { ...xAxisMaxMin } : null]}
-              margin={{ top: 40 + 30 * chartConfig.series.length }}
+              xAxis={[
+                {
+                  ...xAxisMaxMin,
+                },
+              ]}
+              margin={{
+                top: 40 + 30 * chartConfig.series.length,
+                left: longestText * 6,
+              }}
               yAxis={[
                 {
                   ...yAxisMaxMin,
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
-                  labelStyle: {
-                    transform: `translateY(${
-                      // Hack that should be added in the lib latter.
-                      5 * Math.abs(Math.sin((Math.PI * props.angle) / 180))
-                    }px)`,
-                  },
                   tickLabelStyle: {
-                    angle: 70,
+                    angle: 0,
                     textAnchor: "end",
                   },
                 },
