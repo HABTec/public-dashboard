@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Icon } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 const Timeline = ({ timelineData, onTimeChange }) => {
-  console.log("timelineData__", timelineData);
   const [selectedPeriod, setSelectedPeriod] = useState(
     timelineData[0]?.year + timelineData[0]?.month + timelineData[0]?.day
   );
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Check if the current period is the last period in the timelineData array
   const isLastPeriod = () => {
     const lastPeriod =
       timelineData[timelineData.length - 1]?.year +
@@ -18,6 +33,7 @@ const Timeline = ({ timelineData, onTimeChange }) => {
     return selectedPeriod === lastPeriod;
   };
 
+  // Handle play/pause button toggle
   const handlePlay = () => {
     if (isPlaying) {
       setIsPlaying(false);
@@ -28,17 +44,17 @@ const Timeline = ({ timelineData, onTimeChange }) => {
         const firstDay = timelineData[0]?.day;
         handleYearChange(firstYear, firstMonth, firstDay, 0);
       }
-
       setIsPlaying(true);
     }
   };
 
+  // Handle changing the selected period and trigger onTimeChange callback
   const handleYearChange = (newYear, newMonth, newDay = "", index) => {
-    console.log("twisce selected", newYear, newMonth, newDay);
     setSelectedPeriod(newYear + newMonth + newDay);
     onTimeChange(newYear, newMonth, newDay, index);
   };
 
+  // Automatically play the timeline in intervals
   useEffect(() => {
     if (isPlaying) {
       const interval = setInterval(() => {
@@ -58,14 +74,15 @@ const Timeline = ({ timelineData, onTimeChange }) => {
           const nextMonth = timelineData[nextIndex]?.month;
           const nextDay = timelineData[nextIndex]?.day;
           onTimeChange(nextYear, nextMonth, nextDay, nextIndex);
-          return nextYear + nextMonth + nextDay; // Move to next period
+          return nextYear + nextMonth + nextDay; 
         });
-      }, 1000); // Adjust speed as needed
+      }, 1000);
 
-      return () => clearInterval(interval); // Cleanup interval
+      return () => clearInterval(interval); 
     }
   }, [isPlaying, timelineData, onTimeChange]);
 
+  
   return (
     <Box
       sx={{
@@ -77,42 +94,85 @@ const Timeline = ({ timelineData, onTimeChange }) => {
       }}
     >
       <Box
-        sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+          margin: 0,
+          padding: 0,
+        }}
       >
-        {timelineData.map((data, index) => (
-          <Box
-            key={`${data.year} + ${data.month} + ${index}`}
-            sx={{
-              flexGrow: 1,
-              height: "40px",
-              backgroundColor:
-                selectedPeriod === data.year + data.month + data.day
-                  ? "#4287f5"
-                  : "#f5f5f5",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "background-color 0.3s",
-              padding: "8px",
-              border: "1px solid #000",
-              borderRight: "none",
-            }}
-            onClick={() =>
-              handleYearChange(data.year, data.month, data.day, index)
-            }
-            title={data.label}
-          />
-        ))}
+        {timelineData.map((data, index) => {
+          const displayYear =
+            index === 0 || timelineData[index - 1].year !== data.year; 
+
+          return (
+            <Box
+              key={`${data.year}-${data.month}-${index}`}
+              display={"flex"}
+              flexDirection={"column"}
+              width={"100%"}
+            >
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  height: "2rem",
+                  backgroundColor:
+                    selectedPeriod === data.year + data.month + data.day
+                      ? "#4287f5"
+                      : "#f5f5f5",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                  padding: "8px",
+                  border: "1px solid #000",
+                  borderRight: "none",
+                }}
+                onClick={() =>
+                  handleYearChange(data.year, data.month, data.day, index)
+                }
+                title={data.label}
+              />
+
+              <Box
+                sx={{
+                  height: "0.5rem",
+                  width: "0px",
+                  borderRight: "1px solid #000",
+                }}
+              />
+              {displayYear ? (
+                <Typography
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "10px",
+                    marginBottom: "2px",
+                  }}
+                >
+                  {data.year}
+                </Typography>
+              ) : (
+                <Typography sx={{ fontSize: "10px", marginBottom: "2px" }}>
+                  {months[data.month - 1]}
+                </Typography>
+              )}
+            </Box>
+          );
+        })}
+
+        
         <Box
           sx={{
-            height: "40px",
+            height: "2.5rem",
             width: "0px",
             borderRight: "1px solid #000",
           }}
         />
       </Box>
 
+      {/* Play/Pause Button */}
       <Button variant="outline" onClick={handlePlay}>
         {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
       </Button>
