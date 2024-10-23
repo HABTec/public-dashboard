@@ -93,6 +93,7 @@ function DashboardItem(props) {
 
   const [shape, setShape] = React.useState(null);
   const [customeChartType, setCustomChartType] = React.useState(undefined);
+  const [legend, setLegend] = React.useState(null);
 
   React.useEffect(() => {
     let item = props?.item;
@@ -108,7 +109,7 @@ function DashboardItem(props) {
       url +=
         "api/visualizations/" +
         id +
-        ".json?fields=id,displayName,aggregationType,sortOrder,dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+        ".json?fields=id,displayName,aggregationType,sortOrder,legend[style,strategy,showKey,set[legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -794,7 +795,13 @@ function DashboardItem(props) {
         />
       );
     } else if (chartInfo.type == "SINGLE_VALUE") {
-      return <SingleValueChart chartData={chartData} />;
+      return (
+        <SingleValueChart
+          componentRef={componentRef}
+          chartInfo={chartInfo}
+          chartData={chartData}
+        />
+      );
     } else {
       console.log("Unsupported chart type: " + chartType);
       return (
