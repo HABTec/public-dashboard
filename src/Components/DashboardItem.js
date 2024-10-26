@@ -1173,21 +1173,29 @@ function DashboardItem(props) {
           }}
           onClick={toggleLegendKeyDisplay}
         >
-          <IconButton>
-            <FormatListBulletedOutlinedIcon />
-            {openLegendKey ? (
-              <Typography variant="body2">Legend</Typography>
-            ) : (
-              ""
-            )}
-          </IconButton>
+          <Grid container>
+            <Grid item xs={1}>
+              <IconButton>
+                <FormatListBulletedOutlinedIcon />
+              </IconButton>
+            </Grid>
+            <Grid item xs={11}>
+              {openLegendKey ? (
+                <IconButton variant="body2">
+                  <Typography>Legend</Typography>
+                </IconButton>
+              ) : (
+                ""
+              )}
+            </Grid>
+          </Grid>
           <TableContainer
             sx={{ display: openLegendKey ? "block" : "none" }}
-            maxWidth="50%"
+            mx="2"
           >
             <Table aria-label="legend table">
               <TableRow>
-                <TableCell color="gray" colSpan={2} align="center">
+                <TableCell colSpan={3} align="center">
                   {chartInfo?.legend?.set?.name}
                 </TableCell>
               </TableRow>
@@ -1198,12 +1206,15 @@ function DashboardItem(props) {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell
-                      sx={{ backgroundColor: row.color, width: "5px" }}
+                      sx={{ backgroundColor: row.color, width: "2px" }}
                     ></TableCell>
                     <TableCell>
-                      {row.startValue}
-                      {"-<"}
-                      {row.endValue}
+                      {row.name} <br />
+                      <Typography variant="caption">
+                        {row.startValue}
+                        {"-<"}
+                        {row.endValue}
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 ))}
