@@ -22,6 +22,7 @@ import {
   markElementClasses,
 } from "@mui/x-charts/LineChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import SplitscreenIcon from "@mui/icons-material/Splitscreen";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
@@ -93,7 +94,11 @@ function DashboardItem(props) {
 
   const [shape, setShape] = React.useState(null);
   const [customeChartType, setCustomChartType] = React.useState(undefined);
-  const [legend, setLegend] = React.useState(null);
+  const [openLegendKey, setOpenLegendKey] = React.useState(false);
+
+  const toggleLegendKeyDisplay = () => {
+    setOpenLegendKey(!openLegendKey);
+  };
 
   React.useEffect(() => {
     let item = props?.item;
@@ -109,7 +114,7 @@ function DashboardItem(props) {
       url +=
         "api/visualizations/" +
         id +
-        ".json?fields=id,displayName,aggregationType,sortOrder,legend[style,strategy,showKey,set[legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+        ".json?fields=id,displayName,aggregationType,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -944,7 +949,6 @@ function DashboardItem(props) {
     setShareURL(shareURL);
     // return <ShareModal />;
   };
-
   return (
     <Grid item xs={12} md={6} lg={6}>
       <Paper
@@ -972,6 +976,7 @@ function DashboardItem(props) {
                 flexDirection: "column",
                 height: "13cm",
                 width: "100%",
+                position: "relative",
               }
         }
       >
@@ -1155,6 +1160,57 @@ function DashboardItem(props) {
             url={shareURL}
           />
         )}
+        <Paper
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "fit-content",
+            maxHeight: "fit-content",
+            zIndex: 200,
+            margin: "2%",
+            display: chartInfo?.legend?.showKey ? "block" : "none",
+          }}
+          onClick={toggleLegendKeyDisplay}
+        >
+          <IconButton>
+            <FormatListBulletedOutlinedIcon />
+            {openLegendKey ? (
+              <Typography variant="body2">Legend</Typography>
+            ) : (
+              ""
+            )}
+          </IconButton>
+          <TableContainer
+            sx={{ display: openLegendKey ? "block" : "none" }}
+            maxWidth="50%"
+          >
+            <Table aria-label="legend table">
+              <TableRow>
+                <TableCell color="gray" colSpan={2} align="center">
+                  {chartInfo?.legend?.set?.name}
+                </TableCell>
+              </TableRow>
+              <TableBody>
+                {chartInfo?.legend?.set?.legends?.map((row) => (
+                  <TableRow
+                    key={row.name}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell
+                      sx={{ backgroundColor: row.color, width: "5px" }}
+                    ></TableCell>
+                    <TableCell>
+                      {row.startValue}
+                      {"-<"}
+                      {row.endValue}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       </Paper>
     </Grid>
   );

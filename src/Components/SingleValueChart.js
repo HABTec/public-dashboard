@@ -1,5 +1,7 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
+import Legend from "./Legend";
+import { MapContainer } from "react-leaflet";
 
 const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
@@ -7,7 +9,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
     let dataElement = chartData?.rows[0][0];
 
     let color = chartInfo?.legend?.set?.legends.find(
-      (leg) => value >= leg.startValue && value <= leg.endValue
+      (leg) => value >= leg.startValue && value < leg.endValue
     )?.color;
 
     let textColor =
@@ -84,7 +86,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
     return (
       <div
         style={{
-          minHeight: "100%",
+          minHeight: "85%",
           alignItems: "center",
           display: "flex",
           justifyContent: "center",
