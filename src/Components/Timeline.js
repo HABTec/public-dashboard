@@ -115,7 +115,7 @@ const Timeline = ({ timelineData, onTimeChange }) => {
               <Box
                 sx={{
                   flexGrow: 1,
-                  height: "2rem",
+                  height: "1rem",
                   backgroundColor:
                     selectedPeriod === data.year + data.month + data.day
                       ? "#4287f5"
@@ -163,7 +163,7 @@ const Timeline = ({ timelineData, onTimeChange }) => {
 
         <Box
           sx={{
-            height: "2.5rem",
+            height: "1rem",
             width: "0px",
             borderRight: "1px solid #000",
           }}
