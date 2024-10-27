@@ -1,6 +1,8 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
+
+import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import {
   PieChart,
   BarChart,
@@ -20,6 +22,7 @@ import {
   markElementClasses,
 } from "@mui/x-charts/LineChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import SplitscreenIcon from "@mui/icons-material/Splitscreen";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
@@ -44,6 +47,7 @@ import {
   MenuItem,
   ListItemText,
   Button,
+  Box,
 } from "@mui/material";
 import AreaChartComponent from "./AreaChartComponent";
 import Title from "./Title";
@@ -90,6 +94,11 @@ function DashboardItem(props) {
 
   const [shape, setShape] = React.useState(null);
   const [customeChartType, setCustomChartType] = React.useState(undefined);
+  const [openLegendKey, setOpenLegendKey] = React.useState(false);
+
+  const toggleLegendKeyDisplay = () => {
+    setOpenLegendKey(!openLegendKey);
+  };
 
   React.useEffect(() => {
     let item = props?.item;
@@ -105,7 +114,7 @@ function DashboardItem(props) {
       url +=
         "api/visualizations/" +
         id +
-        ".json?fields=id,displayName,aggregationType,dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+        ".json?fields=id,displayName,aggregationType,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -145,6 +154,9 @@ function DashboardItem(props) {
         return response.json();
       })
       .then((data) => {
+        if (data.status && data.status == "ERROR") {
+          throw new Error(data.message);
+        }
         if (item.type == "MAP") {
           console.log("another Item", item);
           console.log("mapViews", data);
@@ -166,7 +178,6 @@ function DashboardItem(props) {
         let ou_dimension = getOuDimensions(data.rows, { type: "map" });
 
         let url = apiBase;
-        console.log("item here", item);
 
         if (
           item.type === "VISUALIZATION" ||
@@ -174,7 +185,18 @@ function DashboardItem(props) {
           item.type === "REPORT_TABLE"
         ) {
           id = item.visualization.id;
-          url += "api/analytics.json?";
+
+          if (data?.sortOrder) {
+            if (data?.sortOrder < 0) {
+              url += "api/analytics.json?order=ASC&";
+            } else if (data?.sortOrder > 0) {
+              url += "api/analytics.json?order=DESC&";
+            } else {
+              url += "api/analytics.json?";
+            }
+          } else {
+            url += "api/analytics.json?";
+          }
         } else if (item.type === "EVENT_CHART") {
           id = item.eventChart.id;
           url +=
@@ -204,16 +226,21 @@ function DashboardItem(props) {
           });
       })
       .catch((data) => {
-        snackbar.showMessage("Failed to load data!", undefined, undefined, {
-          type: "error",
-        });
+        snackbar.showMessage(
+          "Failed to load data! " + data,
+          undefined,
+          undefined,
+          {
+            type: "error",
+          }
+        );
         setLoading(false);
       });
   }, [props.filters]);
 
   const type = props?.item?.type.toLowerCase();
   const title = props?.item[type]?.displayName;
-  let chartType = chartInfo?.type.toLowerCase();
+  let chartType = chartInfo?.type?.toLowerCase();
   const [fullScreenItem, setFullScreenItem] = React.useState(null);
   const item = props?.item;
   const id = item[type]?.id;
@@ -265,13 +292,32 @@ function DashboardItem(props) {
       }
     }
 
-    // sort rows
-    const rows = chartData.rows?.toSorted((a, b) => {
-      let avalue = Number(a.length > 1 ? a[1] : a[0]);
-      let bvalue = Number(b.length > 1 ? b[1] : b[0]);
-      return avalue - bvalue;
-    });
-    console.log("second entrance", chartType);
+    // sort rows by period if order is not set
+    const rows =
+      chartInfo?.sortOrder == 0
+        ? chartData.rows?.toSorted((a, b) => {
+            let avalue = Number(a.length > 1 ? a[1] : a[0]);
+            let bvalue = Number(b.length > 1 ? b[1] : b[0]);
+            return avalue - bvalue;
+          })
+        : chartData.rows;
+
+    let xAxisConfig = chartInfo?.axes.find((axis) => axis.index == 0);
+    let yAxisConfig = chartInfo?.axes.find((axis) => axis.index == 1);
+
+    let xAxisMaxMin = xAxisConfig
+      ? {
+          max: xAxisConfig.maxValue,
+          min: xAxisConfig.minValue,
+        }
+      : undefined;
+
+    let yAxisMaxMin = yAxisConfig
+      ? {
+          max: yAxisConfig.maxValue,
+          min: yAxisConfig.minValue,
+        }
+      : undefined;
 
     chartType = customeChartType ?? chartType;
     if (chartType === "pie") {
@@ -330,7 +376,6 @@ function DashboardItem(props) {
 
       let columnSeries = {};
       let categories = [];
-      console.log("here chart Data", chartData, chartType);
       if (chartData) {
         for (const row of rows) {
           let n = getItemName(chartData, row[0]);
@@ -407,11 +452,17 @@ function DashboardItem(props) {
               layout="vertical"
               sx={ChartStyle}
               series={chartConfig.series}
+              yAxis={[
+                {
+                  ...yAxisMaxMin,
+                },
+              ]}
               xAxis={[
                 {
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
+                  ...xAxisMaxMin,
                 },
               ]}
               margin={{ top: 40 + 30 * chartConfig.series.length }}
@@ -444,26 +495,43 @@ function DashboardItem(props) {
         }
         if (chartType === "text") return <TextChart item={item} />;
         if (chartType === "bar") {
+          //find the longest text in the series
+          let longestText = 0;
+          chartConfig.yAxis.categories.forEach((text) => {
+            if (text.length > longestText) longestText = text.length;
+          });
+
           return (
             <BarChart
               axisHighlight={{
                 y: "line", // Or 'none'
               }}
               layout="horizontal"
+              slotProps={{
+                legend: {
+                  labelStyle: {
+                    fontSize: 14,
+                  },
+                },
+              }}
               series={chartConfig.series}
+              xAxis={[
+                {
+                  ...xAxisMaxMin,
+                },
+              ]}
+              margin={{
+                top: 40 + 30 * chartConfig.series.length,
+                left: longestText * 6,
+              }}
               yAxis={[
                 {
+                  ...yAxisMaxMin,
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
-                  labelStyle: {
-                    transform: `translateY(${
-                      // Hack that should be added in the lib latter.
-                      5 * Math.abs(Math.sin((Math.PI * props.angle) / 180))
-                    }px)`,
-                  },
                   tickLabelStyle: {
-                    angle: 70,
+                    angle: 0,
                     textAnchor: "end",
                   },
                 },
@@ -552,11 +620,13 @@ function DashboardItem(props) {
                     barGapRatio: 0.4,
                     scaleType: "band",
                     id: "x-axis-id",
+                    ...xAxisMaxMin,
                   },
                 ]}
                 series={chartConfig.series}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
                 sx={ChartStyle}
+                yAxis={[{ ...yAxisMaxMin }]}
               >
                 <BarPlot layout="horizontal" />
                 <LinePlot />
@@ -601,9 +671,11 @@ function DashboardItem(props) {
                     data: chartConfig.yAxis.categories,
                     barGapRatio: 0.4,
                     scaleType: "band",
+                    ...xAxisMaxMin,
                   },
                 ]}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
+                yAxis={[{ ...yAxisMaxMin }]}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
@@ -677,11 +749,6 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
       const percent = chartData.rows[0][1] / 100;
 
-      console.log(
-        chartInfo.targetLineValue,
-        "is target defined",
-        chartInfo.baseLineValue
-      );
       return (
         <>
           <GaugeChart
@@ -707,6 +774,8 @@ function DashboardItem(props) {
             chartData={chartData}
             chartInfo={chartInfo}
             item={item}
+            xAxisMaxMin={xAxisMaxMin}
+            yAxisMaxMin={yAxisMaxMin}
           />
         </>
       );
@@ -731,7 +800,13 @@ function DashboardItem(props) {
         />
       );
     } else if (chartInfo.type == "SINGLE_VALUE") {
-      return <SingleValueChart chartData={chartData} />;
+      return (
+        <SingleValueChart
+          componentRef={componentRef}
+          chartInfo={chartInfo}
+          chartData={chartData}
+        />
+      );
     } else {
       console.log("Unsupported chart type: " + chartType);
       return (
@@ -874,7 +949,6 @@ function DashboardItem(props) {
     setShareURL(shareURL);
     // return <ShareModal />;
   };
-
   return (
     <Grid item xs={12} md={6} lg={6}>
       <Paper
@@ -902,6 +976,7 @@ function DashboardItem(props) {
                 flexDirection: "column",
                 height: "13cm",
                 width: "100%",
+                position: "relative",
               }
         }
       >
@@ -1085,6 +1160,68 @@ function DashboardItem(props) {
             url={shareURL}
           />
         )}
+        <Paper
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "fit-content",
+            maxHeight: "fit-content",
+            zIndex: 200,
+            margin: "2%",
+            display: chartInfo?.legend?.showKey ? "block" : "none",
+          }}
+          onClick={toggleLegendKeyDisplay}
+        >
+          <Grid container>
+            <Grid item xs={1}>
+              <IconButton>
+                <FormatListBulletedOutlinedIcon />
+              </IconButton>
+            </Grid>
+            <Grid item xs={11}>
+              {openLegendKey ? (
+                <IconButton variant="body2">
+                  <Typography>Legend</Typography>
+                </IconButton>
+              ) : (
+                ""
+              )}
+            </Grid>
+          </Grid>
+          <TableContainer
+            sx={{ display: openLegendKey ? "block" : "none" }}
+            mx="2"
+          >
+            <Table aria-label="legend table">
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  {chartInfo?.legend?.set?.name}
+                </TableCell>
+              </TableRow>
+              <TableBody>
+                {chartInfo?.legend?.set?.legends?.map((row) => (
+                  <TableRow
+                    key={row.name}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell
+                      sx={{ backgroundColor: row.color, width: "2px" }}
+                    ></TableCell>
+                    <TableCell>
+                      {row.name} <br />
+                      <Typography variant="caption">
+                        {row.startValue}
+                        {"-<"}
+                        {row.endValue}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       </Paper>
     </Grid>
   );
@@ -1093,7 +1230,13 @@ function DashboardItem(props) {
 function DashboardItems(props) {
   console.log("first props", props);
   if (props?.items?.length == 0) {
-    return <div>Empty Dashboard</div>;
+    return (
+      <Grid item xs={12}>
+        <Box display={"flex"} justifyContent={"center"}>
+          Empty Dashboard
+        </Box>
+      </Grid>
+    );
   }
   return props?.items?.map((item, i) => {
     return (

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTheme } from "@mui/material/styles";
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import {
   FormControl,
@@ -19,7 +19,7 @@ const apiBase = process.env.REACT_APP_BASE_URI;
 
 const url =
   apiBase +
-  "api/dashboards.json?paging=false&fields=id,name,favorite,dashboardItems[id,resources[id, name],type,shape,x,y,width,height,text,visualization[id,displayName],map[id,displayName],eventReport[id,displayName],eventChart[id,displayName]]";
+  "api/dashboards.json?paging=false&fields=id,name,favorite,displayDescription,dashboardItems[id,resources[id, name],type,shape,x,y,width,height,text,visualization[id,displayName],map[id,displayName],eventReport[id,displayName],eventChart[id,displayName]]";
 
 export default function Chart({
   savedReports,
@@ -98,6 +98,7 @@ export default function Chart({
       (dashboard) => dashboard.id === data.target.value
     );
     setDashbaord(dashboard);
+    console.log("look setted", dashboard);
     setSelectedSavedChart(null);
 
     // Send a custom event
@@ -114,8 +115,13 @@ export default function Chart({
     window.history.pushState({ path: newUrl }, "", newUrl);
   };
 
+  console.log("dashboards", dashboards);
   const dashboardMenuList = () => {
-    return dashboards.map((dashboard) => (
+    const dashboardToRender = dashboards.filter(
+      (dashboard) => dashboard.name.slice(-1) === "."
+    );
+
+    return dashboardToRender.map((dashboard) => (
       <MenuItem key={dashboard.id} value={dashboard.id}>
         {dashboard.name}
       </MenuItem>
@@ -174,6 +180,20 @@ export default function Chart({
 
           <OrgUnitFilterModal onConfirmed={handelFilterSelect} />
         </Paper>
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          {dashboard && dashboard.displayDescription && (
+            <p>{dashboard.displayDescription}</p>
+          )}
+        </Box>
       </Grid>
 
       <DashboardItems

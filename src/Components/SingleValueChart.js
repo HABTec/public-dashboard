@@ -1,10 +1,24 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
+import Legend from "./Legend";
+import { MapContainer } from "react-leaflet";
 
-const SingleValueChart = ({ chartData }) => {
+const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
     let value = chartData?.rows[0][1];
     let dataElement = chartData?.rows[0][0];
+
+    let color = chartInfo?.legend?.set?.legends.find(
+      (leg) => value >= leg.startValue && value < leg.endValue
+    )?.color;
+
+    let textColor =
+      chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
+    if (chartInfo?.legend?.style == "FILL") {
+      componentRef.current.style.backgroundColor = color;
+      componentRef.current.firstChild.firstChild.firstChild.style.color =
+        "black";
+    }
 
     let title =
       chartData &&
@@ -32,7 +46,7 @@ const SingleValueChart = ({ chartData }) => {
             alignItems="center"
             component="div"
             variant="h1"
-            color="primary"
+            color={textColor}
           >
             {value + "%"}
           </Typography>
@@ -45,7 +59,7 @@ const SingleValueChart = ({ chartData }) => {
               alignItems="center"
               component="div"
               variant="h1"
-              color="primary"
+              color={textColor}
             >
               {value}
             </Typography>
@@ -72,7 +86,7 @@ const SingleValueChart = ({ chartData }) => {
     return (
       <div
         style={{
-          minHeight: "100%",
+          minHeight: "85%",
           alignItems: "center",
           display: "flex",
           justifyContent: "center",

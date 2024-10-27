@@ -10,7 +10,12 @@ import { ChartsReferenceLine } from "@mui/x-charts";
 import regression from "regression";
 import * as science from "science";
 
-const AreaChartComponent = ({ chartData, chartInfo }) => {
+const AreaChartComponent = ({
+  chartData,
+  chartInfo,
+  xAxisMinMax,
+  yAxisMinMax,
+}) => {
   const loess = (xval, yval, bandwidth) => {
     return science.stats.loess().bandwidth(bandwidth)(xval, yval);
   };
@@ -102,7 +107,8 @@ const AreaChartComponent = ({ chartData, chartInfo }) => {
       {xData.length > 0 && seriesData.length > 0 ? (
         <LineChart
           margin={{ top: 150 }}
-          xAxis={[{ scaleType: "band", data: xData }]}
+          xAxis={[{ scaleType: "band", data: xData, ...xAxisMinMax }]}
+          yAxis={[{ ...yAxisMinMax }]}
           series={[...formattedSeries, ...formattedTrendSeries]}
           sx={{
             [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
