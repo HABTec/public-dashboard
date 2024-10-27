@@ -137,6 +137,10 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
 
           {parsedMapViews?.map((viewData) => {
             console.log("viewData__", viewData);
+            if(viewData?.renderingStrategy === "SPLIT_BY_PERIOD") {
+              const splitPeriodData = renderTimelineDatas(viewData);
+              console.log("splitPeriodData", splitPeriodData);
+            }
             if (!selectedTimeline) {
               switch (viewData?.layer) {
                 case "facility":

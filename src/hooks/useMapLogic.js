@@ -6,6 +6,7 @@ import { getItemName } from "../utils/common";
 export const useMapLogic = (mapViews, chartDatas, shapes) => {
   const [hoveredRegion, setHoveredRegion] = useState(null);
   let mapBounds = null;
+  console.log("mapViews", mapViews, "chartDatas", chartDatas, "shapes", shapes);
 
   const processChartData = (chartData) => {
     console.log("deep chart data", chartData);
@@ -428,7 +429,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
     });
 
-  // console.log("parsedcomp", parsedMapViews)
+  console.log("parsedcomp", parsedMapViews)
 
   return {
     parsedMapViews,
