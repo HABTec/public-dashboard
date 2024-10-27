@@ -4,6 +4,10 @@ import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 const months = [
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
   "Jan",
   "Feb",
   "Mar",
@@ -12,10 +16,6 @@ const months = [
   "Jun",
   "Jul",
   "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
 ];
 
 const Timeline = ({ timelineData, onTimeChange }) => {
@@ -74,15 +74,14 @@ const Timeline = ({ timelineData, onTimeChange }) => {
           const nextMonth = timelineData[nextIndex]?.month;
           const nextDay = timelineData[nextIndex]?.day;
           onTimeChange(nextYear, nextMonth, nextDay, nextIndex);
-          return nextYear + nextMonth + nextDay; 
+          return nextYear + nextMonth + nextDay;
         });
       }, 1000);
 
-      return () => clearInterval(interval); 
+      return () => clearInterval(interval);
     }
   }, [isPlaying, timelineData, onTimeChange]);
 
-  
   return (
     <Box
       sx={{
@@ -104,7 +103,7 @@ const Timeline = ({ timelineData, onTimeChange }) => {
       >
         {timelineData.map((data, index) => {
           const displayYear =
-            index === 0 || timelineData[index - 1].year !== data.year; 
+            index === 0 || timelineData[index - 1].year !== data.year;
 
           return (
             <Box
@@ -155,14 +154,13 @@ const Timeline = ({ timelineData, onTimeChange }) => {
                 </Typography>
               ) : (
                 <Typography sx={{ fontSize: "10px", marginBottom: "2px" }}>
-                  {months[data.month - 1]}
+                  {months[data.month - 1] + " " + data.day}
                 </Typography>
               )}
             </Box>
           );
         })}
 
-        
         <Box
           sx={{
             height: "2.5rem",
