@@ -1174,12 +1174,12 @@ function DashboardItem(props) {
           onClick={toggleLegendKeyDisplay}
         >
           <Grid container>
-            <Grid item xs={1}>
+            <Grid item xs={2}>
               <IconButton>
                 <FormatListBulletedOutlinedIcon />
               </IconButton>
             </Grid>
-            <Grid item xs={11}>
+            <Grid item xs={10}>
               {openLegendKey ? (
                 <IconButton variant="body2">
                   <Typography>Legend</Typography>
