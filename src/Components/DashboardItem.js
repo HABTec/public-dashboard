@@ -721,11 +721,27 @@ function DashboardItem(props) {
                       key={row.label}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row">
-                        {row.label}
-                      </TableCell>
+                      <TableHead>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{ whilteSpace: "nowrap" }}
+                        >
+                          {row.label}
+                        </TableCell>
+                      </TableHead>
                       {row.data.map((data, i) => (
-                        <TableCell key={"data" + i} align="right">
+                        <TableCell
+                          sx={{
+                            backgroundColor:
+                              chartInfo?.legend?.set?.legends.find(
+                                (leg) =>
+                                  data >= leg.startValue && data < leg.endValue
+                              )?.color ?? "white",
+                          }}
+                          key={"data" + i}
+                          align="right"
+                        >
                           {data + ""}
                         </TableCell>
                       ))}
