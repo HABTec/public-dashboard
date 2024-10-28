@@ -771,7 +771,7 @@ function DashboardItem(props) {
       );
 
       let argLength = chartInfo?.legend?.set?.legends.map(
-        (leg) => leg.endValue - leg.startValue / 100
+        (leg) => (leg.endValue - leg.startValue) / 100
       );
       let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
       let needleColor =
