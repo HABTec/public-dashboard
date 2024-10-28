@@ -776,8 +776,10 @@ function DashboardItem(props) {
       let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
       let needleColor =
         chartInfo?.legend?.set?.legends.find(
-          (leg) => percent >= leg.startValue && percent < leg.endValue
-        )?.color ?? "#00897B";
+          (leg) =>
+            chartData.rows[0][1] >= leg.startValue &&
+            chartData.rows[0][1] < leg.endValue
+        )?.color ?? "#222";
 
       return (
         <>
