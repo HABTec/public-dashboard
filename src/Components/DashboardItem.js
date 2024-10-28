@@ -749,16 +749,30 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
       const percent = chartData.rows[0][1] / 100;
 
+      // sort legend by start value
+      chartInfo?.legend?.set?.legends.sort(
+        (a, b) => a.startValue - b.startValue
+      );
+
+      let argLength = chartInfo?.legend?.set?.legends.map(
+        (leg) => leg.endValue - leg.startValue / 100
+      );
+      let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
+      let needleColor =
+        chartInfo?.legend?.set?.legends.find(
+          (leg) => percent >= leg.startValue && percent < leg.endValue
+        )?.color ?? "#00897B";
+
       return (
         <>
           <GaugeChart
             percent={percent}
             nrOfLevels={30}
-            // needleBaseColor={percent > 0.3 ? "#E65100" : "#00897B"}
-            // needleColor={percent > 0.3 ? "#E65100" : "#00897B"}
+            needleBaseColor={needleColor}
+            needleColor={needleColor}
             textColor="#000"
-            arcsLength={[0.15, 0.1, 0.55]}
-            colors={["#009688", "#CDDC39", "#F44336"]}
+            arcsLength={argLength}
+            colors={colors}
             target={chartInfo.targetLineValue}
             baseline={chartInfo.baseLineValue}
           />
