@@ -379,6 +379,8 @@ function DashboardItem(props) {
 
       let columnSeries = {};
       let categories = [];
+      let colorMap;
+
       if (chartData) {
         for (const row of rows) {
           let n = getItemName(chartData, row[0]);
@@ -504,6 +506,29 @@ function DashboardItem(props) {
             if (text.length > longestText) longestText = text.length;
           });
 
+          if (chartInfo.legend?.set?.legends.length > 0) {
+            let legendValues = chartInfo?.legend?.set?.legends.map(
+              (leg) => leg.endValue
+            );
+
+            legendValues.unshift(
+              chartInfo?.legend?.set?.legends[0]?.startValue || 0
+            );
+
+            let colors = chartInfo?.legend?.set?.legends.map(
+              (leg) => leg.color
+            );
+            colors.unshift("#dddddd");
+            colors.push("#dddddd");
+            colorMap = {
+              colorMap: {
+                type: "piecewise",
+                thresholds: legendValues,
+                colors: colors,
+              },
+            };
+          }
+
           return (
             <BarChart
               axisHighlight={{
@@ -521,6 +546,7 @@ function DashboardItem(props) {
               xAxis={[
                 {
                   ...xAxisMaxMin,
+                  ...colorMap,
                 },
               ]}
               margin={{
@@ -579,8 +605,6 @@ function DashboardItem(props) {
               stroke: "none",
             },
           };
-
-          let colorMap;
 
           if (chartInfo.legend?.set?.legends.length > 0) {
             let legendValues = chartInfo?.legend?.set?.legends.map(
