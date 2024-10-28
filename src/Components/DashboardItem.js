@@ -763,22 +763,21 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.pe]?.name;
       const orgunit =
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
-      const percent = chartData.rows[0][1] / 100;
-
+      const value = parseFloat(chartData.rows[0][1]);
+      chartData.rows[0][1] = 85;
+      const percent = value / 100;
       // sort legend by start value
       chartInfo?.legend?.set?.legends.sort(
         (a, b) => a.startValue - b.startValue
       );
 
       let argLength = chartInfo?.legend?.set?.legends.map(
-        (leg) => leg.endValue - leg.startValue / 100
+        (leg) => (leg.endValue - leg.startValue) / 100
       );
       let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
       let needleColor =
         chartInfo?.legend?.set?.legends.find(
-          (leg) =>
-            chartData.rows[0][1] >= leg.startValue &&
-            chartData.rows[0][1] < leg.endValue
+          (leg) => value >= leg.startValue && value < leg.endValue
         )?.color ?? "#222";
 
       return (
