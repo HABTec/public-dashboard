@@ -778,11 +778,27 @@ function DashboardItem(props) {
                       key={row.label}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row">
-                        {row.label}
-                      </TableCell>
+                      <TableHead>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{ whilteSpace: "nowrap" }}
+                        >
+                          {row.label}
+                        </TableCell>
+                      </TableHead>
                       {row.data.map((data, i) => (
-                        <TableCell key={"data" + i} align="right">
+                        <TableCell
+                          sx={{
+                            backgroundColor:
+                              chartInfo?.legend?.set?.legends.find(
+                                (leg) =>
+                                  data >= leg.startValue && data < leg.endValue
+                              )?.color ?? "white",
+                          }}
+                          key={"data" + i}
+                          align="right"
+                        >
                           {data + ""}
                         </TableCell>
                       ))}
@@ -804,16 +820,23 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.pe]?.name;
       const orgunit =
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
-      const percent = chartData.rows[0][1] / 100;
+
+      const value = parseFloat(chartData.rows[0][1]);
+      chartData.rows[0][1] = 85;
+      const percent = value / 100;
+      // sort legend by start value
+      chartInfo?.legend?.set?.legends.sort(
+        (a, b) => a.startValue - b.startValue
+      );
 
       let argLength = chartInfo?.legend?.set?.legends.map(
-        (leg) => leg.endValue - leg.startValue / 100
+        (leg) => (leg.endValue - leg.startValue) / 100
       );
       let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
       let needleColor =
         chartInfo?.legend?.set?.legends.find(
-          (leg) => percent >= leg.startValue && percent < leg.endValue
-        )?.color ?? "#00897B";
+          (leg) => value >= leg.startValue && value < leg.endValue
+        )?.color ?? "#222";
 
       return (
         <>

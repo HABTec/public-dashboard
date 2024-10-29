@@ -1,6 +1,7 @@
 {
-  "name": "material-ui-cra",
-  "version": "5.0.0",
+  "name": "dhis2-public-dashboard",
+  "description": "Public Dashboard for DHIS2",
+  "version": "1.0.02",
   "private": true,
   "scripts": {
     "start": "react-scripts start",
