@@ -90,8 +90,13 @@ const Timeline = ({ timelineData, onTimeChange }) => {
         gap: 2,
         width: "100%",
         overflow: "wrap",
+        paddingTop: "0.5rem",
       }}
     >
+      {/* Play/Pause Button */}
+      <Button variant="outline" onClick={handlePlay}>
+        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+      </Button>
       <Box
         sx={{
           display: "flex",
@@ -169,11 +174,6 @@ const Timeline = ({ timelineData, onTimeChange }) => {
           }}
         />
       </Box>
-
-      {/* Play/Pause Button */}
-      <Button variant="outline" onClick={handlePlay}>
-        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-      </Button>
     </Box>
   );
 };
