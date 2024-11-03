@@ -133,7 +133,7 @@ function DashboardItem(props) {
       url +=
         "api/maps/" +
         id +
-        ".json?fields=id,displayName,latitude,zoom,basemap,mapViews[id,colorScale,aggregationType,opacity,layer,thematicMapType,renderingStrategy,displayName,type,displayDescription,columns[dimension,legendSet[id],filter,programStage,items[dimensionItem~rename(id),displayName~rename(name),dimensionItemType]],rows[:all],filters[:all]]";
+        ".json?fields=id,displayName,latitude,zoom,basemap,mapViews[id,colorScale,legendSet[name,legends[name,color,startValue,endValue]],aggregationType,opacity,layer,thematicMapType,renderingStrategy,displayName,type,displayDescription,columns[dimension,legendSet[id],filter,programStage,items[dimensionItem~rename(id),displayName~rename(name),dimensionItemType]],rows[:all],filters[:all]]";
     } else if (item.type == "TEXT") {
       id = item._id;
       setChartInfo({ ...item });

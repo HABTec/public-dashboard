@@ -1,222 +1,254 @@
-import React, { useState, useEffect } from "react";
-import { Paper, Box } from "@mui/material";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  Paper,
+  Box,
+  Typography,
+  Table,
+  TableContainer,
+  TableRow,
+  TableCell,
+  TableBody,
+} from "@mui/material";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import { useMap } from "react-leaflet";
 import ReactDOM from "react-dom";
 import L from "leaflet";
 import chroma from "chroma-js";
-import LandslideOutlinedIcon from "@mui/icons-material/LandslideOutlined";
 import {
   Home as HomeIcon,
   LocalHospital as LocalHospitalIcon,
 } from "@mui/icons-material";
 import RoomIcon from "@mui/icons-material/ControlPoint";
 import HealthPostIcon from "@mui/icons-material/MedicalInformation";
+import LandslideOutlinedIcon from "@mui/icons-material/LandslideOutlined";
 
-const Legend = ({ legendDatas }) => {
- 
+const Legend = ({ legendDatas, legendSet = null }) => {
   const [showDetails, setShowDetails] = useState(false);
   const map = useMap();
 
-  let accumulatedLegendItems = [];
+  const accumulatedLegendItems = useMemo(() => {
+    const items = [];
 
-  legendDatas.forEach((legendData, index) => {
-    if (legendData.name === "thematic") {
-      const intervalCount = legendData.colorScaleArray.length / 3 + 1;
-
-      let intervals;
-
-      if (legendData.mn === legendData.mx) {
-        // If mn and mx are the same, create a single interval covering that value
-        intervals = [{ start: legendData.mn, end: legendData.mn + 1 }];
-      } else {
-        const intervalSize = (legendData.mx - legendData.mn) / intervalCount;
-        intervals = Array.from({ length: intervalCount }, (_, i) => {
-          const start = legendData.mn + i * intervalSize;
-          const end = legendData.mn + (i + 1) * intervalSize;
-          return { start, end };
-        });
-      }
-
-      const counts = intervals.map(
-        ({ start, end }) =>
-          legendData.regionColors?.filter(
-            ({ value }) => value >= start && value < end
-          ).length
+    if (legendSet) {
+      items.push(
+        <TableContainer key="legend-set">
+          <Table aria-label="legend table">
+            <TableRow>
+              <TableCell colSpan={3} align="center">
+                {legendSet.name}
+              </TableCell>
+            </TableRow>
+            <TableBody>
+              {legendSet.legends?.map((row) => (
+                <TableRow key={row.name}>
+                  <TableCell
+                    sx={{ backgroundColor: row.color, width: "2px" }}
+                  ></TableCell>
+                  <TableCell>
+                    {row.name} <br />
+                    <Typography variant="caption">
+                      {row.startValue} - {row.endValue}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       );
-      // console.log("counts", counts, intervals);
-      const midpointColors = intervals.map(({ start, end }) => {
-        const midpoint = (start + end) / 2;
-        return chroma
-          .scale(legendData.colorScaleArray)
-          .domain([legendData.mn, legendData.mx])(midpoint)
-          .hex();
-      });
+    } else {
+      legendDatas.forEach((legendData, index) => {
+        if (legendData.name === "thematic") {
+          const intervalCount = legendData.colorScaleArray.length / 3 + 1;
+          const intervals =
+            legendData.mn === legendData.mx
+              ? [{ start: legendData.mn, end: legendData.mn + 1 }]
+              : Array.from({ length: intervalCount }, (_, i) => ({
+                  start:
+                    legendData.mn +
+                    (i * (legendData.mx - legendData.mn)) / intervalCount,
+                  end:
+                    legendData.mn +
+                    ((i + 1) * (legendData.mx - legendData.mn)) / intervalCount,
+                }));
+          const midpointColors = intervals.map(({ start, end }) =>
+            chroma
+              .scale(legendData.colorScaleArray)
+              .domain([legendData.mn, legendData.mx])((start + end) / 2)
+              .hex()
+          );
+          const counts = intervals.map(
+            ({ start, end }) =>
+              legendData.regionColors?.filter(
+                ({ value }) => value >= start && value < end
+              ).length || 0
+          );
 
-      // Accumulate the thematic legend items
-      accumulatedLegendItems = [
-        ...accumulatedLegendItems,
-        <div key={`thematic-${index}`}>
-          <b>{legendData.displayName}</b>
+          items.push(
+            <div key={`thematic-${index}`}>
+              <b>{legendData.displayName}</b>
+              {intervals.map(({ start, end }, idx) => (
+                <Box
+                  key={`thematic-${index}-${idx}`}
+                  display="flex"
+                  alignItems="center"
+                  sx={{ bgcolor: "white", p: 0.5 }}
+                >
+                  <Box
+                    sx={{
+                      width: 20,
+                      height: 20,
+                      bgcolor: midpointColors[idx],
+                      mr: 1,
+                      border: "1px solid #999",
+                    }}
+                  ></Box>
+                  <Typography variant="body2">
+                    {`${start.toFixed(2)} - ${end.toFixed(2)} (${counts[idx]})`}
+                  </Typography>
+                </Box>
+              ))}
+            </div>
+          );
+        } else if (legendData.name === "bubble") {
+          const intervalCount = 5;
+          const intervals =
+            legendData.mn === legendData.mx
+              ? [{ start: legendData.mn, end: legendData.mn + 1 }]
+              : Array.from({ length: intervalCount }, (_, i) => ({
+                  start:
+                    legendData.mn +
+                    (i * (legendData.mx - legendData.mn)) / intervalCount,
+                  end:
+                    legendData.mn +
+                    ((i + 1) * (legendData.mx - legendData.mn)) / intervalCount,
+                }));
+          const bubbleData = intervals.map(({ start, end }, idx) => ({
+            radius: (idx + 1) * 20,
+            color: chroma
+              .scale(legendData.colorScaleArray)
+              .domain([legendData.mn, legendData.mx])((start + end) / 2)
+              .hex(),
+            start,
+            end,
+          }));
+          const maxRadius = Math.max(...bubbleData.map((b) => b.radius));
 
-          {intervals.map(({ start, end }, idx) => (
-            <div
-              key={`thematic-${index}-${idx}`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                backgroundColor: "white",
-                padding: 2,
+          items.push(
+            <Box
+              key={`bubble-${index}`}
+              sx={{
+                position: "relative",
+                height: `${maxRadius + 50}px`,
+                overflow: "hidden",
+                p: 1,
               }}
             >
-              <div
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  backgroundColor: midpointColors[idx],
-                  marginRight: "8px",
-                  border: "1px solid #999",
+              <b>{legendData.displayName}</b>
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: "100%",
+                  mb: 4,
                 }}
-              ></div>
-              <span>{`${start.toFixed(2)} - ${end.toFixed(2)} (${
-                counts[idx]
-              })`}</span>
-            </div>
-          ))}
-        </div>,
-      ];
-    } else if (legendData.name === "bubble") {
-      const intervalCount = 5;
-      let intervals;
-
-      if (legendData.mn === legendData.mx) {
-        intervals = [{ start: legendData.mn, end: legendData.mn + 1 }];
-      } else {
-        const intervalSize = (legendData.mx - legendData.mn) / intervalCount;
-        intervals = Array.from({ length: intervalCount }, (_, i) => {
-          const start = legendData.mn + i * intervalSize;
-          const end = legendData.mn + (i + 1) * intervalSize;
-          return { start, end };
-        });
-      }
-
-      // radius and color for the midpoint of each interval
-      const bubbleData = intervals.map(({ start, end }, idx) => {
-        const midpoint = (start + end) / 2;
-        const radius = (idx + 1) * 20;
-        const color = chroma
-          .scale(legendData.colorScaleArray)
-          .domain([legendData.mn, legendData.mx])(midpoint)
-          .hex();
-        return { radius, color, start, end };
+              >
+                {bubbleData
+                  .reverse()
+                  .map(({ radius, color, start, end }, idx) => (
+                    <Box
+                      key={`bubble-${index}-${idx}`}
+                      sx={{
+                        width: `${radius}px`,
+                        height: `${radius}px`,
+                        borderRadius: "50%",
+                        bgcolor: color,
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        bottom: 0,
+                        zIndex: idx,
+                        border: "1px solid #999",
+                        mb: 1,
+                      }}
+                      title={`${start.toFixed(2)} - ${end.toFixed(2)}`}
+                    ></Box>
+                  ))}
+              </Box>
+            </Box>
+          );
+        } else if (legendData.name === "facility") {
+          items.push(
+            <Box
+              key={`facility-${index}`}
+              display="flex"
+              flexDirection="column"
+              sx={{ bgcolor: "white", p: 1 }}
+            >
+              <b>Facilities</b>
+              {[
+                {
+                  label: "Clinics",
+                  icon: <RoomIcon />,
+                  count: legendData.clinic,
+                },
+                {
+                  label: "Hospitals",
+                  icon: <LocalHospitalIcon />,
+                  count: legendData.hospital,
+                },
+                {
+                  label: "Health Centers",
+                  icon: <HomeIcon />,
+                  count: legendData.center,
+                },
+                {
+                  label: "Health Posts",
+                  icon: <HealthPostIcon />,
+                  count: legendData.posts,
+                },
+              ].map(({ label, icon, count }) => (
+                <Box key={label} display="flex" alignItems="center">
+                  {label}: {icon}
+                  {count || "0"}
+                </Box>
+              ))}
+            </Box>
+          );
+        } else if (legendData.name === "orgUnit") {
+          items.push(
+            <Box key={`orgUnit-${index}`}>
+              <b>OrgUnit</b>
+              <Box pl={3}>
+                <LandslideOutlinedIcon />
+              </Box>
+            </Box>
+          );
+        }
       });
-
-      const maxRadius = Math.max(...bubbleData.map((b) => b.radius));
-
-      accumulatedLegendItems = [
-        ...accumulatedLegendItems,
-        <div
-          key={`bubble-${index}`}
-          style={{
-            position: "relative",
-            height: `${maxRadius + 50}px`,
-            overflow: "hidden",
-            padding: "10px",
-          }}
-        >
-          <b>{legendData.displayName}</b>
-          <Box
-            style={{ position: "relative", width: "100%", height: "100%" }}
-            marginBottom={"2rem"}
-          >
-            {bubbleData.reverse().map(({ radius, color, start, end }, idx) => (
-              <div
-                key={`bubble-${index}-${idx}`}
-                style={{
-                  width: `${radius}px`,
-                  height: `${radius}px`,
-                  borderRadius: "50%",
-                  backgroundColor: color,
-                  position: "absolute",
-                  left: "50%",
-                  transform: `translateX(-50%)`,
-                  bottom: 0,
-                  zIndex: idx,
-                  border: "1px solid #999",
-                  marginBottom: "10px",
-                }}
-                title={`${start.toFixed(2)} - ${end.toFixed(2)}`}
-              ></div>
-            ))}
-          </Box>
-        </div>,
-      ];
-    } else if (legendData.name === "facility") {
-      accumulatedLegendItems.push(
-        <div
-          key={`facility-${index}`}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "white",
-            padding: 2,
-          }}
-        >
-          <b>Facilities</b>
-          <span style={{ display: "flex", alignItems: "center" }}>
-            Clinics: <RoomIcon style={{ marginLeft: 4 }} />{" "}
-            {legendData["clinic"] || "0"}
-          </span>
-          <span style={{ display: "flex", alignItems: "center" }}>
-            Hospitals: <LocalHospitalIcon style={{ marginLeft: 4 }} />{" "}
-            {legendData["hospital"] || "0"}
-          </span>
-          <span style={{ display: "flex", alignItems: "center" }}>
-            Health Centers: <HomeIcon style={{ marginLeft: 4 }} />{" "}
-            {legendData["center"] || "0"}
-          </span>
-          <span style={{ display: "flex", alignItems: "center" }}>
-            Health Posts: <HealthPostIcon style={{ marginLeft: 4 }} />{" "}
-            {legendData["posts"] || "0"}
-          </span>
-        </div>
-      );
-    } else if (legendData.name === "orgUnit") {
-      accumulatedLegendItems.push(
-        <div key={`orgUnit-${index}`}>
-          <b>OrgUnit</b>
-          <Box paddingLeft={3}>
-            <LandslideOutlinedIcon />
-          </Box>
-        </div>
-      );
     }
-  });
 
-  const handleClick = () => {
-    setShowDetails(!showDetails);
-  };
+    return items;
+  }, [legendDatas, legendSet]);
 
   useEffect(() => {
     const legendDiv = L.DomUtil.create("div", "info legend");
 
-    const legendContent = (
+    ReactDOM.render(
       <Paper
         elevation={1}
-        sx={{ padding: 0.5 }}
-        onClick={handleClick}
+        sx={{ p: 0.5 }}
+        onClick={() => setShowDetails((prev) => !prev)}
         style={{ cursor: "pointer" }}
       >
         <Box display="flex" alignItems="center" m={0.5}>
           <FormatListBulletedIcon />
-          {showDetails ? " Legend" : ""}
+          {showDetails && " Legend"}
         </Box>
-
         {showDetails && accumulatedLegendItems}
-      </Paper>
+      </Paper>,
+      legendDiv
     );
-
-    ReactDOM.render(legendContent, legendDiv);
 
     const legendControl = L.control({ position: "bottomleft" });
     legendControl.onAdd = () => legendDiv;
