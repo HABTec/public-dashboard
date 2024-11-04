@@ -361,7 +361,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         return {
           region: regionName,
           value: value,
-          color: color.color,
+          color: color?.color,
         };
       });
     } else {
