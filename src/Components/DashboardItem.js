@@ -822,7 +822,6 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
 
       const value = parseFloat(chartData.rows[0][1]);
-      chartData.rows[0][1] = 85;
       const percent = value / 100;
       // sort legend by start value
       chartInfo?.legend?.set?.legends.sort(
