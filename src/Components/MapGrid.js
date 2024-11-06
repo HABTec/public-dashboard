@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import React, { useState, useCallback, useEffect } from "react";
+import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import {
   Box,
   Typography,
@@ -7,8 +7,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  IconButton,
 } from "@mui/material";
-import { BlankWhiteLayer, WhiteTileLayer } from "./TileComponent";
+import { Add, Remove } from "@mui/icons-material";
+import { WhiteTileLayer } from "./TileComponent";
+import debounce from "lodash.debounce"; 
+import Legend from "./Legend";
+import MapSyncComponent from "./MapSyncComponent";
 
 const MapGrid = ({
   splitPeriodData,
@@ -17,27 +22,23 @@ const MapGrid = ({
   renderOrgUnitPolygons,
   renderFacilityMarkers,
   basemap,
+  mapBounds,
+  legendData,
 }) => {
   const [tileLayer, setTileLayer] = useState(
     basemap === "none" ? "osm" : basemap
   );
+  const [center, setCenter] = useState([9.145, 40.489673]);
+  const [zoom, setZoom] = useState(4);
 
   const tileLayers = {
-    osm: {
-      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      attribution: "&copy; OpenStreetMap contributors",
-    },
-    satellite: {
-      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-      attribution: "&copy; OpenTopoMap contributors",
-    },
+    osm: { url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
+    satellite: { url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" },
     osmLight: {
       url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-      attribution: "&copy; OpenStreetMap contributors & CARTO",
     },
     darkBaseMap: {
       url: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png",
-      attribution: "&copy; OpenStreetMap, CARTO",
     },
     blankWhite: {
       url: null,
@@ -46,20 +47,17 @@ const MapGrid = ({
     },
   };
 
-  const handleTileLayerChange = (event) => {
-    setTileLayer(event.target.value);
-  };
+  const debouncedCenterChange = useCallback(debounce(setCenter, 50), []);
+  const debouncedZoomChange = useCallback(debounce(setZoom, 50), []);
 
   return (
     <Box p={2} height="100vh" width="100%" position="relative">
-      {/* Dropdown for Tile Layer Selection */}
       <FormControl
         style={{
           position: "absolute",
           top: 10,
           right: 10,
           zIndex: 1000,
-          background: "rgba(255, 255, 255, 0.8)",
           borderRadius: "4px",
           padding: "4px 8px",
         }}
@@ -67,7 +65,7 @@ const MapGrid = ({
         <InputLabel>Base Map</InputLabel>
         <Select
           value={tileLayer}
-          onChange={handleTileLayerChange}
+          onChange={(e) => setTileLayer(e.target.value)}
           style={{ minWidth: 120, backgroundColor: "white" }}
         >
           {Object.keys(tileLayers).map((layerKey) => (
@@ -78,7 +76,29 @@ const MapGrid = ({
         </Select>
       </FormControl>
 
-      {/* Map Grid */}
+      <Box
+        style={{
+          position: "absolute",
+          top: 10,
+          left: 10,
+          zIndex: 1000,
+          display: "flex",
+          flexDirection: "column",
+          gap: "1px",
+          background: "white",
+          borderRadius: "4px",
+          margin: "4px 8px",
+          border: "1px solid gray",
+        }}
+      >
+        <IconButton onClick={() => setZoom((prev) => prev + 1)} size="small">
+          <Add />
+        </IconButton>
+        <IconButton onClick={() => setZoom((prev) => prev - 1)} size="small">
+          <Remove />
+        </IconButton>
+      </Box>
+
       <Box
         style={{
           display: "grid",
@@ -89,7 +109,7 @@ const MapGrid = ({
             splitPeriodData.length /
               Math.ceil(Math.sqrt(splitPeriodData.length))
           )}, 1fr)`,
-          gap: "8px",
+          gap: "0",
           height: "100%",
           width: "100%",
         }}
@@ -106,33 +126,25 @@ const MapGrid = ({
           >
             <MapContainer
               style={{ height: "100%", width: "100%" }}
-              center={[9.145, 40.489673]}
-              zoom={6}
-              // scrollWheelZoom={true}
+              center={center}
+              // zoom={zoom}
+              zoomControl={false}
+              attributionControl={false}
             >
-              {tileLayer === "blankWhite" ? (
-                <BlankWhiteLayer />
-              ) : (
-                <TileLayer
-                  url={tileLayers[tileLayer]?.url}
-                  attribution={tileLayers[tileLayer]?.attribution}
-                />
-              )}
-
-              {/* Render layers conditionally based on periodData */}
-              {periodData.layer === "thematic" &&
-                periodData.thematicMapType === "CHOROPLETH" &&
-                renderThematicPolygons(periodData)}
-              {periodData.layer === "thematic" &&
-                periodData.thematicMapType === "BUBBLE" &&
-                renderBubbleMap(periodData)}
-              {periodData.layer === "orgUnit" &&
-                renderOrgUnitPolygons(periodData)}
-              {periodData.layer === "facility" &&
-                renderFacilityMarkers(periodData)}
+              <MapSyncComponent
+                center={center}
+                zoom={zoom}
+                onZoomChange={debouncedZoomChange}
+                onCenterChange={debouncedCenterChange}
+                tileLayerUrl={tileLayers[tileLayer]?.url}
+                periodData={periodData}
+                renderThematicPolygons={renderThematicPolygons}
+                renderBubbleMap={renderBubbleMap}
+                renderOrgUnitPolygons={renderOrgUnitPolygons}
+                renderFacilityMarkers={renderFacilityMarkers}
+                mapBounds={mapBounds}
+              />
             </MapContainer>
-
-            {/* Label overlay */}
             <Typography
               variant="caption"
               style={{
@@ -154,88 +166,3 @@ const MapGrid = ({
 };
 
 export default MapGrid;
-
-
-// import React, { useState } from "react";
-// import {
-//   Box,
-//   Typography,
-//   Select,
-//   MenuItem,
-//   FormControl,
-//   InputLabel,
-// } from "@mui/material";
-
-// const MapGrid = ({
-//   splitPeriodData,
-//   renderThematicPolygons,
-//   renderBubbleMap,
-//   renderOrgUnitPolygons,
-//   renderFacilityMarkers,
-//   basemap,
-// }) => {
-//  console.log()
-
-
-
-//   return (
-//     <Box p={2} height="100vh" width="100%" zIndex={1000}>
-      
-//       <Box
-//         style={{
-//           display: "grid",
-//           gridTemplateColumns: `repeat(${Math.ceil(
-//             Math.sqrt(splitPeriodData.length)
-//           )}, 1fr)`,
-//           gridTemplateRows: `repeat(${Math.ceil(
-//             splitPeriodData.length /
-//               Math.ceil(Math.sqrt(splitPeriodData.length))
-//           )}, 1fr)`,
-//           gap: "8px",
-//           height: "100%",
-//           width: "100%",
-//         }}
-//       >
-//         {splitPeriodData.map((periodData, index) => (
-//           <Box
-//             key={index}
-//             style={{
-//               border: "1px solid rgba(0, 0, 0, 0.2)",
-//               position: "relative",
-//               height: "100%",
-//               width: "100%",
-//             }}
-//           >
-           
-//               {periodData.layer === "thematic" &&
-//                 periodData.thematicMapType === "CHOROPLETH" &&
-//                 renderThematicPolygons(periodData)}
-//               {periodData.layer === "thematic" &&
-//                 periodData.thematicMapType === "BUBBLE" &&
-//                 renderBubbleMap(periodData)}
-//               {periodData.layer === "orgUnit" &&
-//                 renderOrgUnitPolygons(periodData)}
-//               {periodData.layer === "facility" &&
-//                 renderFacilityMarkers(periodData)}
-           
-//             <Typography
-//               variant="caption"
-//               style={{
-//                 position: "absolute",
-//                 bottom: 8,
-//                 left: 8,
-//                 background: "rgba(255, 255, 255, 0.8)",
-//                 padding: "4px 8px",
-//                 borderRadius: 4,
-//               }}
-//             >
-//               {periodData.label}
-//             </Typography>
-//           </Box>
-//         ))}
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default MapGrid;

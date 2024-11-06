@@ -134,6 +134,8 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
           renderOrgUnitPolygons={renderOrgUnitPolygons}
           renderFacilityMarkers={renderFacilityMarkers}
           basemap={basemap}
+          mapBounds={mapBounds}
+          legendData={legendData}
         />
       ) : 
       (
