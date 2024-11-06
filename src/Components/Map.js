@@ -171,15 +171,20 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                   case "orgUnit":
                     return renderOrgUnitPolygons(viewData);
 
-                  case "thematic":
-                    orgDrawn = true;
-                    if (viewData?.thematicMapType === "CHOROPLETH") {
-                      return renderThematicPolygons(viewData);
-                    } else if (viewData?.thematicMapType === "BUBBLE") {
-                      const draw = orgDrawn;
-                      return renderBubbleMap(viewData, draw);
-                    }
-                    break;
+          case "thematic":
+            if (viewData?.thematicMapType === "CHOROPLETH") {
+              orgDrawn = true;
+              return renderThematicPolygons(viewData);
+            } else if (viewData?.thematicMapType === "BUBBLE") {
+              const draw = orgDrawn;
+              orgDrawn = true;
+              return renderBubbleMap(viewData, draw);
+            } else {
+              // thematicMapType set the default render to CHOROPLETH
+              orgDrawn = true;
+              return renderThematicPolygons(viewData);
+            }
+            break;
 
                   default:
                     return null;

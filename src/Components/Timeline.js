@@ -90,8 +90,13 @@ const Timeline = ({ timelineData, onTimeChange }) => {
         gap: 2,
         width: "100%",
         overflow: "wrap",
+        paddingTop: "0.5rem",
       }}
     >
+      {/* Play/Pause Button */}
+      <Button variant="outline" onClick={handlePlay}>
+        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+      </Button>
       <Box
         sx={{
           display: "flex",
@@ -115,7 +120,7 @@ const Timeline = ({ timelineData, onTimeChange }) => {
               <Box
                 sx={{
                   flexGrow: 1,
-                  height: "2rem",
+                  height: "1rem",
                   backgroundColor:
                     selectedPeriod === data.year + data.month + data.day
                       ? "#4287f5"
@@ -163,17 +168,12 @@ const Timeline = ({ timelineData, onTimeChange }) => {
 
         <Box
           sx={{
-            height: "2.5rem",
+            height: "1rem",
             width: "0px",
             borderRight: "1px solid #000",
           }}
         />
       </Box>
-
-      {/* Play/Pause Button */}
-      <Button variant="outline" onClick={handlePlay}>
-        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-      </Button>
     </Box>
   );
 };

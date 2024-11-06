@@ -263,7 +263,10 @@ export const useRenderMapLayers = (
       const dataValue =
         regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
 
-      const radius = (dataValue / (legendMx - legendMn)) * 90;
+      let radius = (dataValue / (legendMx - legendMn)) * 90;
+
+      if (Number.isNaN(radius)) radius = 0;
+
       console.log(
         "radius",
         radius,
@@ -272,7 +275,13 @@ export const useRenderMapLayers = (
         "legendMx",
         legendMx,
         "legendMn",
-        legendMn
+        legendMn,
+        "centroids",
+        coordinates,
+        "regions list index",
+        regionListIndex,
+        viewData.mapData,
+        "test"
       );
 
       const regionColor = viewData.regionColors.find(

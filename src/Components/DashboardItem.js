@@ -305,6 +305,9 @@ function DashboardItem(props) {
     let xAxisConfig = chartInfo?.axes.find((axis) => axis.index == 0);
     let yAxisConfig = chartInfo?.axes.find((axis) => axis.index == 1);
 
+    // sort legend by start value
+    chartInfo?.legend?.set?.legends.sort((a, b) => a.startValue - b.startValue);
+
     let xAxisMaxMin = xAxisConfig
       ? {
           max: xAxisConfig.maxValue,
@@ -376,6 +379,8 @@ function DashboardItem(props) {
 
       let columnSeries = {};
       let categories = [];
+      let colorMap;
+
       if (chartData) {
         for (const row of rows) {
           let n = getItemName(chartData, row[0]);
@@ -501,6 +506,29 @@ function DashboardItem(props) {
             if (text.length > longestText) longestText = text.length;
           });
 
+          if (chartInfo.legend?.set?.legends.length > 0) {
+            let legendValues = chartInfo?.legend?.set?.legends.map(
+              (leg) => leg.endValue
+            );
+
+            legendValues.unshift(
+              chartInfo?.legend?.set?.legends[0]?.startValue || 0
+            );
+
+            let colors = chartInfo?.legend?.set?.legends.map(
+              (leg) => leg.color
+            );
+            colors.unshift("#dddddd");
+            colors.push("#dddddd");
+            colorMap = {
+              colorMap: {
+                type: "piecewise",
+                thresholds: legendValues,
+                colors: colors,
+              },
+            };
+          }
+
           return (
             <BarChart
               axisHighlight={{
@@ -518,6 +546,7 @@ function DashboardItem(props) {
               xAxis={[
                 {
                   ...xAxisMaxMin,
+                  ...colorMap,
                 },
               ]}
               margin={{
@@ -576,6 +605,29 @@ function DashboardItem(props) {
               stroke: "none",
             },
           };
+
+          if (chartInfo.legend?.set?.legends.length > 0) {
+            let legendValues = chartInfo?.legend?.set?.legends.map(
+              (leg) => leg.endValue
+            );
+
+            legendValues.unshift(
+              chartInfo?.legend?.set?.legends[0]?.startValue || 0
+            );
+
+            let colors = chartInfo?.legend?.set?.legends.map(
+              (leg) => leg.color
+            );
+            colors.unshift("#dddddd");
+            colors.push("#dddddd");
+            colorMap = {
+              colorMap: {
+                type: "piecewise",
+                thresholds: legendValues,
+                colors: colors,
+              },
+            };
+          }
           if (chartInfo.regressionType != "NONE") {
             chartConfig?.series?.forEach((series, i) => {
               chartConfig.series[i].type = "bar";
@@ -626,7 +678,12 @@ function DashboardItem(props) {
                 series={chartConfig.series}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
                 sx={ChartStyle}
-                yAxis={[{ ...yAxisMaxMin }]}
+                yAxis={[
+                  {
+                    ...yAxisMaxMin,
+                    ...colorMap,
+                  },
+                ]}
               >
                 <BarPlot layout="horizontal" />
                 <LinePlot />
@@ -675,7 +732,7 @@ function DashboardItem(props) {
                   },
                 ]}
                 margin={{ top: 40 + 30 * chartConfig.series.length }}
-                yAxis={[{ ...yAxisMaxMin }]}
+                yAxis={[{ ...yAxisMaxMin, ...colorMap }]}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
@@ -721,11 +778,27 @@ function DashboardItem(props) {
                       key={row.label}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row">
-                        {row.label}
-                      </TableCell>
+                      <TableHead>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{ whilteSpace: "nowrap" }}
+                        >
+                          {row.label}
+                        </TableCell>
+                      </TableHead>
                       {row.data.map((data, i) => (
-                        <TableCell key={"data" + i} align="right">
+                        <TableCell
+                          sx={{
+                            backgroundColor:
+                              chartInfo?.legend?.set?.legends.find(
+                                (leg) =>
+                                  data >= leg.startValue && data < leg.endValue
+                              )?.color ?? "white",
+                          }}
+                          key={"data" + i}
+                          align="right"
+                        >
                           {data + ""}
                         </TableCell>
                       ))}
@@ -747,18 +820,33 @@ function DashboardItem(props) {
         chartData.metaData.items[chartData.metaData.dimensions.pe]?.name;
       const orgunit =
         chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
-      const percent = chartData.rows[0][1] / 100;
+
+      const value = parseFloat(chartData.rows[0][1]);
+      const percent = value / 100;
+      // sort legend by start value
+      chartInfo?.legend?.set?.legends.sort(
+        (a, b) => a.startValue - b.startValue
+      );
+
+      let argLength = chartInfo?.legend?.set?.legends.map(
+        (leg) => (leg.endValue - leg.startValue) / 100
+      );
+      let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
+      let needleColor =
+        chartInfo?.legend?.set?.legends.find(
+          (leg) => value >= leg.startValue && value < leg.endValue
+        )?.color ?? "#222";
 
       return (
         <>
           <GaugeChart
             percent={percent}
             nrOfLevels={30}
-            // needleBaseColor={percent > 0.3 ? "#E65100" : "#00897B"}
-            // needleColor={percent > 0.3 ? "#E65100" : "#00897B"}
+            needleBaseColor={needleColor}
+            needleColor={needleColor}
             textColor="#000"
-            arcsLength={[0.15, 0.1, 0.55]}
-            colors={["#009688", "#CDDC39", "#F44336"]}
+            arcsLength={argLength}
+            colors={colors}
             target={chartInfo.targetLineValue}
             baseline={chartInfo.baseLineValue}
           />
@@ -1174,12 +1262,12 @@ function DashboardItem(props) {
           onClick={toggleLegendKeyDisplay}
         >
           <Grid container>
-            <Grid item xs={1}>
+            <Grid item xs={2}>
               <IconButton>
                 <FormatListBulletedOutlinedIcon />
               </IconButton>
             </Grid>
-            <Grid item xs={11}>
+            <Grid item xs={10}>
               {openLegendKey ? (
                 <IconButton variant="body2">
                   <Typography>Legend</Typography>
