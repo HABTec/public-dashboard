@@ -551,7 +551,7 @@ function DashboardItem(props) {
               ]}
               margin={{
                 top: 40 + 30 * chartConfig.series.length,
-                left: longestText * 6,
+                left: longestText * 7 + 20,
               }}
               yAxis={[
                 {
