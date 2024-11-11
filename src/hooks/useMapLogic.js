@@ -98,7 +98,6 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         );
         console.log("maxValue", maxValue, "minValue", minValue, timePeriodData);
         timePeriodData[timePeriod].forEach((dataPoint) => {
-         
           const colorRange = [
             "#993404",
             "#fed98e",
@@ -107,7 +106,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
             "#ffffd4",
           ];
           const dataLength = timePeriodData[timePeriod].length;
-         
+
           let color = getColorForValue(
             dataPoint.value,
             minValue,
@@ -324,7 +323,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     opacity,
     layer,
     thematicMapType,
-    renderingStrategy
+    renderingStrategy,
+    legendSet = null
   ) => {
     console.log("chartConfig", chartConfig);
     const mapData = chartConfig?.series;
@@ -347,15 +347,34 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         .colors(numColors);
     }
 
-    const regionColors = regionList?.map((regionName, index) => {
-      const value = combinedData[index];
-      const colorIndex = Math.floor(((value - mn) / range) * (numColors - 1));
-      return {
-        region: regionName,
-        value: value,
-        color: colorScale && colorScaleArray[colorIndex],
-      };
-    });
+    let regionColors;
+
+    if (legendSet) {
+      regionColors = regionList?.map((regionName, index) => {
+        const value = combinedData[index];
+        const color = legendSet.legends.find((legend) => {
+          if (legend.startValue <= value && value < legend.endValue) {
+            return legend.color;
+          }
+        });
+
+        return {
+          region: regionName,
+          value: value,
+          color: color?.color,
+        };
+      });
+    } else {
+      regionColors = regionList?.map((regionName, index) => {
+        const value = combinedData[index];
+        const colorIndex = Math.floor(((value - mn) / range) * (numColors - 1));
+        return {
+          region: regionName,
+          value: value,
+          color: colorScale && colorScaleArray[colorIndex],
+        };
+      });
+    }
 
     console.log("regionColors", regionColors);
 
@@ -392,6 +411,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       layer,
       thematicMapType,
       renderingStrategy,
+      legendSet,
     };
   };
 
@@ -413,7 +433,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view?.opacity,
         view.layer,
         view?.thematicMapType,
-        view?.renderingStrategy
+        view?.renderingStrategy,
+        view?.legendSet
       );
     })
     .filter(Boolean)
@@ -428,7 +449,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
     });
 
-  // console.log("parsedcomp", parsedMapViews)
+  console.log("parsedcomp", parsedMapViews);
 
   return {
     parsedMapViews,
