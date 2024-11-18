@@ -855,7 +855,7 @@ function DashboardItem(props) {
           </span>
         </>
       );
-    } else if (chartInfo.type == "AREA") {
+    } else if (chartInfo.type == "AREA" || chartInfo.type == "STACKED_AREA") {
       return (
         <>
           <AreaChartComponent
