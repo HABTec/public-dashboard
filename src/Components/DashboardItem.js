@@ -16,11 +16,13 @@ import {
   ChartsTooltip,
   MarkPlot,
   ChartsAxisHighlight,
+  barLabelClasses,
 } from "@mui/x-charts";
 import {
   lineElementClasses,
   markElementClasses,
 } from "@mui/x-charts/LineChart";
+import { barElementClasses } from "@mui/x-charts/BarChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import SplitscreenIcon from "@mui/icons-material/Splitscreen";
@@ -114,7 +116,7 @@ function DashboardItem(props) {
       url +=
         "api/visualizations/" +
         id +
-        ".json?fields=id,displayName,aggregationType,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+        ".json?fields=id,displayName,aggregationType,showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -472,7 +474,6 @@ function DashboardItem(props) {
           }
           return (
             <LineChart
-              margin={{ top: 100 }}
               layout="vertical"
               sx={ChartStyle}
               series={chartConfig.series}
@@ -489,7 +490,9 @@ function DashboardItem(props) {
                   ...xAxisMaxMin,
                 },
               ]}
-              margin={{ top: 40 + 30 * chartConfig.series.length }}
+              margin={{
+                top: 40 + 100 * Math.log10(chartConfig.series.length),
+              }}
             >
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
@@ -519,6 +522,7 @@ function DashboardItem(props) {
         }
         if (chartType === "text") return <TextChart item={item} />;
         if (chartType === "bar") {
+          console.log("bar label:", chartInfo);
           //find the longest text in the series
           let longestText = 0;
           chartConfig.yAxis.categories.forEach((text) => {
@@ -569,7 +573,7 @@ function DashboardItem(props) {
                 },
               ]}
               margin={{
-                top: 40 + 30 * chartConfig.series.length,
+                top: 0 + 30 * chartConfig.series.length,
                 left: longestText * 7 + 20,
               }}
               yAxis={[
@@ -584,6 +588,12 @@ function DashboardItem(props) {
                   },
                 },
               ]}
+              barLabel={chartInfo?.showData ? "value" : ""}
+              sx={(theme) => ({
+                [`.${barLabelClasses.root}`]: {
+                  fill: "#311B92",
+                },
+              })}
             >
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
@@ -612,6 +622,7 @@ function DashboardItem(props) {
           );
         } else if (chartType === "column") {
           //calcualte the trend line for each series
+          console.log("hit color");
           let ChartStyle = {
             [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
               strokeWidth: 1,
@@ -622,6 +633,9 @@ function DashboardItem(props) {
               },
             [`& .${markElementClasses.highlighted}`]: {
               stroke: "none",
+            },
+            [`.${barLabelClasses.root}`]: {
+              fill: "#311B92",
             },
           };
 
@@ -750,8 +764,12 @@ function DashboardItem(props) {
                     ...xAxisMaxMin,
                   },
                 ]}
-                margin={{ top: 40 + 30 * chartConfig.series.length }}
+                margin={{
+                  top: 40 + 100 * Math.log10(chartConfig.series.length),
+                }}
                 yAxis={[{ ...yAxisMaxMin, ...colorMap }]}
+                sx={ChartStyle}
+                barLabel={chartInfo?.showData ? "value" : ""}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
