@@ -362,7 +362,9 @@ function DashboardItem(props) {
       chartType === "pivot_table" ||
       chartType === "gauge" ||
       chartType == "map" ||
-      chartType == "scatter"
+      chartType == "scatter" ||
+      chartType == "area" ||
+      chartType == "stacked_area"
     ) {
       chartConfig = { series: [] };
       chartConfig.plotOptions = {
@@ -402,7 +404,11 @@ function DashboardItem(props) {
           });
         }
 
-        if (chartType === "line") {
+        if (
+          chartType === "line" ||
+          chartType == "area" ||
+          chartType == "stacked_area"
+        ) {
           //calcualte the trend line for each series
           let ChartStyle = {
             [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
@@ -450,6 +456,19 @@ function DashboardItem(props) {
                 id: `trend${i}`,
               });
             });
+          }
+          if (chartType == "area") {
+            chartConfig.series = chartConfig?.series?.map((series, i) => ({
+              ...series,
+              area: true,
+            }));
+          }
+          if (chartType == "stacked_area") {
+            chartConfig.series = chartConfig?.series?.map((series, i) => ({
+              ...series,
+              area: true,
+              stack: "total",
+            }));
           }
           return (
             <LineChart
@@ -855,7 +874,10 @@ function DashboardItem(props) {
           </span>
         </>
       );
-    } else if (chartInfo.type == "AREA" || chartInfo.type == "STACKED_AREA") {
+
+      /* 
+    //No longer using this one as it is not working properly
+    }else if (chartInfo.type == "AREA" || chartInfo.type == "STACKED_AREA") {
       return (
         <>
           <AreaChartComponent
@@ -866,7 +888,7 @@ function DashboardItem(props) {
             yAxisMaxMin={yAxisMaxMin}
           />
         </>
-      );
+      ); */
     } else if (chartInfo.type == "SCATTER") {
       return (
         <ScatterChartComponent
