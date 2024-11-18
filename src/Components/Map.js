@@ -21,6 +21,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   const [timelineData, setTimelineData] = useState(null);
   const [timelineDataPeriod, setTimelineDataPeriod] = useState(null);
   const legendData = [];
+  let legendSet = null;
   console.log("mapViews__", mapViews, selectedTimeline);
 
   const handleTimeChange = (year, month, day, index) => {
@@ -84,7 +85,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     handleMouseLeave
   );
 
-  console.log("parsedMapViews__", parsedMapViews);
+  // console.log("parsedMapViews__", parsedMapViews);
 
   // Set timeline data only once when mapViews change
   useEffect(() => {
@@ -136,30 +137,29 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
           />
 
           {parsedMapViews?.map((viewData) => {
-            console.log("viewData__", viewData);
+            legendSet = viewData?.legendSet;
             if (!selectedTimeline) {
               switch (viewData?.layer) {
                 case "facility":
                   return renderFacilityMarkers(viewData);
 
-              
                 case "orgUnit":
                   return renderOrgUnitPolygons(viewData);
 
-          case "thematic":
-            if (viewData?.thematicMapType === "CHOROPLETH") {
-              orgDrawn = true;
-              return renderThematicPolygons(viewData);
-            } else if (viewData?.thematicMapType === "BUBBLE") {
-              const draw = orgDrawn;
-              orgDrawn = true;
-              return renderBubbleMap(viewData, draw);
-            } else {
-              // thematicMapType set the default render to CHOROPLETH
-              orgDrawn = true;
-              return renderThematicPolygons(viewData);
-            }
-            break;
+                case "thematic":
+                  if (viewData?.thematicMapType === "CHOROPLETH") {
+                    orgDrawn = true;
+                    return renderThematicPolygons(viewData);
+                  } else if (viewData?.thematicMapType === "BUBBLE") {
+                    const draw = orgDrawn;
+                    orgDrawn = true;
+                    return renderBubbleMap(viewData, draw);
+                  } else {
+                    // thematicMapType set the default render to CHOROPLETH
+                    orgDrawn = true;
+                    return renderThematicPolygons(viewData);
+                  }
+                  break;
 
                 default:
                   return null;
@@ -177,7 +177,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                 case "thematic":
                   if (selectedTimeline?.thematicMapType === "CHOROPLETH") {
                     orgDrawn = true;
-                    console.log("rendering agai", selectedTimeline)
+                    console.log("rendering agai", selectedTimeline);
                     return renderThematicPolygons(selectedTimeline);
                   } else if (selectedTimeline?.thematicMapType === "BUBBLE") {
                     const draw = orgDrawn;
@@ -192,7 +192,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
             }
           })}
 
-          <Legend legendDatas={legendData} />
+          <Legend legendDatas={legendData} legendSet={legendSet} />
         </MapContainer>
       </div>
       {timelineData && (

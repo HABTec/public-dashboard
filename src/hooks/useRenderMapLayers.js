@@ -375,20 +375,27 @@ export const useRenderMapLayers = (
       // Assign colors to each region based on their data values for the current period
       const regionColors = viewData.mapData.map((data) => {
         const value = data.data[periodIndex];
+        let colorAssigned;
 
-        // Normalize the value between minValue and maxValue
-        const normalizedValue = (value - minValue) / (maxValue - minValue);
+        if (viewData.legendSet) {
+          colorAssigned = viewData.legendSet.legends.find(
+            (legend) => value >= legend.startValue && value < legend.endValue
+          )?.color;
+        } else {
+          // Normalize the value between minValue and maxValue
+          const normalizedValue = (value - minValue) / (maxValue - minValue);
 
-        // Use normalized value to find the corresponding color
-        const colorIndex = Math.floor(
-          normalizedValue * (viewData.colorScaleArray.length - 1)
-        );
-        const color = viewData.colorScaleArray[colorIndex];
-
+          // Use normalized value to find the corresponding color
+          const colorIndex = Math.floor(
+            normalizedValue * (viewData.colorScaleArray.length - 1)
+          );
+          // const color = viewData.colorScaleArray[colorIndex];
+          colorAssigned = viewData.colorScaleArray[colorIndex];
+        }
         return {
           region: data.name.match(/\(([^)]+)\)/)[1], // Extract region name
           value: value,
-          color: color,
+          color: colorAssigned,
         };
       });
 
