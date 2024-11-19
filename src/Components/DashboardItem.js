@@ -2,7 +2,6 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
 
-import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import {
   PieChart,
   BarChart,
@@ -22,7 +21,6 @@ import {
   lineElementClasses,
   markElementClasses,
 } from "@mui/x-charts/LineChart";
-import { barElementClasses } from "@mui/x-charts/BarChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import SplitscreenIcon from "@mui/icons-material/Splitscreen";
@@ -522,14 +520,16 @@ function DashboardItem(props) {
         }
         if (chartType === "text") return <TextChart item={item} />;
         if (chartType === "bar") {
-          console.log("bar label:", chartInfo);
           //find the longest text in the series
           let longestText = 0;
           chartConfig.yAxis.categories.forEach((text) => {
             if (text.length > longestText) longestText = text.length;
           });
 
-          if (chartInfo.legend?.set?.legends.length > 0) {
+          if (
+            chartInfo.legend?.set?.legends.length > 0 &&
+            chartInfo.legend?.strategy != "BY_DATA_ITEM"
+          ) {
             let legendValues = chartInfo?.legend?.set?.legends.map(
               (leg) => leg.endValue
             );
@@ -639,7 +639,10 @@ function DashboardItem(props) {
             },
           };
 
-          if (chartInfo.legend?.set?.legends.length > 0) {
+          if (
+            chartInfo.legend?.set?.legends.length > 0 &&
+            chartInfo.legend?.strategy != "BY_DATA_ITEM"
+          ) {
             let legendValues = chartInfo?.legend?.set?.legends.map(
               (leg) => leg.endValue
             );
@@ -828,10 +831,13 @@ function DashboardItem(props) {
                         <TableCell
                           sx={{
                             backgroundColor:
-                              chartInfo?.legend?.set?.legends.find(
-                                (leg) =>
-                                  data >= leg.startValue && data < leg.endValue
-                              )?.color ?? "white",
+                              chartInfo?.legend?.strategy != "BY_DATA_ITEM"
+                                ? chartInfo?.legend?.set?.legends.find(
+                                    (leg) =>
+                                      data >= leg.startValue &&
+                                      data < leg.endValue
+                                  )?.color ?? "lightgray"
+                                : "white",
                           }}
                           key={"data" + i}
                           align="right"
@@ -868,7 +874,8 @@ function DashboardItem(props) {
       let argLength = chartInfo?.legend?.set?.legends.map(
         (leg) => (leg.endValue - leg.startValue) / 100
       );
-      let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
+      let colors =
+        chartInfo?.legend?.set?.legends.map((leg) => leg.color) ?? [];
       let needleColor =
         chartInfo?.legend?.set?.legends.find(
           (leg) => value >= leg.startValue && value < leg.endValue

@@ -7,17 +7,21 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
     let value = chartData?.rows[0][1];
     let dataElement = chartData?.rows[0][0];
+    let textColor = "black";
+    let color = "primary";
 
-    let color = chartInfo?.legend?.set?.legends.find(
-      (leg) => value >= leg.startValue && value < leg.endValue
-    )?.color;
+    if (chartInfo.legend?.strategy != "BY_DATA_ITEM") {
+      color = chartInfo?.legend?.set?.legends.find(
+        (leg) => value >= leg.startValue && value < leg.endValue
+      )?.color;
 
-    let textColor =
-      chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
-    if (chartInfo?.legend?.style == "FILL") {
-      componentRef.current.style.backgroundColor = color;
-      componentRef.current.firstChild.firstChild.firstChild.style.color =
-        "black";
+      textColor =
+        chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
+      if (chartInfo?.legend?.style == "FILL") {
+        componentRef.current.style.backgroundColor = color;
+        componentRef.current.firstChild.firstChild.firstChild.style.color =
+          "black";
+      }
     }
 
     let title =
