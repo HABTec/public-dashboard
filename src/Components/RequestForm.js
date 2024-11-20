@@ -28,24 +28,7 @@ import Chart from "./Chart";
 import SecondaryListItems from "./SecondaryListItems";
 import ReactGA from "react-ga4";
 import Footer from "./Footer";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://habtechsolution.com/">
-        HABTech Solution
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import { Select, MenuItem, Checkbox, FormControlLabel } from "@mui/material";
 
 const drawerWidth = 240;
 
@@ -109,9 +92,83 @@ export default function RequestForm() {
   const [affiliation, setAffiliation] = React.useState("");
   const [request, setRequest] = React.useState("");
   const [showChart, setShowChart] = React.useState(false);
+  const [requester, setRequester] = React.useState("");
+  const [position, setPosition] = React.useState("");
+  const [dataType, setDataType] = React.useState("");
+  const [formatOfDataRequested, setFormatOfDataRequested] = React.useState("");
+  const [requestingOrganaization, setRequestingOrganization] =
+    React.useState("");
+  const [age, setAge] = React.useState("");
+  const [sex, setSex] = React.useState("");
+  const [academicBackground, setAcademicBackground] = React.useState("");
+  const [profession, setProfession] = React.useState("");
+  const [purpose, setPurpose] = React.useState("");
+  const [datasetName, setDatasetName] = React.useState("");
+  const [geographicDisaggregation, setGeographicDisaggregation] =
+    React.useState("");
+  const [ageDisaggration, setAgeDisaggration] = React.useState("");
+  const [sexDisaggration, setSexDisaggration] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+
+  const handlePhoneChange = (event) => {
+    setPhone(event.target.value);
+  };
+  const handleSexDisaggrationChange = (event) => {
+    setSexDisaggration(event.target.value);
+  };
+  const handleAgeDisaggrationChange = (event) => {
+    setAgeDisaggration(event.target.value);
+  };
+
+  const handleGeographicDisaggregationChange = (event) => {
+    setGeographicDisaggregation(event.target.value);
+  };
+
+  const handleDatasetNameChange = (event) => {
+    setDatasetName(event.target.value);
+  };
+
+  const handlePurposeChange = (event) => {
+    setPurpose(event.target.value);
+  };
+  const handleProfessionChange = (event) => {
+    setProfession(event.target.value);
+  };
+
+  const handleSexChange = (event) => {
+    setSex(event.target.value);
+  };
+
+  const handleAcademicBackgroundChange = (event) => {
+    setAcademicBackground(event.target.value);
+  };
+
+  const handleAgeChange = (event) => {
+    setAge(event.target.value);
+  };
+
+  const handleRequestingOrganizationChange = (event) => {
+    setRequestingOrganization(event.target.value);
+  };
 
   const handleNameChange = (event) => {
     setName(event.target.value);
+  };
+
+  const handleFormatOfDataRequestedChange = (event) => {
+    setFormatOfDataRequested(event.target.value);
+  };
+
+  const handleDataTypeChange = (event) => {
+    setDataType(event.target.value);
+  };
+
+  const handelPositionChange = (event) => {
+    setPosition(event.target.value);
+  };
+
+  const handleRequesterChange = (event) => {
+    setRequester(event.target.value);
   };
 
   const handleEmailChange = (event) => {
@@ -231,7 +288,6 @@ export default function RequestForm() {
                     setSelectedSavedChart={setSelectedSavedChart}
                   />
                 </Grid>
-                <Copyright sx={{ pt: 4 }} />
               </Container>
             ) : (
               <Grid
@@ -246,9 +302,9 @@ export default function RequestForm() {
                 <Paper elevation={3}>
                   <Typography
                     variant="h6"
-                    align="center"
+                    align="left"
                     gutterBottom
-                    sx={{ padding: "10px" }}
+                    sx={{ m: 2 }}
                   >
                     Request Form
                   </Typography>
@@ -256,19 +312,234 @@ export default function RequestForm() {
                     <Grid container spacing={2} sx={{ padding: "15px" }}>
                       <Grid item xs={12}>
                         <TextField
-                          sx={{ padding: "10px" }}
-                          name="name"
-                          label="Full Name"
+                          name="affiliation"
+                          label="Name of organization/Department/person requesting the Data/Information"
                           variant="outlined"
                           required
                           fullWidth
-                          value={name}
-                          onChange={handleNameChange}
+                          value={affiliation}
+                          onChange={handleAffiliationChange}
                         />
                       </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="requester-select-label">
+                            Requester
+                          </InputLabel>
+                          <Select
+                            labelId="requester-select-label"
+                            id="requester-select"
+                            label="Requester"
+                            value={requester}
+                            onChange={handleRequesterChange}
+                          >
+                            <MenuItem value="Individual (for private/personal purpose)">
+                              Individual (for private/personal purpose)
+                            </MenuItem>
+                            <MenuItem value="Organization">
+                              Organization
+                            </MenuItem>
+                            <MenuItem value="Unit/Department within organization ">
+                              Unit/Department within organization
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="type-of-data-select-label">
+                            Type of data reqeusted
+                          </InputLabel>
+                          <Select
+                            labelId="type-of-data-select-label"
+                            id="type-of-data-select"
+                            label="Type of data requested:"
+                            value={dataType}
+                            onChange={handleDataTypeChange}
+                          >
+                            <MenuItem value="Data set">Data set</MenuItem>
+                            <MenuItem value="Report/Text Document">
+                              Report/Text Document
+                            </MenuItem>
+                            <MenuItem value="Audio">Audio</MenuItem>
+                            <MenuItem value="Video">Video</MenuItem>
+                            <MenuItem value="Graphics/image/cartography">
+                              Graphics/image/cartography
+                            </MenuItem>
+                            <MenuItem value="Biologic specimen">
+                              Biologic specimen
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="requesting-organization-label">
+                            Requesting Organization
+                          </InputLabel>
+                          <Select
+                            labelId="requesting-organization-label"
+                            id="requesting-organization"
+                            label="Requesting Organization"
+                            value={requestingOrganaization}
+                            onChange={handleRequestingOrganizationChange}
+                          >
+                            <MenuItem value="MOH Agency">MOH Agency</MenuItem>
+                            <MenuItem value="Health facility">
+                              Health facility
+                            </MenuItem>
+                            <MenuItem value=" Research Institute ">
+                              Research Institute
+                            </MenuItem>
+                            <MenuItem value="Academic institution">
+                              Academic institution
+                            </MenuItem>
+                            <MenuItem value="Implementing partner">
+                              Implementing partner
+                            </MenuItem>
+                            <MenuItem value="Donor">Donor</MenuItem>
+                            <MenuItem value="Professional Association">
+                              Professional Association
+                            </MenuItem>
+                            <MenuItem value="Media">Media</MenuItem>
+                            <MenuItem value=" Private/Consulting firm">
+                              Private/Consulting firm
+                            </MenuItem>
+                            <MenuItem value="NGO">NGO</MenuItem>
+                            <MenuItem value="International /Foreign Organization">
+                              International /Foreign Organization
+                            </MenuItem>
+                            <MenuItem value="Other /specify/">Other</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="format-of-data-select-label">
+                            Format of data
+                          </InputLabel>
+                          <Select
+                            labelId="format-of-data-select-label"
+                            id="format-of-data-select"
+                            label="Format of data request"
+                            value={formatOfDataRequested}
+                            onChange={handleFormatOfDataRequestedChange}
+                          >
+                            <MenuItem value="Print/paper-based">
+                              Print/paper-based
+                            </MenuItem>
+                            <MenuItem value="Electronic (Digital)">
+                              Electronic (Digital)
+                            </MenuItem>
+                            <MenuItem value="Biologic sample">
+                              Biologic sample
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
                       <Grid item xs={12}>
+                        <Typography variant="h6" gutterBottom>
+                          Requesting Person
+                        </Typography>
+                      </Grid>
+
+                      <Grid item xs={12} sm={4}>
                         <TextField
-                          sx={{ padding: "10px" }}
+                          name="Age of the requestering person"
+                          label="Age of the requestering person"
+                          variant="outlined"
+                          required
+                          type="number"
+                          fullWidth
+                          value={age}
+                          onChange={handleAgeChange}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={4}>
+                        <FormControl fullWidth>
+                          <InputLabel id="sex-of-requesing-person-select-label">
+                            Sex of requesting person
+                          </InputLabel>
+                          <Select
+                            labelId="sex-of-requesing-person-select-label"
+                            id="sex-of-requesing-person-select"
+                            label="Sex of requesting person"
+                            value={sex}
+                            onChange={handleSexChange}
+                          >
+                            <MenuItem value="Print/paper-based">Male</MenuItem>
+                            <MenuItem value="Electronic (Digital)">
+                              Female
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={12} sm={4}>
+                        <TextField
+                          name="Phone number"
+                          label="Phone number"
+                          variant="outlined"
+                          required
+                          fullWidth
+                          type="number"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="academic-background-of-requesing-person-select-label">
+                            Academic Background of requesting person
+                          </InputLabel>
+                          <Select
+                            labelId="academic-background-of-requesing-person-select-label"
+                            id="academic-background-of-requesing-person-select"
+                            label="Academic Background of requesting person"
+                            value={academicBackground}
+                            onChange={handleAcademicBackgroundChange}
+                          >
+                            <MenuItem value="Certificate">Certificate</MenuItem>
+                            <MenuItem value="Diploma">Diploma</MenuItem>
+                            <MenuItem value="Degree">Degree</MenuItem>
+                            <MenuItem value="Other">Other</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                          <InputLabel id="profession-of-requesing-person-select-label">
+                            Profession of requesting person
+                          </InputLabel>
+                          <Select
+                            labelId="profession-of-requesing-person-select-label"
+                            id="profession-of-requesing-person-select"
+                            label="Profession of requesting person"
+                            value={profession}
+                            onChange={handleProfessionChange}
+                          >
+                            <MenuItem value="Researcher">Researcher</MenuItem>
+                            <MenuItem value="Consultant">Consultant</MenuItem>
+                            <MenuItem value="Healthcare Worker">
+                              Healthcare Worker
+                            </MenuItem>
+                            <MenuItem value="University / College Student">
+                              University / College Student
+                            </MenuItem>
+                            <MenuItem value="Journalist/Media professional">
+                              Journalist/Media professional
+                            </MenuItem>
+                            <MenuItem value="Politician">Politician</MenuItem>
+                            <MenuItem value="Other">Other</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
                           name="email"
                           label="Email"
                           variant="outlined"
@@ -279,37 +550,106 @@ export default function RequestForm() {
                           onChange={handleEmailChange}
                         />
                       </Grid>
+
                       <Grid item xs={12}>
-                        <TextField
-                          sx={{ padding: "10px" }}
-                          name="affiliation"
-                          label="Affiliation"
-                          variant="outlined"
-                          required
-                          fullWidth
-                          value={affiliation}
-                          onChange={handleAffiliationChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormControl
-                          fullWidth
-                          variant="outlined"
-                          sx={{ padding: "10px" }}
-                        >
-                          <InputLabel htmlFor="request">Request</InputLabel>
+                        <FormControl fullWidth variant="outlined">
+                          <InputLabel htmlFor="request">
+                            Purpose of data request *
+                          </InputLabel>
                           <OutlinedInput
-                            name="request"
-                            id="request"
+                            name="Purpose"
+                            id="Purpose"
                             multiline
                             rows={4}
                             required
-                            label="Request"
-                            value={request}
-                            onChange={handleRequestChange}
+                            label="Purpose of data request"
+                            value={purpose}
+                            onChange={handlePurposeChange}
                           />
                         </FormControl>
                       </Grid>
+
+                      <Grid item xs={12}>
+                        <TextField
+                          name="The name of the dataset and year of undertaking"
+                          label="The name of the dataset and year of undertaking"
+                          variant="outlined"
+                          required
+                          fullWidth
+                          value={datasetName}
+                          onChange={handleDatasetNameChange}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Typography variant="h6" gutterBottom>
+                          Particulars/ Disaggregation of data requested
+                        </Typography>
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <TextField
+                          name="Geographic (National, regional, zonal, Woreda, Kebele)"
+                          label="Geographic (National, regional, zonal, Woreda, Kebele)"
+                          variant="outlined"
+                          fullWidth
+                          value={geographicDisaggregation}
+                          onChange={handleGeographicDisaggregationChange}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          name="Age (Specify)"
+                          label="Age (Specify)"
+                          variant="outlined"
+                          fullWidth
+                          value={ageDisaggration}
+                          onChange={handleAgeDisaggrationChange}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          name="Sex (Specify)"
+                          label="Sex (Specify)"
+                          variant="outlined"
+                          fullWidth
+                          value={sexDisaggration}
+                          onChange={handleSexDisaggrationChange}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          name="Other demographic and socio-economic parameter/s"
+                          label="Other demographic and socio-economic parameter/s"
+                          variant="outlined"
+                          fullWidth
+                          value={sexDisaggration}
+                          onChange={handleSexDisaggrationChange}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Typography variant="h6" gutterBottom>
+                          Consent
+                        </Typography>
+                        I/we the undersigned solemnly agree that I/we use the
+                        data only for the purpose I/we requested for. I/we
+                        appropriately acknowledge the data owner/source that
+                        provided me/us access to this data in any publication or
+                        communication. I/we will not share the data to a third
+                        party without the consent of the data owner. I/we agree
+                        to be held accountable by any legal or administrative
+                        measures if I breach any of the above vows. <br />
+                        <FormControlLabel
+                          required
+                          control={<Checkbox />}
+                          label="I/we agree to the above vows."
+                        />
+                        <br />
+                        Note: All the variables with asterisk (*) are mandatory
+                        fields.
+                      </Grid>
+
                       <Grid
                         item
                         xs={12}
@@ -319,7 +659,6 @@ export default function RequestForm() {
                           type="submit"
                           variant="contained"
                           color="primary"
-                          sx={{ padding: "10px" }}
                         >
                           Submit Request
                         </Button>
