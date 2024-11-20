@@ -27,6 +27,7 @@ import { mainListItems } from "./listItems";
 import Chart from "./Chart";
 import SecondaryListItems from "./SecondaryListItems";
 import ReactGA from "react-ga4";
+import Footer from "./Footer";
 
 function Copyright(props) {
   return (
@@ -216,7 +217,6 @@ export default function RequestForm() {
             flexGrow: 1,
             height: "100vh",
             overflow: "auto",
-            pl: 4,
           }}
         >
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4, p: 4 }}>
@@ -330,6 +330,8 @@ export default function RequestForm() {
               </Grid>
             )}
           </Container>
+
+          <Footer></Footer>
         </Box>
       </Box>
     </ThemeProvider>

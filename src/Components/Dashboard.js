@@ -19,24 +19,7 @@ import Chart from "./Chart";
 import SecondaryListItems from "./SecondaryListItems";
 import ReactGA from "react-ga4";
 // import MapChart from "./MapChart";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://habtechsolution.com/">
-        HABTech Solution
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import Footer from "./Footer";
 
 const drawerWidth = 240;
 
@@ -203,7 +186,7 @@ export default function Dashboard() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4, minHeight: "80vh" }}>
             <Grid container spacing={3}>
               {/* Chart */}
               <Chart
@@ -213,8 +196,8 @@ export default function Dashboard() {
                 setSelectedSavedChart={setSelectedSavedChart}
               />
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
           </Container>
+          <Footer></Footer>
         </Box>
       </Box>
     </ThemeProvider>
