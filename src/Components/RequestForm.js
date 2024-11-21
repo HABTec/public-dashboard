@@ -87,16 +87,14 @@ export default function RequestForm() {
   });
 
   const form = React.useRef();
-  const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [affiliation, setAffiliation] = React.useState("");
-  const [request, setRequest] = React.useState("");
   const [showChart, setShowChart] = React.useState(false);
   const [requester, setRequester] = React.useState("");
   const [position, setPosition] = React.useState("");
   const [dataType, setDataType] = React.useState("");
   const [formatOfDataRequested, setFormatOfDataRequested] = React.useState("");
-  const [requestingOrganaization, setRequestingOrganization] =
+  const [requestingOrganization, setRequestingOrganization] =
     React.useState("");
   const [age, setAge] = React.useState("");
   const [sex, setSex] = React.useState("");
@@ -108,8 +106,34 @@ export default function RequestForm() {
     React.useState("");
   const [ageDisaggration, setAgeDisaggration] = React.useState("");
   const [sexDisaggration, setSexDisaggration] = React.useState("");
+  const [otherDisaggregation, setOtherDisaggregation] = React.useState("");
   const [phone, setPhone] = React.useState("");
+  const [consent, setConsent] = React.useState("");
+  const [otherOrganizationSpecify, setOtherOrganizationSpecify] =
+    React.useState("");
+  const [otherAcademicBackgroundSpecify, setOtherAcademicBackgroundSpecify] =
+    React.useState("");
+  const [otherProfession, setOtherProfession] = React.useState("");
 
+  const handleOtherProfessionChange = (event) => {
+    setOtherProfession(event.target.value);
+  };
+
+  const handleOtherAcademicBackgroundSpecifyChange = (event) => {
+    setOtherAcademicBackgroundSpecify(event.target.value);
+  };
+
+  const handleOtherOrganizationSpecifyChange = (event) => {
+    setOtherOrganizationSpecify(event.target.value);
+  };
+
+  const handleConsentChange = (event) => {
+    setConsent(event.target.value);
+  };
+
+  const handleOtherDisaggregation = (event) => {
+    setOtherDisaggregation(event.target.value);
+  };
   const handlePhoneChange = (event) => {
     setPhone(event.target.value);
   };
@@ -151,10 +175,6 @@ export default function RequestForm() {
     setRequestingOrganization(event.target.value);
   };
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
   const handleFormatOfDataRequestedChange = (event) => {
     setFormatOfDataRequested(event.target.value);
   };
@@ -179,15 +199,58 @@ export default function RequestForm() {
     setAffiliation(event.target.value);
   };
 
-  const handleRequestChange = (event) => {
-    setRequest(event.target.value);
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
+    const body = `
+    Dear Data/Information Officer
+
+    This is a request for Data/Information
+
+    Name of organization/Department/person requesting the Data/Information: ${affiliation}
+  
+    Requester: ${requester}
+    Requesting Organization: ${
+      requestingOrganization == "Other/specify"
+        ? otherOrganizationSpecify
+        : requestingOrganization
+    }
+    Position: ${position}
+    Age: ${age}
+    Sex: ${sex}
+    Email: ${email} 
+    Academic Background: ${
+      academicBackground == "Other/specify"
+        ? otherAcademicBackgroundSpecify
+        : academicBackground
+    }
+    Profession: ${
+      profession == "Other/specify" ? otherProfession : profession
+    }    
+    Phone: ${phone}
+
+    Format of Data Requested: ${formatOfDataRequested}
+    Data Type: ${dataType}
+    The name of the dataset and year of undertaking: ${datasetName}
+    Purpose: ${purpose}
+
+    Particulars/ Disaggregation of data requested
+    Geographic Disaggregation: ${geographicDisaggregation}
+    Age Disaggregation: ${ageDisaggration}
+    Sex Disaggregation: ${sexDisaggration}
+    Other Disaggregation: ${otherDisaggregation}
+    
+    Consent
+
+    I/we the undersigned solemnly agree that I/we use the data only for the purpose I/we requested for. I/we appropriately acknowledge the data owner/source that provided me/us access to this data in any publication or communication. I/we will not share the data to a third party without the consent of the data owner. I/we agree to be held accountable by any legal or administrative measures if I breach any of the above vows.
+    Consent: ${consent} by sending this mail I/we agree to the above vows.
+
+    Regards!
+  `.trim();
     const recipient = process.env.REACT_APP_EMAIL_ADRESS;
     window.open(
-      `mailto:${recipient}?subject=Request on ${affiliation}&body=${request}`
+      `mailto:${recipient}?subject=Request for Data &body=${encodeURIComponent(
+        body
+      )}`
     );
   };
 
@@ -382,7 +445,7 @@ export default function RequestForm() {
                             labelId="requesting-organization-label"
                             id="requesting-organization"
                             label="Requesting Organization"
-                            value={requestingOrganaization}
+                            value={requestingOrganization}
                             onChange={handleRequestingOrganizationChange}
                           >
                             <MenuItem value="MOH Agency">MOH Agency</MenuItem>
@@ -410,10 +473,28 @@ export default function RequestForm() {
                             <MenuItem value="International /Foreign Organization">
                               International /Foreign Organization
                             </MenuItem>
-                            <MenuItem value="Other /specify/">Other</MenuItem>
+                            <MenuItem value="Other/specify">
+                              Other/specify
+                            </MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
+
+                      {requestingOrganization == "Other/specify" ? (
+                        <Grid item sm={6}>
+                          <TextField
+                            name="Other Organization Specify"
+                            label="Other Organization Specify"
+                            variant="outlined"
+                            fullWidth
+                            value={otherOrganizationSpecify}
+                            onChange={handleOtherOrganizationSpecifyChange}
+                          />
+                        </Grid>
+                      ) : (
+                        <></>
+                      )}
+
                       <Grid item xs={12} sm={6}>
                         <FormControl fullWidth>
                           <InputLabel id="format-of-data-select-label">
@@ -440,7 +521,11 @@ export default function RequestForm() {
                       </Grid>
 
                       <Grid item xs={12}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography
+                          sx={{ fontWeight: "bold" }}
+                          variant="span"
+                          gutterBottom
+                        >
                           Requesting Person
                         </Typography>
                       </Grid>
@@ -490,7 +575,18 @@ export default function RequestForm() {
                           onChange={handlePhoneChange}
                         />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid item xs={12} sm={4}>
+                        <TextField
+                          name="Position of the requester"
+                          label="Position of the requester"
+                          variant="outlined"
+                          required
+                          fullWidth
+                          value={position}
+                          onChange={handelPositionChange}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={4}>
                         <FormControl fullWidth>
                           <InputLabel id="academic-background-of-requesing-person-select-label">
                             Academic Background of requesting person
@@ -505,11 +601,29 @@ export default function RequestForm() {
                             <MenuItem value="Certificate">Certificate</MenuItem>
                             <MenuItem value="Diploma">Diploma</MenuItem>
                             <MenuItem value="Degree">Degree</MenuItem>
-                            <MenuItem value="Other">Other</MenuItem>
+                            <MenuItem value="Other/specify">
+                              Other/Specify
+                            </MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      {academicBackground == "Other/specify" ? (
+                        <Grid item sm={4}>
+                          <TextField
+                            name="Other Academic Background Specify"
+                            label="Other Academic Background Specify"
+                            variant="outlined"
+                            fullWidth
+                            value={otherAcademicBackgroundSpecify}
+                            onChange={
+                              handleOtherAcademicBackgroundSpecifyChange
+                            }
+                          />
+                        </Grid>
+                      ) : (
+                        <></>
+                      )}
+                      <Grid item xs={12} sm={4}>
                         <FormControl fullWidth>
                           <InputLabel id="profession-of-requesing-person-select-label">
                             Profession of requesting person
@@ -533,10 +647,27 @@ export default function RequestForm() {
                               Journalist/Media professional
                             </MenuItem>
                             <MenuItem value="Politician">Politician</MenuItem>
-                            <MenuItem value="Other">Other</MenuItem>
+                            <MenuItem value="Other/specify">
+                              Other/specify
+                            </MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
+
+                      {profession == "Other/specify" ? (
+                        <Grid item sm={4}>
+                          <TextField
+                            name="Other Profession Specify"
+                            label="Other Profession Specify"
+                            variant="outlined"
+                            fullWidth
+                            value={otherProfession}
+                            onChange={handleOtherProfessionChange}
+                          />
+                        </Grid>
+                      ) : (
+                        <></>
+                      )}
 
                       <Grid item xs={12} sm={6}>
                         <TextField
@@ -582,7 +713,11 @@ export default function RequestForm() {
                       </Grid>
 
                       <Grid item xs={12}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography
+                          sx={{ fontWeight: "bold" }}
+                          variant="span"
+                          gutterBottom
+                        >
                           Particulars/ Disaggregation of data requested
                         </Typography>
                       </Grid>
@@ -623,15 +758,20 @@ export default function RequestForm() {
                           label="Other demographic and socio-economic parameter/s"
                           variant="outlined"
                           fullWidth
-                          value={sexDisaggration}
-                          onChange={handleSexDisaggrationChange}
+                          value={otherDisaggregation}
+                          onChange={handleOtherDisaggregation}
                         />
                       </Grid>
 
                       <Grid item xs={12}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography
+                          sx={{ fontWeight: "bold" }}
+                          variant="div"
+                          gutterBottom
+                        >
                           Consent
                         </Typography>
+                        <br />
                         I/we the undersigned solemnly agree that I/we use the
                         data only for the purpose I/we requested for. I/we
                         appropriately acknowledge the data owner/source that
@@ -644,6 +784,8 @@ export default function RequestForm() {
                           required
                           control={<Checkbox />}
                           label="I/we agree to the above vows."
+                          value={consent}
+                          onChange={handleConsentChange}
                         />
                         <br />
                         Note: All the variables with asterisk (*) are mandatory
