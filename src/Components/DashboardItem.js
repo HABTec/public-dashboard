@@ -859,10 +859,12 @@ function DashboardItem(props) {
     if (chartType == "gauge" && chartData.rows[0] && chartData.rows[0][1]) {
       const dataItem =
         chartData.metaData.items[chartData.metaData.dimensions.dx]?.name;
-      const period =
-        chartData.metaData.items[chartData.metaData.dimensions.pe]?.name;
-      const orgunit =
-        chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
+      const period = chartData?.metaData?.dimensions?.pe?.map(
+        (pe) => chartData.metaData.items[pe]?.name
+      );
+      const orgunit = chartData?.metaData?.dimensions?.ou?.map(
+        (ou) => chartData.metaData.items[ou]?.name
+      );
 
       const value = parseFloat(chartData.rows[0][1]);
       const percent = value / 100;
@@ -885,7 +887,7 @@ function DashboardItem(props) {
         <>
           <GaugeChart
             percent={percent}
-            nrOfLevels={30}
+            nrOfLevels={10}
             needleBaseColor={needleColor}
             needleColor={needleColor}
             textColor="#000"
@@ -895,7 +897,7 @@ function DashboardItem(props) {
             baseline={chartInfo.baseLineValue}
           />
           <span align="center">
-            {dataItem} - {orgunit} - {period}
+            {dataItem} - {orgunit?.join(" , ")} - {period?.join(" , ")}
           </span>
         </>
       );
