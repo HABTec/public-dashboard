@@ -75,7 +75,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
               display="flex"
               alignItems="center"
               component="div"
-              variant="h1"
+              variant="h2"
               color={textColor}
             >
               {value}
@@ -92,7 +92,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
           display="flex"
           alignItems="center"
           component="div"
-          variant="h1"
+          variant="h2"
           color="primary"
         >
           {value}
