@@ -66,7 +66,7 @@ function SecondaryListItems({
             if (onSavedReportClick) {
               onSavedReportClick();
             }
-          } else
+          } else {
             snackbar.showMessage(
               "No saved reports yet. You can save reports to display them here.",
               undefined,
@@ -75,13 +75,14 @@ function SecondaryListItems({
                 type: "info",
               }
             );
+          }
         }}
         inset
       >
         Saved reports
       </ListSubheader>
       {savedReports &&
-        savedReports.items.map((report, index) => (
+        savedReports?.items.map((report, index) => (
           <ListItemButton
             key={index}
             onMouseEnter={() => setHoverIndex(index)}
@@ -109,10 +110,21 @@ function SecondaryListItems({
             )}
           </ListItemButton>
         ))}
+
+      {savedReports?.items?.length == 0 || savedReports?.items == undefined ? (
+        <ListItemButton>
+          <ListItemIcon></ListItemIcon>
+          <ListItemText>
+            <span style={{ color: "#acacac" }}>No saved reports yet.</span>
+          </ListItemText>
+        </ListItemButton>
+      ) : (
+        ""
+      )}
       <Box
         sx={{
           position: "relative",
-          bottom: position.bottom,
+          bottom: 0,
         }}
       >
         <ListItemButton onClick={promptInstall}>

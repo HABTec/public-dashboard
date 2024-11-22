@@ -125,7 +125,7 @@ const ScatterChartComponent = ({ chartConfig, chartData, chartInfo, item }) => {
       </ScatterChart>
     );
   } else {
-    return <>No data</>;
+    return <span color="text.secondary">Invalid data format</span>;
   }
 };
 
