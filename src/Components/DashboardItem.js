@@ -341,19 +341,33 @@ function DashboardItem(props) {
           value: Number(row[1]),
         });
       }
+      const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
+        <Chip label={chartData.metaData.items[pe]?.name} />
+      ));
+      const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
+        <Chip label={chartData.metaData.items[ou]?.name} />
+      ));
 
       return chartConfig.data.length > 0 ? (
-        <PieChart
-          slotProps={{
-            legend: {
-              direction: "row",
-              position: { vertical: "top", horizontal: "middle" },
-              padding: 0,
-            },
-          }}
-          margin={{ top: 100 }}
-          series={[chartConfig]}
-        />
+        <>
+          <PieChart
+            slotProps={{
+              legend: {
+                direction: "row",
+                position: { vertical: "top", horizontal: "center" },
+                padding: 0,
+              },
+            }}
+            margin={{
+              top: 40 + 50 * Math.log10(chartConfig?.data?.length),
+            }}
+            series={[chartConfig]}
+            align="center"
+          />
+          <Typography align="center">
+            {period}-{orgunit}
+          </Typography>
+        </>
       ) : (
         <span style={{ color: "#DDD" }}>No Data</span>
       );
