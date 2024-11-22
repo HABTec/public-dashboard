@@ -1,6 +1,7 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
+import { Chip } from "@mui/material";
 
 import {
   PieChart,
@@ -86,6 +87,7 @@ const dimensionParam =
   "dimension,filter,programStage,items[dimensionItem,dimensionItemType]";
 
 function DashboardItem(props) {
+  const fullWidth = props?.fullWidth || false;
   const [chartInfo, setChartInfo] = React.useState();
   const [chartData, setChartData] = React.useState();
   const [loading, setLoading] = React.useState(true);
@@ -859,10 +861,12 @@ function DashboardItem(props) {
     if (chartType == "gauge" && chartData.rows[0] && chartData.rows[0][1]) {
       const dataItem =
         chartData.metaData.items[chartData.metaData.dimensions.dx]?.name;
-      const period =
-        chartData.metaData.items[chartData.metaData.dimensions.pe]?.name;
-      const orgunit =
-        chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
+      const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
+        <Chip label={chartData.metaData.items[pe]?.name} />
+      ));
+      const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
+        <Chip label={chartData.metaData.items[ou]?.name} />
+      ));
 
       const value = parseFloat(chartData.rows[0][1]);
       const percent = value / 100;
@@ -885,7 +889,7 @@ function DashboardItem(props) {
         <>
           <GaugeChart
             percent={percent}
-            nrOfLevels={30}
+            nrOfLevels={10}
             needleBaseColor={needleColor}
             needleColor={needleColor}
             textColor="#000"
@@ -895,7 +899,9 @@ function DashboardItem(props) {
             baseline={chartInfo.baseLineValue}
           />
           <span align="center">
-            {dataItem} - {orgunit} - {period}
+            {dataItem} <br />
+            {orgunit} <br />
+            {period}
           </span>
         </>
       );
@@ -914,7 +920,7 @@ function DashboardItem(props) {
           />
         </>
       ); */
-    } else if (chartInfo.type == "SCATTER") {
+    } else if (chartType == "scatter") {
       return (
         <ScatterChartComponent
           key={item._id}
@@ -1085,7 +1091,7 @@ function DashboardItem(props) {
     // return <ShareModal />;
   };
   return (
-    <Grid item xs={12} md={6} lg={6}>
+    <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
       <Paper
         ref={componentRef}
         sx={
@@ -1151,18 +1157,28 @@ function DashboardItem(props) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handelFullScreen}>
-                <ListItemIcon>
-                  <FullscreenIcon />
-                </ListItemIcon>
-                <ListItemText primary="Full Screen" />
-              </MenuItem>
-              <MenuItem onClick={handleSaveChart}>
-                <ListItemIcon>
-                  <BookmarkAddIcon />
-                </ListItemIcon>
-                <ListItemText primary="Save" />
-              </MenuItem>
+              {props?.displayFullScreen ? (
+                <MenuItem onClick={handelFullScreen}>
+                  <ListItemIcon>
+                    <FullscreenIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Full Screen" />
+                </MenuItem>
+              ) : (
+                <></>
+              )}
+
+              {props?.displaySave ? (
+                <MenuItem onClick={handleSaveChart}>
+                  <ListItemIcon>
+                    <BookmarkAddIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Save" />
+                </MenuItem>
+              ) : (
+                <></>
+              )}
+
               <MenuItem>
                 <ListItemIcon>
                   <InsightsIcon />
@@ -1374,11 +1390,14 @@ function DashboardItems(props) {
     );
   }
   return props?.items?.map((item, i) => {
+    console.log("item +", item);
     return (
       <DashboardItem
         {...props}
         key={item.id ?? item._id + i}
         item={{ ...item, id: item.id ?? item._id }}
+        displaySave={true}
+        displayFullScreen={true}
       ></DashboardItem>
     );
   });
@@ -1388,4 +1407,4 @@ DashboardItem.propTypes = {
   children: PropTypes.node,
 };
 
-export default DashboardItems;
+export { DashboardItems, DashboardItem };

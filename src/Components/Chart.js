@@ -9,7 +9,7 @@ import {
   MenuItem,
   Paper,
 } from "@mui/material";
-import DashboardItems from "./DashboardItem";
+import { DashboardItems, DashboardItem } from "./DashboardItem";
 import Title from "./Title";
 import { useSnackbar } from "material-ui-snackbar-provider";
 import OrgUnitFilterModal from "./OrgUnitFilterModal";

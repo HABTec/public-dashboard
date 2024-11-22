@@ -23,28 +23,12 @@ import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems } from "./listItems";
-import Chart from "./Chart";
-import SecondaryListItems from "./SecondaryListItems";
+import { mainListItems } from "../Components/listItems";
+import Chart from "../Components/Chart";
+import SecondaryListItems from "../Components/SecondaryListItems";
 import ReactGA from "react-ga4";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://habtechsolution.com/">
-        HABTech Solution
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import Footer from "../Components/Footer";
+import { Select, MenuItem, Checkbox, FormControlLabel } from "@mui/material";
 
 const drawerWidth = 240;
 
@@ -95,47 +79,14 @@ const Drawer = styled(MuiDrawer, {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function RequestForm() {
+export default function FeedBack() {
   ReactGA.send({
     hitType: "pageview",
-    page: "/request-form",
-    title: "request for additional information",
+    page: "/feedback",
+    title: "Feedback Collection page",
   });
 
-  const form = React.useRef();
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [affiliation, setAffiliation] = React.useState("");
-  const [request, setRequest] = React.useState("");
   const [showChart, setShowChart] = React.useState(false);
-
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
-
-  const handleAffiliationChange = (event) => {
-    setAffiliation(event.target.value);
-  };
-
-  const handleRequestChange = (event) => {
-    setRequest(event.target.value);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const recipient = process.env.REACT_APP_EMAIL_ADRESS;
-    window.open(
-      `mailto:${recipient}?subject=Request on ${affiliation}&body=${request}`
-    );
-  };
-
-  const handleSavedReportClick = () => {
-    setShowChart(true);
-  };
 
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
@@ -145,8 +96,12 @@ export default function RequestForm() {
     JSON.parse(localStorage.getItem("saved_reports"))
   );
 
-  const [selectedSavedChart, setSelectedSavedChart] = React.useState(null);
+  const iframeRef = React.useRef(null);
 
+  const handleSavedReportClick = () => {
+    setShowChart(true);
+  };
+  const [selectedSavedChart, setSelectedSavedChart] = React.useState(null);
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
@@ -216,10 +171,10 @@ export default function RequestForm() {
             flexGrow: 1,
             height: "100vh",
             overflow: "auto",
-            pl: 4,
           }}
+          width="100%"
         >
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4, p: 4 }}>
+          <Container width="100%" sx={{ mt: 4, mb: 4, p: 4 }}>
             {showChart ? (
               <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <Grid container spacing={3}>
@@ -231,7 +186,6 @@ export default function RequestForm() {
                     setSelectedSavedChart={setSelectedSavedChart}
                   />
                 </Grid>
-                <Copyright sx={{ pt: 4 }} />
               </Container>
             ) : (
               <Grid
@@ -241,95 +195,32 @@ export default function RequestForm() {
                 padding={4}
                 rowSpacing={2}
                 spacing={4}
-                sx={{ padding: "10px", marginTop: "5rem" }}
+                sx={{ padding: "10px", marginTop: "2rem" }}
+                sm={12}
+                width="100%"
               >
-                <Paper elevation={3}>
-                  <Typography
-                    variant="h6"
-                    align="center"
-                    gutterBottom
-                    sx={{ padding: "10px" }}
+                <Paper
+                  elevation={3}
+                  width="100%"
+                  sx={{ width: "100%", paddingTop: "2rem" }}
+                >
+                  <iframe
+                    id="myIframe"
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSeMDVXsEF2hNBdKf4XKRuGhbiDZxiN_gfqosz7sqrOHgx5otg/viewform?embedded=true"
+                    width="100%"
+                    height="1880"
+                    frameborder="0"
+                    marginheight="0"
+                    marginwidth="0"
                   >
-                    Request Form
-                  </Typography>
-                  <form ref={form} onSubmit={handleSubmit}>
-                    <Grid container spacing={2} sx={{ padding: "15px" }}>
-                      <Grid item xs={12}>
-                        <TextField
-                          sx={{ padding: "10px" }}
-                          name="name"
-                          label="Full Name"
-                          variant="outlined"
-                          required
-                          fullWidth
-                          value={name}
-                          onChange={handleNameChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          sx={{ padding: "10px" }}
-                          name="email"
-                          label="Email"
-                          variant="outlined"
-                          required
-                          fullWidth
-                          type="email"
-                          value={email}
-                          onChange={handleEmailChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          sx={{ padding: "10px" }}
-                          name="affiliation"
-                          label="Affiliation"
-                          variant="outlined"
-                          required
-                          fullWidth
-                          value={affiliation}
-                          onChange={handleAffiliationChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormControl
-                          fullWidth
-                          variant="outlined"
-                          sx={{ padding: "10px" }}
-                        >
-                          <InputLabel htmlFor="request">Request</InputLabel>
-                          <OutlinedInput
-                            name="request"
-                            id="request"
-                            multiline
-                            rows={4}
-                            required
-                            label="Request"
-                            value={request}
-                            onChange={handleRequestChange}
-                          />
-                        </FormControl>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={12}
-                        sx={{ display: "flex", justifyContent: "flex-end" }}
-                      >
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          color="primary"
-                          sx={{ padding: "10px" }}
-                        >
-                          Submit Request
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </form>
+                    Loading…
+                  </iframe>
                 </Paper>
               </Grid>
             )}
           </Container>
+
+          <Footer></Footer>
         </Box>
       </Box>
     </ThemeProvider>
