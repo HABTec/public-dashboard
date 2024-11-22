@@ -14,12 +14,18 @@ import {
   Alert,
   CardContent,
   Avatar,
+  Drawer,
+  List,
+  ListItem,
+  IconButton,
+  ListItemText,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import MapIcon from "@mui/icons-material/Map";
+import MenuIcon from "@mui/icons-material/Menu";
 
 import { Link } from "react-router-dom";
 import Footer from "../Components/Footer";
@@ -46,12 +52,6 @@ const FeatureCard = styled(Card)(({ theme }) => ({
   "&:hover": {
     transform: "translateY(-10px)",
   },
-}));
-
-const TestimonialCard = styled(Card)(({ theme }) => ({
-  padding: theme.spacing(3),
-  margin: theme.spacing(2),
-  backgroundColor: "#f5f5f5",
 }));
 
 const Home = () => {
@@ -173,6 +173,48 @@ const Home = () => {
         ?.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
+
+  const navigationItems = [
+    { label: "Dashboard", to: "/dashboard" },
+    { label: "Features", id: "features" },
+    { label: "Key Messages", id: "key messages" },
+    { label: "Contact", id: "contact" },
+  ];
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+  const renderNavItems = () => (
+    <List>
+      {navigationItems.map((item) =>
+        item.to ? (
+          <ListItem key={item.label} button>
+            <Link
+              to={item.to}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <ListItemText primary={item.label} />
+            </Link>
+          </ListItem>
+        ) : (
+          <ListItem
+            key={item.label}
+            button
+            onClick={() =>
+              document
+                .getElementById(item.id)
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            <ListItemText primary={item.label} />
+          </ListItem>
+        )
+      )}
+    </List>
+  );
+
   return (
     <Box>
       <AppBar position="sticky">
@@ -183,38 +225,47 @@ const Home = () => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="span">
+            <Typography variant="span" sx={{ fontSize: "1.2rem" }}>
               HMIS Insights: Exploring Health Metrics with Interactive
               Visualizations
             </Typography>
-            <Box>
-              <Link
-                to="/dashboard"
-                color="#fff"
-                style={{ textDecoration: "none" }}
-              >
-                <Button sx={{ color: "#fff" }} key={100}>
-                  Dashboard
-                </Button>
-              </Link>
-              {["Features", "key messages", "Contact"].map((item) => (
-                <Button
-                  key={item}
-                  color="inherit"
-                  onClick={() =>
-                    document
-                      .getElementById(item.toLowerCase())
-                      .scrollIntoView({ behavior: "smooth" })
-                  }
-                >
-                  {item}
-                </Button>
-              ))}
+            <Box sx={{ display: { xs: "none", md: "flex" } }}>
+              {navigationItems.map((item) =>
+                item.to ? (
+                  <Link
+                    to={item.to}
+                    style={{ textDecoration: "none", color: "#fff" }}
+                    key={item.label}
+                  >
+                    <Button sx={{ color: "#fff" }}>{item.label}</Button>
+                  </Link>
+                ) : (
+                  <Button
+                    key={item.label}
+                    sx={{ color: "#fff" }}
+                    onClick={() =>
+                      document
+                        .getElementById(item.id)
+                        ?.scrollIntoView({ behavior: "smooth" })
+                    }
+                  >
+                    {item.label}
+                  </Button>
+                )
+              )}
             </Box>
+            <IconButton
+              sx={{ display: { xs: "block", md: "none" }, color: "#fff" }}
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
           </Box>
         </Container>
       </AppBar>
-
+      <Drawer anchor="right" open={mobileOpen} onClose={handleDrawerToggle}>
+        {renderNavItems()}
+      </Drawer>
       <StyledHeroSection>
         <Container>
           <HomeSlider></HomeSlider>
