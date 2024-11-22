@@ -1,7 +1,7 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Legend from "./Legend";
-import { MapContainer } from "react-leaflet";
+import Chip from "@mui/material/Chip";
 
 const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
@@ -9,6 +9,19 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
     let dataElement = chartData?.rows[0][0];
     let textColor = "black";
     let color = "primary";
+
+    const metadata = chartData?.metaData;
+    console.log(
+      "orgunit1",
+      metadata.items[metadata?.dimensions?.pe]?.name,
+      metadata.items[metadata?.dimensions?.ou]?.name
+    );
+    let orgunit = metadata?.dimensions?.ou?.map((ou) => (
+      <Chip label={metadata.items[ou]?.name}></Chip>
+    ));
+    let period = metadata?.dimensions?.pe?.map((p) => (
+      <Chip label={metadata.items[p]?.name}> </Chip>
+    ));
 
     if (chartInfo.legend?.strategy != "BY_DATA_ITEM") {
       color = chartInfo?.legend?.set?.legends.find(
@@ -98,7 +111,9 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
         }}
       >
         {text}
-        <Typography>{title}</Typography>
+        <Typography align="center">
+          {title} <br /> {period} <br /> {orgunit}
+        </Typography>
       </div>
     );
   } catch (error) {

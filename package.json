@@ -37,8 +37,10 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.23.0",
     "react-scripts": "latest",
+    "react-slick": "^0.30.2",
     "regression": "^2.0.1",
     "science": "^1.9.3",
+    "slick-carousel": "^1.8.1",
     "xlsx": "^0.18.5"
   },
   "browserslist": {
