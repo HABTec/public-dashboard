@@ -12,7 +12,7 @@ import {
 import { Add, Remove } from "@mui/icons-material";
 import { WhiteTileLayer } from "./TileComponent";
 import debounce from "lodash.debounce"; 
-import Legend from "./Legend";
+import SplitMapLegend from "./SplitMapLegend";
 import MapSyncComponent from "./MapSyncComponent";
 
 const MapGrid = ({
@@ -24,12 +24,15 @@ const MapGrid = ({
   basemap,
   mapBounds,
   legendData,
+  legendRange,
 }) => {
   const [tileLayer, setTileLayer] = useState(
     basemap === "none" ? "osm" : basemap
   );
   const [center, setCenter] = useState([9.145, 40.489673]);
   const [zoom, setZoom] = useState(4);
+
+  console.log("split grid", legendData, legendRange)
 
   const tileLayers = {
     osm: { url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
@@ -160,6 +163,8 @@ const MapGrid = ({
             </Typography>
           </Box>
         ))}
+      <SplitMapLegend legendData={legendData} legendRange={legendRange} />
+
       </Box>
     </Box>
   );

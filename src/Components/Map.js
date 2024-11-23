@@ -23,6 +23,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   const [timelineDataPeriod, setTimelineDataPeriod] = useState(null);
   const legendData = [];
   const [splitPeriodData, setSplitPeriodData] = useState([]);
+  const [legendRange, setLegendRange] = useState(null);
   console.log("mapViews__", mapViews, selectedTimeline);
 
   const handleTimeChange = (year, month, day, index) => {
@@ -104,11 +105,25 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
       setTimelineData(timeline);
       setTimelineDataPeriod(timeline[0].timePeriods);
       setSelectedTimeline(timeline[0]); // Set initial selected timeline
+      // setLegendData(prev => [...prev, timeline[0]?.legendDatas]);
     } else if(dataSplitByPeriod){
       const data = renderTimelineDatas(dataSplitByPeriod);
+      let mn = Infinity;
+      let mx = -Infinity;
+      let displayName, name
+      data.map((d) => {
+        displayName = d.displayName;
+        name = d.layer
+        d.regionColors.map((region) => {
+          mn = Math.min(mn, region.value);
+          mx = Math.max(mx, region.value);
+        })
+      })
+      console.log("split_data", data)
       setSplitPeriodData(data);
+      setLegendRange({mn, mx, displayName, name});
     }
-    console.log("timelineData__++", timelineData);
+    
   }, []);
 
   if (!mapBounds) return null;
@@ -135,7 +150,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
           renderFacilityMarkers={renderFacilityMarkers}
           basemap={basemap}
           mapBounds={mapBounds}
-          legendData={legendData}
+          legendRange={legendRange}
         />
       ) : 
       (
@@ -191,6 +206,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                 }
               } else {
                 // Render based on the selected timeline
+                console.log("selectedTimeline__", selectedTimeline);
                 switch (selectedTimeline?.layer) {
                   case "facility":
                     return renderFacilityMarkers(selectedTimeline);
