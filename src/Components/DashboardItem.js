@@ -1,8 +1,8 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
+import { Chip } from "@mui/material";
 
-import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import {
   PieChart,
   BarChart,
@@ -16,6 +16,7 @@ import {
   ChartsTooltip,
   MarkPlot,
   ChartsAxisHighlight,
+  barLabelClasses,
 } from "@mui/x-charts";
 import {
   lineElementClasses,
@@ -86,6 +87,7 @@ const dimensionParam =
   "dimension,filter,programStage,items[dimensionItem,dimensionItemType]";
 
 function DashboardItem(props) {
+  const fullWidth = props?.fullWidth || false;
   const [chartInfo, setChartInfo] = React.useState();
   const [chartData, setChartData] = React.useState();
   const [loading, setLoading] = React.useState(true);
@@ -114,7 +116,7 @@ function DashboardItem(props) {
       url +=
         "api/visualizations/" +
         id +
-        ".json?fields=id,displayName,aggregationType,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+        ".json?fields=id,displayName,aggregationType,showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -133,7 +135,7 @@ function DashboardItem(props) {
       url +=
         "api/maps/" +
         id +
-        ".json?fields=id,displayName,latitude,zoom,basemap,mapViews[id,colorScale,aggregationType,opacity,layer,thematicMapType,renderingStrategy,displayName,type,displayDescription,columns[dimension,legendSet[id],filter,programStage,items[dimensionItem~rename(id),displayName~rename(name),dimensionItemType]],rows[:all],filters[:all]]";
+        ".json?fields=id,displayName,latitude,zoom,basemap,mapViews[id,colorScale,legendSet[name,legends[name,color,startValue,endValue]],aggregationType,opacity,layer,thematicMapType,renderingStrategy,displayName,type,displayDescription,columns[dimension,legendSet[id],filter,programStage,items[dimensionItem~rename(id),displayName~rename(name),dimensionItemType]],rows[:all],filters[:all]]";
     } else if (item.type == "TEXT") {
       id = item._id;
       setChartInfo({ ...item });
@@ -339,19 +341,33 @@ function DashboardItem(props) {
           value: Number(row[1]),
         });
       }
+      const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
+        <Chip label={chartData.metaData.items[pe]?.name} />
+      ));
+      const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
+        <Chip label={chartData.metaData.items[ou]?.name} />
+      ));
 
       return chartConfig.data.length > 0 ? (
-        <PieChart
-          slotProps={{
-            legend: {
-              direction: "row",
-              position: { vertical: "top", horizontal: "middle" },
-              padding: 0,
-            },
-          }}
-          margin={{ top: 100 }}
-          series={[chartConfig]}
-        />
+        <>
+          <PieChart
+            slotProps={{
+              legend: {
+                direction: "row",
+                position: { vertical: "top", horizontal: "center" },
+                padding: 0,
+              },
+            }}
+            margin={{
+              top: 40 + 50 * Math.log10(chartConfig?.data?.length),
+            }}
+            series={[chartConfig]}
+            align="center"
+          />
+          <Typography align="center">
+            {period}-{orgunit}
+          </Typography>
+        </>
       ) : (
         <span style={{ color: "#DDD" }}>No Data</span>
       );
@@ -362,7 +378,9 @@ function DashboardItem(props) {
       chartType === "pivot_table" ||
       chartType === "gauge" ||
       chartType == "map" ||
-      chartType == "scatter"
+      chartType == "scatter" ||
+      chartType == "area" ||
+      chartType == "stacked_area"
     ) {
       chartConfig = { series: [] };
       chartConfig.plotOptions = {
@@ -402,7 +420,11 @@ function DashboardItem(props) {
           });
         }
 
-        if (chartType === "line") {
+        if (
+          chartType === "line" ||
+          chartType == "area" ||
+          chartType == "stacked_area"
+        ) {
           //calcualte the trend line for each series
           let ChartStyle = {
             [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
@@ -451,9 +473,21 @@ function DashboardItem(props) {
               });
             });
           }
+          if (chartType == "area") {
+            chartConfig.series = chartConfig?.series?.map((series, i) => ({
+              ...series,
+              area: true,
+            }));
+          }
+          if (chartType == "stacked_area") {
+            chartConfig.series = chartConfig?.series?.map((series, i) => ({
+              ...series,
+              area: true,
+              stack: "total",
+            }));
+          }
           return (
             <LineChart
-              margin={{ top: 100 }}
               layout="vertical"
               sx={ChartStyle}
               series={chartConfig.series}
@@ -470,7 +504,9 @@ function DashboardItem(props) {
                   ...xAxisMaxMin,
                 },
               ]}
-              margin={{ top: 40 + 30 * chartConfig.series.length }}
+              margin={{
+                top: 40 + 100 * Math.log10(chartConfig.series.length),
+              }}
             >
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
@@ -506,7 +542,10 @@ function DashboardItem(props) {
             if (text.length > longestText) longestText = text.length;
           });
 
-          if (chartInfo.legend?.set?.legends.length > 0) {
+          if (
+            chartInfo.legend?.set?.legends.length > 0 &&
+            chartInfo.legend?.strategy != "BY_DATA_ITEM"
+          ) {
             let legendValues = chartInfo?.legend?.set?.legends.map(
               (leg) => leg.endValue
             );
@@ -550,8 +589,8 @@ function DashboardItem(props) {
                 },
               ]}
               margin={{
-                top: 40 + 30 * chartConfig.series.length,
-                left: longestText * 6,
+                top: 0 + 30 * chartConfig.series.length,
+                left: longestText * 7 + 20,
               }}
               yAxis={[
                 {
@@ -565,6 +604,12 @@ function DashboardItem(props) {
                   },
                 },
               ]}
+              barLabel={chartInfo?.showData ? "value" : ""}
+              sx={(theme) => ({
+                [`.${barLabelClasses.root}`]: {
+                  fill: "#311B92",
+                },
+              })}
             >
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
@@ -593,6 +638,7 @@ function DashboardItem(props) {
           );
         } else if (chartType === "column") {
           //calcualte the trend line for each series
+          console.log("hit color");
           let ChartStyle = {
             [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
               strokeWidth: 1,
@@ -604,9 +650,15 @@ function DashboardItem(props) {
             [`& .${markElementClasses.highlighted}`]: {
               stroke: "none",
             },
+            [`.${barLabelClasses.root}`]: {
+              fill: "#311B92",
+            },
           };
 
-          if (chartInfo.legend?.set?.legends.length > 0) {
+          if (
+            chartInfo.legend?.set?.legends.length > 0 &&
+            chartInfo.legend?.strategy != "BY_DATA_ITEM"
+          ) {
             let legendValues = chartInfo?.legend?.set?.legends.map(
               (leg) => leg.endValue
             );
@@ -731,8 +783,12 @@ function DashboardItem(props) {
                     ...xAxisMaxMin,
                   },
                 ]}
-                margin={{ top: 40 + 30 * chartConfig.series.length }}
+                margin={{
+                  top: 40 + 100 * Math.log10(chartConfig.series.length),
+                }}
                 yAxis={[{ ...yAxisMaxMin, ...colorMap }]}
+                sx={ChartStyle}
+                barLabel={chartInfo?.showData ? "value" : ""}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
@@ -791,10 +847,13 @@ function DashboardItem(props) {
                         <TableCell
                           sx={{
                             backgroundColor:
-                              chartInfo?.legend?.set?.legends.find(
-                                (leg) =>
-                                  data >= leg.startValue && data < leg.endValue
-                              )?.color ?? "white",
+                              chartInfo?.legend?.strategy != "BY_DATA_ITEM"
+                                ? chartInfo?.legend?.set?.legends.find(
+                                    (leg) =>
+                                      data >= leg.startValue &&
+                                      data < leg.endValue
+                                  )?.color ?? "lightgray"
+                                : "white",
                           }}
                           key={"data" + i}
                           align="right"
@@ -816,10 +875,12 @@ function DashboardItem(props) {
     if (chartType == "gauge" && chartData.rows[0] && chartData.rows[0][1]) {
       const dataItem =
         chartData.metaData.items[chartData.metaData.dimensions.dx]?.name;
-      const period =
-        chartData.metaData.items[chartData.metaData.dimensions.pe]?.name;
-      const orgunit =
-        chartData.metaData.items[chartData.metaData.dimensions.ou]?.name;
+      const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
+        <Chip label={chartData.metaData.items[pe]?.name} />
+      ));
+      const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
+        <Chip label={chartData.metaData.items[ou]?.name} />
+      ));
 
       const value = parseFloat(chartData.rows[0][1]);
       const percent = value / 100;
@@ -831,7 +892,8 @@ function DashboardItem(props) {
       let argLength = chartInfo?.legend?.set?.legends.map(
         (leg) => (leg.endValue - leg.startValue) / 100
       );
-      let colors = chartInfo?.legend?.set?.legends.map((leg) => leg.color);
+      let colors =
+        chartInfo?.legend?.set?.legends.map((leg) => leg.color) ?? [];
       let needleColor =
         chartInfo?.legend?.set?.legends.find(
           (leg) => value >= leg.startValue && value < leg.endValue
@@ -841,7 +903,7 @@ function DashboardItem(props) {
         <>
           <GaugeChart
             percent={percent}
-            nrOfLevels={30}
+            nrOfLevels={10}
             needleBaseColor={needleColor}
             needleColor={needleColor}
             textColor="#000"
@@ -851,11 +913,16 @@ function DashboardItem(props) {
             baseline={chartInfo.baseLineValue}
           />
           <span align="center">
-            {dataItem} - {orgunit} - {period}
+            {dataItem} <br />
+            {orgunit} <br />
+            {period}
           </span>
         </>
       );
-    } else if (chartInfo.type == "AREA") {
+
+      /* 
+    //No longer using this one as it is not working properly
+    }else if (chartInfo.type == "AREA" || chartInfo.type == "STACKED_AREA") {
       return (
         <>
           <AreaChartComponent
@@ -866,8 +933,8 @@ function DashboardItem(props) {
             yAxisMaxMin={yAxisMaxMin}
           />
         </>
-      );
-    } else if (chartInfo.type == "SCATTER") {
+      ); */
+    } else if (chartType == "scatter") {
       return (
         <ScatterChartComponent
           key={item._id}
@@ -1038,7 +1105,7 @@ function DashboardItem(props) {
     // return <ShareModal />;
   };
   return (
-    <Grid item xs={12} md={6} lg={6}>
+    <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
       <Paper
         ref={componentRef}
         sx={
@@ -1104,18 +1171,28 @@ function DashboardItem(props) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handelFullScreen}>
-                <ListItemIcon>
-                  <FullscreenIcon />
-                </ListItemIcon>
-                <ListItemText primary="Full Screen" />
-              </MenuItem>
-              <MenuItem onClick={handleSaveChart}>
-                <ListItemIcon>
-                  <BookmarkAddIcon />
-                </ListItemIcon>
-                <ListItemText primary="Save" />
-              </MenuItem>
+              {props?.displayFullScreen ? (
+                <MenuItem onClick={handelFullScreen}>
+                  <ListItemIcon>
+                    <FullscreenIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Full Screen" />
+                </MenuItem>
+              ) : (
+                <></>
+              )}
+
+              {props?.displaySave ? (
+                <MenuItem onClick={handleSaveChart}>
+                  <ListItemIcon>
+                    <BookmarkAddIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Save" />
+                </MenuItem>
+              ) : (
+                <></>
+              )}
+
               <MenuItem>
                 <ListItemIcon>
                   <InsightsIcon />
@@ -1327,11 +1404,14 @@ function DashboardItems(props) {
     );
   }
   return props?.items?.map((item, i) => {
+    console.log("item +", item);
     return (
       <DashboardItem
         {...props}
         key={item.id ?? item._id + i}
         item={{ ...item, id: item.id ?? item._id }}
+        displaySave={true}
+        displayFullScreen={true}
       ></DashboardItem>
     );
   });
@@ -1341,4 +1421,4 @@ DashboardItem.propTypes = {
   children: PropTypes.node,
 };
 
-export default DashboardItems;
+export { DashboardItems, DashboardItem };

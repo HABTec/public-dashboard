@@ -210,13 +210,13 @@ export const useRenderMapLayers = (
       );
       // console.log(coordinates, ">>>")
       return coordinates.map((polygon, polygonIndex) => {
-        console.log(">>>>>>>>>>>", polygon[0], polygonIndex, color)
-        console.log("key", `${region.id}-${polygonIndex}-${regionIndex}-${color}-${regionColor}-${Date.now()}-${Math.random()}`)
+        // console.log(">>>>>>>>>>>", polygon[0], polygonIndex, color)
+       
         return (
           <Polygon
-            key={`${region.id}-${polygonIndex}-${regionIndex}-${color}-${regionColor}-${Date.now()}-${Math.random()}`}
+            key={`${region.id}-${polygonIndex}-${regionIndex}-${color}-${regionColor}-${Math.random()}`}
             positions={polygon}
-            fillColor={`#${color}`}
+            fillColor={color && color.startsWith("#") ? color : `#${color}`}
             color={"#000"}
             fillOpacity={opacity}
             weight={2}
@@ -339,7 +339,7 @@ export const useRenderMapLayers = (
             key={`${region.id}-${regionIndex}-${color}`}
             center={coordinates}
             radius={radius * 1000}
-            fillColor={`#${color}`}
+            fillColor={color && color.startsWith("#") ? color : `#${color}`}
             color="#000"
             fillOpacity={opacity}
             weight={1}
@@ -396,24 +396,32 @@ export const useRenderMapLayers = (
       // Assign colors to each region based on their data values for the current period
       const regionColors = viewData.mapData.map((data) => {
         const value = data.data[periodIndex];
+        let colorAssigned;
 
-        // Normalize the value between minValue and maxValue
-        const normalizedValue = (value - minValue) / (maxValue - minValue);
+        if (viewData.legendSet) {
+          colorAssigned = viewData.legendSet.legends.find(
+            (legend) => value >= legend.startValue && value < legend.endValue
+          )?.color;
+        } else {
+          // Normalize the value between minValue and maxValue
+          const normalizedValue = (value - minValue) / (maxValue - minValue);
 
         // Use normalized value to find the corresponding color
-        const colorIndex = Math.floor(
-          normalizedValue * (viewData.colorScaleArray.length - 1)
-        );
+        // const colorIndex = Math.floor(
+        //   normalizedValue * (viewData.colorScaleArray.length - 1)
+        // );
         // const color = viewData.colorScaleArray[colorIndex];
         const color = Object.values(colorReference).reverse()?.find(
           ({ start, end }) => value >= start && value < end+0.1
         )
+        colorAssigned = color?.color;
+      }
         
 
         return {
           region: data.name.match(/\(([^)]+)\)/)[1], // Extract region name
           value: value,
-          color: color?.color,
+          color: colorAssigned,
         };
       });
 

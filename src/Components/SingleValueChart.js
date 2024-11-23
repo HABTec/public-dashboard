@@ -1,23 +1,40 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Legend from "./Legend";
-import { MapContainer } from "react-leaflet";
+import Chip from "@mui/material/Chip";
 
 const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
     let value = chartData?.rows[0][1];
     let dataElement = chartData?.rows[0][0];
+    let textColor = "black";
+    let color = "primary";
 
-    let color = chartInfo?.legend?.set?.legends.find(
-      (leg) => value >= leg.startValue && value < leg.endValue
-    )?.color;
+    const metadata = chartData?.metaData;
+    console.log(
+      "orgunit1",
+      metadata.items[metadata?.dimensions?.pe]?.name,
+      metadata.items[metadata?.dimensions?.ou]?.name
+    );
+    let orgunit = metadata?.dimensions?.ou?.map((ou) => (
+      <Chip label={metadata.items[ou]?.name}></Chip>
+    ));
+    let period = metadata?.dimensions?.pe?.map((p) => (
+      <Chip label={metadata.items[p]?.name}> </Chip>
+    ));
 
-    let textColor =
-      chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
-    if (chartInfo?.legend?.style == "FILL") {
-      componentRef.current.style.backgroundColor = color;
-      componentRef.current.firstChild.firstChild.firstChild.style.color =
-        "black";
+    if (chartInfo.legend?.strategy != "BY_DATA_ITEM") {
+      color = chartInfo?.legend?.set?.legends.find(
+        (leg) => value >= leg.startValue && value < leg.endValue
+      )?.color;
+
+      textColor =
+        chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
+      if (chartInfo?.legend?.style == "FILL") {
+        componentRef.current.style.backgroundColor = color;
+        componentRef.current.firstChild.firstChild.firstChild.style.color =
+          "black";
+      }
     }
 
     let title =
@@ -58,7 +75,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
               display="flex"
               alignItems="center"
               component="div"
-              variant="h1"
+              variant="h2"
               color={textColor}
             >
               {value}
@@ -75,7 +92,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
           display="flex"
           alignItems="center"
           component="div"
-          variant="h1"
+          variant="h2"
           color="primary"
         >
           {value}
@@ -94,7 +111,9 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
         }}
       >
         {text}
-        <Typography>{title}</Typography>
+        <Typography align="center">
+          {title} <br /> {period} <br /> {orgunit}
+        </Typography>
       </div>
     );
   } catch (error) {

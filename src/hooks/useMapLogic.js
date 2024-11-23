@@ -345,7 +345,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     opacity,
     layer,
     thematicMapType,
-    renderingStrategy
+    renderingStrategy,
+    legendSet = null
   ) => {
     console.log("chartConfig", chartConfig);
     const mapData = chartConfig?.series;
@@ -383,9 +384,27 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     }
 
 
-    const regionColors = regionList?.map((regionName, index) => {
-      const value = combinedData[index];
-      let colorIndex = null;
+    let regionColors;
+
+    if (legendSet) {
+      regionColors = regionList?.map((regionName, index) => {
+        const value = combinedData[index];
+        const color = legendSet.legends.find((legend) => {
+          if (legend.startValue <= value && value < legend.endValue) {
+            return legend.color;
+          }
+        });
+
+        return {
+          region: regionName,
+          value: value,
+          color: color?.color,
+        };
+      });
+    } else {
+      regionColors = regionList?.map((regionName, index) => {
+        const value = combinedData[index];
+        let colorIndex = null;
     
       // Convert colorReference to an array if it's an object
       const colorArray = Object.values(colorReference).reverse();
@@ -401,12 +420,13 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       }
       console.log("colorInterval", interval, mapData,"mapData", colorReference, "region", regionName, "value", value);
     
-      return {
-        region: regionName,
-        value: value,
-        color: colorScale && colorIndex,
-      };
-    });
+        return {
+          region: regionName,
+          value: value,
+          color: colorScale && colorIndex,
+        };
+      });
+    }
     
 
     console.log("regionColors", regionColors, mx, mn);
@@ -444,6 +464,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       layer,
       thematicMapType,
       renderingStrategy,
+      legendSet,
     };
   };
 
@@ -465,7 +486,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view?.opacity,
         view.layer,
         view?.thematicMapType,
-        view?.renderingStrategy
+        view?.renderingStrategy,
+        view?.legendSet
       );
     })
     .filter(Boolean)

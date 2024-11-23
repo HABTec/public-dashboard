@@ -29,7 +29,8 @@ const getFilters = function (dataFilter, orgunitFilter, aggregationType) {
 
   //apply aggregation type if defined
   if (aggregationType) {
-    filters += "&aggregationType=" + aggregationType;
+    if (aggregationType != "DEFAULT")
+      filters += "&aggregationType=" + aggregationType;
   }
   console.log("orgunit filter object", orgunitFilter);
   if (

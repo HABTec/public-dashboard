@@ -18,7 +18,7 @@
     "@kbox-labs/react-echarts": "^1.0.4",
     "@mui/icons-material": "^5.14.5",
     "@mui/material": "^5.15.14",
-    "@mui/x-charts": "^7.22.0",
+    "@mui/x-charts": "^7.22.2",
     "@mui/x-tree-view": "^7.7.0",
     "@nivo/radar": "^0.87.0",
     "chroma-js": "^2.4.2",
@@ -37,8 +37,10 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.23.0",
     "react-scripts": "latest",
+    "react-slick": "^0.30.2",
     "regression": "^2.0.1",
     "science": "^1.9.3",
+    "slick-carousel": "^1.8.1",
     "xlsx": "^0.18.5"
   },
   "browserslist": {
