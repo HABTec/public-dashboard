@@ -428,9 +428,6 @@ export default function RequestForm() {
                             <MenuItem value="Graphics/image/cartography">
                               Graphics/image/cartography
                             </MenuItem>
-                            <MenuItem value="Biologic specimen">
-                              Biologic specimen
-                            </MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
@@ -510,9 +507,6 @@ export default function RequestForm() {
                             </MenuItem>
                             <MenuItem value="Electronic (Digital)">
                               Electronic (Digital)
-                            </MenuItem>
-                            <MenuItem value="Biologic sample">
-                              Biologic sample
                             </MenuItem>
                           </Select>
                         </FormControl>
@@ -722,8 +716,8 @@ export default function RequestForm() {
 
                       <Grid item xs={12}>
                         <TextField
-                          name="Geographic (National, regional, zonal, Woreda, Kebele)"
-                          label="Geographic (National, regional, zonal, Woreda, Kebele)"
+                          name="Geographic (National, regional, zonal, Woreda, facility)"
+                          label="Geographic (National, regional, zonal, Woreda, facility)"
                           variant="outlined"
                           fullWidth
                           value={geographicDisaggregation}
