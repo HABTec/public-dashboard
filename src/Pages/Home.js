@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ContactUs from "../Components/ContactUs";
 import {
   AppBar,
   Box,
@@ -6,9 +7,7 @@ import {
   Card,
   Container,
   Grid,
-  TextField,
   Typography,
-  useMediaQuery,
   useTheme,
   Snackbar,
   Alert,
@@ -31,7 +30,7 @@ import { Link } from "react-router-dom";
 import Footer from "../Components/Footer";
 import HomeSlider from "../Components/HomeSlider";
 
-const StyledHeroSection = styled(Box)(({ theme }) => ({
+const StyledHeroSection = styled(Box)(() => ({
   minHeight: "100vh",
   background: "linear-gradient(353deg, #ceefff 30%, #ffffff 90%)",
   display: "flex",
@@ -56,12 +55,7 @@ const FeatureCard = styled(Card)(({ theme }) => ({
 
 const Home = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -83,38 +77,6 @@ const Home = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.message) {
-      setSnackbar({
-        open: true,
-        message: "Please fill in all fields",
-        severity: "error",
-      });
-      return;
-    }
-    const recipient = process.env.REACT_APP_EMAIL_ADRESS;
-    const body = `Name: ${formData.name}
-                  Email: ${formData.email}
-                  Message: ${formData.message}
-                  
-                  Regards!`.trim();
-
-    window.open(
-      `mailto:${recipient}?subject=Contact us form &body=${encodeURIComponent(
-        body
-      )}`
-    );
-
-    setSnackbar({
-      open: true,
-      message: "Message sent to your email client!",
-      severity: "success",
-    });
-    setFormData({ name: "", email: "", message: "" });
-  };
 
   const features = [
     {
@@ -186,6 +148,7 @@ const Home = () => {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
   const renderNavItems = () => (
     <List>
       {navigationItems.map((item) =>
@@ -342,71 +305,7 @@ const Home = () => {
       </StyledSection>
 
       <StyledSection id="contact">
-        <Container maxWidth="md">
-          <Typography
-            variant="h3"
-            align="center"
-            gutterBottom
-            className="animate-on-scroll"
-          >
-            Contact Us
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            className="animate-on-scroll"
-          >
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Message"
-                  multiline
-                  rows={4}
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                >
-                  Send Message
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
-        </Container>
+        <ContactUs setSnackbar={setSnackbar}></ContactUs>
       </StyledSection>
 
       <Snackbar
