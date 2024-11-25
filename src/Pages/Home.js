@@ -178,6 +178,9 @@ const Home = () => {
     </List>
   );
 
+  //load title variable from .env file
+  const title = process.env.REACT_APP_TITLE;
+
   return (
     <Box>
       <AppBar position="sticky">
@@ -189,8 +192,8 @@ const Home = () => {
             alignItems="center"
           >
             <Typography variant="span" sx={{ fontSize: "1.2rem" }}>
-              HMIS Insights: Exploring Health Metrics with Interactive
-              Visualizations
+              {" "}
+              {title}
             </Typography>
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               {navigationItems.map((item) =>

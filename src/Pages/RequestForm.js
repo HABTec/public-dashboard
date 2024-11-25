@@ -296,8 +296,7 @@ export default function RequestForm() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              HMIS Insights: Exploring Health Metrics with Interactive
-              Visualizations
+              {process.env.REACT_APP_TITLE}
             </Typography>
           </Toolbar>
         </AppBar>
