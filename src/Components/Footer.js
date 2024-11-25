@@ -19,10 +19,13 @@ function Copyright(props) {
   return (
     <Typography variant="body2" align="center" {...props}>
       Copyright © {new Date().getFullYear()}{" "}
-      <Link color="inherit" href="https://habtechsolution.com/">
-        HABTech Solution
+      <Link color="inherit" href="https://moh.gov.et/">
+        Ministry of Health
       </Link>{" "}
-      {"."} All rights reserved.
+      {"."} All rights reserved. Powered by{" "}
+      <Link color="inherit" href="https://habtechsolution.com/">
+        HABTech solutions
+      </Link>
     </Typography>
   );
 }
