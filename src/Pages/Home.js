@@ -191,10 +191,24 @@ const Home = () => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="span" sx={{ fontSize: "1.2rem" }}>
-              {" "}
-              {title}
-            </Typography>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <img
+                style={{
+                  backgroundColor: "#fff",
+                  boxShadow: "0 0 10px rgb(255 255 255 / 50%)",
+                  borderRadius: "50%",
+                }}
+                src="./mini-moh.png"
+                alt="moh logo"
+              />
+              <Typography
+                alignItems="left"
+                variant="span"
+                sx={{ fontSize: "1.2rem", marginLeft: "10px" }}
+              >
+                {title}
+              </Typography>
+            </div>
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               {navigationItems.map((item) =>
                 item.to ? (
