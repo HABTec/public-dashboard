@@ -27,7 +27,7 @@ const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
 
 const OrgUnitFilter = (props) => {
   const [expanded, setExpanded] = useState([]);
-  const { selected, setSelected } = props;
+  const { selected, setSelected, settings } = props;
   const [data, setData] = useState({ ...props.data });
   const apiBase = process.env.REACT_APP_BASE_URI;
 
@@ -39,16 +39,25 @@ const OrgUnitFilter = (props) => {
       return dataCache[nodeId];
     }
 
-    console.log("fetching...");
-
-    const url = `${apiBase}api/organisationUnits/${nodeId}?fields=displayName,path,id,children%5Bid%2Cpath%2CdisplayName%5D`;
+    const url = `${apiBase}api/organisationUnits/${nodeId}?fields=displayName,level,path,id,children%5Bid%2Cpath%2CdisplayName%5D ${
+      settings?.orgUnitLimit?.level
+        ? `&filter=children.level:lt:${settings?.orgUnitLimit?.level}&filter=level:lt:${settings?.orgUnitLimit?.level}`
+        : ""
+    }`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Failed to fetch data");
     }
-    const fetchedData = await response.json();
-    dataCache[nodeId] = fetchedData; // Cache the fetched data
-    return fetchedData;
+    const dataLoaded = await response.text();
+
+    if ("" === dataLoaded) {
+      dataCache[nodeId] = {};
+      return dataCache[nodeId];
+    } else {
+      const fetchedData = JSON.parse(dataLoaded);
+      dataCache[nodeId] = fetchedData; // Cache the fetched data
+      return fetchedData;
+    }
   };
 
   const handleToggle = async (event, nodeIds) => {
@@ -56,11 +65,19 @@ const OrgUnitFilter = (props) => {
 
     const nodeId = nodeIds;
     const fetchedData = await fetchData(nodeId);
-    const updatedDataChildren = await hasChildren(fetchedData.children);
-    const updatedData = { ...fetchedData, children: updatedDataChildren };
-    const paths = updatedData.path.split("/").slice(2);
-    const newData = updateData(paths, updatedData);
-    setData(newData);
+
+    if (
+      fetchedData &&
+      fetchedData?.children &&
+      fetchedData?.children?.length > 0
+    ) {
+      const updatedDataChildren = await hasChildren(fetchedData.children);
+      const updatedData = { ...fetchedData, children: updatedDataChildren };
+      const paths = updatedData?.path?.split("/")?.slice(2);
+      const newData = updateData(paths, updatedData);
+
+      setData(newData);
+    }
   };
 
   const updateData = (path, updatedData) => {
@@ -71,7 +88,7 @@ const OrgUnitFilter = (props) => {
         return { ...node, children: updatedData.children };
       }
 
-      if (!node.children) {
+      if (!node.children || node.hasChildren === false) {
         return node;
       }
 
@@ -90,16 +107,31 @@ const OrgUnitFilter = (props) => {
   };
 
   const hasChildren = async (nodes) => {
+    const updatedNodes = [];
+
     for (const node of nodes) {
-      const urlChildren = `${apiBase}api/organisationUnits/${node.id}?fields=path,children%3A%3Asize`;
+      const urlChildren = `${apiBase}api/organisationUnits/${node.id}?fields=path,level,children%3A%3Asize`;
       const response = await fetch(urlChildren);
+
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const data = await response.json();
-      node.hasChildren = parseInt(data.children) > 0;
+
+      const dataLoaded = await response.text();
+
+      const updatedNode = { ...node };
+      if ("" === dataLoaded) {
+        updatedNode.hasChildren = false;
+      } else {
+        const data = JSON.parse(dataLoaded);
+        updatedNode.hasChildren =
+          parseInt(data.children) > 0 &&
+          data.level < settings?.orgUnitLimit?.level - 1;
+      }
+
+      updatedNodes.push(updatedNode);
     }
-    return nodes;
+    return updatedNodes;
   };
 
   const handleSelect = (event, nodeId) => {

@@ -12,8 +12,9 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
+import useSetting from "../hooks/useSettings";
 
-const OrgUnitFilterModal = ({ onConfirmed }) => {
+const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState(null);
   const [orgUnitGroups, setOrgUnitGroups] = useState([]);
@@ -25,7 +26,11 @@ const OrgUnitFilterModal = ({ onConfirmed }) => {
   const [hideEmptyCharts, setHideEmptyCharts] = useState(false);
 
   const fetchData = async () => {
-    const url = `${apiBase}api/organisationUnits/b3aCK1PTn5S?fields=displayName, path, id, children%5Bid%2Cpath%2CdisplayName%5D`;
+    const url = `${apiBase}api/organisationUnits/b3aCK1PTn5S?fields=displayName, path, id, children%5Bid%2Cpath%2CdisplayName%5D ${
+      settings?.orgUnitLimit?.level
+        ? `&filter=children.level:lt:${settings?.orgUnitLimit?.level}&filter=level:lt:${settings?.orgUnitLimit?.level}`
+        : ""
+    }`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Failed to fetch data");
@@ -47,36 +52,57 @@ const OrgUnitFilterModal = ({ onConfirmed }) => {
   };
 
   const fetchOrgUnitLevels = async () => {
-    const url = `${apiBase}api/organisationUnitLevels?paging=false`;
+    console.log("settings loaded: ", settings);
+    const url = `${apiBase}api/organisationUnitLevels?paging=false${
+      settings?.orgUnitLimit?.level
+        ? `&filter=level:lt:${settings?.orgUnitLimit?.level}`
+        : ""
+    }`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Failed to fetch data");
     }
-
     const data = await response.json();
+
     setOrgUnitLevels(data.organisationUnitLevels);
   };
 
   const hasChildren = async (nodes) => {
+    console.log("nodes:", nodes);
     for (const node of nodes) {
-      const urlChildren = `${apiBase}api/organisationUnits/${node.id}?fields=path,children%3A%3Asize`;
+      const urlChildren = `${apiBase}api/organisationUnits/${
+        node.id
+      }?fields=path,children%3A%3Asize${
+        settings?.orgUnitLimit?.level
+          ? `&filter=children.level:lt:${settings?.orgUnitLimit?.level}&filter=level:lt:${settings?.orgUnitLimit?.level}`
+          : ""
+      }`;
+
       const response = await fetch(urlChildren);
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const data = await response.json();
-      if (parseInt(data.children) > 0) {
-        node.hasChildren = true;
+
+      let dataLoaded = await response.text();
+
+      if ("" === dataLoaded) {
+        node.hasChildren = false;
+      } else {
+        const data = JSON.parse(dataLoaded);
+        if (parseInt(data.children) > 0) {
+          node.hasChildren = true;
+        }
       }
     }
     return nodes;
   };
 
   useEffect(() => {
+    if (settings === null) return;
     fetchData();
     fetchOrgUnitGroups();
     fetchOrgUnitLevels();
-  }, []);
+  }, [settings]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -200,6 +226,7 @@ const OrgUnitFilterModal = ({ onConfirmed }) => {
               setSelectedOrgUnitLevel={setSelectedOrgUnitLevel}
               hideEmptyCharts={hideEmptyCharts}
               setHideEmptyCharts={setHideEmptyCharts}
+              settings={settings}
             />
           ) : (
             <CircularProgress size={24} />

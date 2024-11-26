@@ -22,6 +22,7 @@ const url =
   "api/dashboards.json?paging=false&fields=id,name,favorite,displayDescription,dashboardItems[id,resources[id, name],type,shape,x,y,width,height,text,visualization[id,displayName],map[id,displayName],eventReport[id,displayName],eventChart[id,displayName]]";
 
 export default function Chart({
+  settings,
   savedReports,
   setSavedReports,
   selectedSavedChart,
@@ -179,7 +180,10 @@ export default function Chart({
             </Select>
           </FormControl>
 
-          <OrgUnitFilterModal onConfirmed={handelFilterSelect} />
+          <OrgUnitFilterModal
+            settings={settings}
+            onConfirmed={handelFilterSelect}
+          />
         </Paper>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>

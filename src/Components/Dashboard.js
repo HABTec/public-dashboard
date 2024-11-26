@@ -8,6 +8,7 @@ import ReactGA from "react-ga4";
 // import MapChart from "./MapChart";
 import Footer from "./Footer";
 import NavBar from "./AppBar";
+import useSettings from "../hooks/useSettings";
 
 const chartData = {
   headers: [
@@ -49,6 +50,9 @@ export default function Dashboard() {
   const [savedReports, setSavedReports] = React.useState(
     JSON.parse(localStorage.getItem("saved_reports"))
   );
+
+  const settings = useSettings();
+
   return (
     <Box sx={{ display: "flex" }}>
       <NavBar
@@ -73,6 +77,7 @@ export default function Dashboard() {
           <Grid container spacing={3}>
             {/* Chart */}
             <Chart
+              settings={settings}
               savedReports={savedReports}
               setSavedReports={setSavedReports}
               selectedSavedChart={selectedSavedChart}
