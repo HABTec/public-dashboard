@@ -58,9 +58,11 @@ export default function Chart({
         const favoriteDashboard = dashboards_json.find(
           (_dashboard) => _dashboard.favorite
         );
-
+      
         if (favoriteDashboard) {
           setDashbaord(favoriteDashboard);
+          const newUrl = `${window.location.origin}${window.location.pathname}?dashboard=${favoriteDashboard.id}`;
+          window.history.pushState({path : newUrl}, "", newUrl);
         }
         if (dashboardId) {
           const selectedDashboard = dashboards_json.find(
@@ -115,7 +117,6 @@ export default function Chart({
     window.history.pushState({ path: newUrl }, "", newUrl);
   };
 
-  console.log("dashboards", dashboards);
   const dashboardMenuList = () => {
     const dashboardToRender = dashboards.filter(
       (dashboard) => dashboard.name.slice(-1) === "."
@@ -159,7 +160,7 @@ export default function Chart({
         >
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">
-              {"Select Dashboard"}
+              {dashboard?.name? dashboard.name :"Select Dashboard"}
             </InputLabel>
             <Select
               labelId="demo-simple-select-label"
