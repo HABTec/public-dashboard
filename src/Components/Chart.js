@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTheme } from "@mui/material/styles";
-import { Box, CircularProgress } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import {
   FormControl,
@@ -28,7 +27,7 @@ export default function Chart({
   setSelectedSavedChart,
 }) {
   const theme = useTheme();
-  const [dashboard, setDashbaord] = React.useState(null);
+  const [dashboard, setDashbaord] = React.useState({ id: "" });
   const [dashboards, setDashboards] = React.useState([]);
   const snackbar = useSnackbar();
   const [loading, setLoading] = React.useState(true); // State variable for loading indicator
@@ -58,11 +57,11 @@ export default function Chart({
         const favoriteDashboard = dashboards_json.find(
           (_dashboard) => _dashboard.favorite
         );
-      
+
         if (favoriteDashboard) {
           setDashbaord(favoriteDashboard);
           const newUrl = `${window.location.origin}${window.location.pathname}?dashboard=${favoriteDashboard.id}`;
-          window.history.pushState({path : newUrl}, "", newUrl);
+          window.history.pushState({ path: newUrl }, "", newUrl);
         }
         if (dashboardId) {
           const selectedDashboard = dashboards_json.find(
@@ -160,7 +159,7 @@ export default function Chart({
         >
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">
-              {dashboard?.name? dashboard.name :"Select Dashboard"}
+              {"Select Dashboard"}
             </InputLabel>
             <Select
               labelId="demo-simple-select-label"
