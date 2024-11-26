@@ -191,7 +191,9 @@ const Home = () => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{ display: "flex", alignItems: "center", maxWidth: "90%" }}
+            >
               <img
                 style={{
                   backgroundColor: "#fff",
@@ -203,8 +205,14 @@ const Home = () => {
               />
               <Typography
                 alignItems="left"
-                variant="span"
-                sx={{ fontSize: "1.2rem", marginLeft: "10px" }}
+                component="h1"
+                variant="h6"
+                noWrap
+                sx={{
+                  flexGrow: 1,
+                  fontSize: "1.2rem",
+                  marginLeft: "10px",
+                }}
               >
                 {title}
               </Typography>
