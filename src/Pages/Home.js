@@ -212,6 +212,7 @@ const Home = () => {
                   flexGrow: 1,
                   fontSize: "1.2rem",
                   marginLeft: "10px",
+                  fontWeight: "normal",
                 }}
               >
                 {title}
