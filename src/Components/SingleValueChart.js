@@ -5,17 +5,14 @@ import Chip from "@mui/material/Chip";
 
 const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
-    let value = chartData?.rows[0][1];
+    // round to two decimal places
+    let value = Math.round(chartData?.rows[0][1] * 100) / 100;
     let dataElement = chartData?.rows[0][0];
     let textColor = "black";
     let color = "primary";
 
     const metadata = chartData?.metaData;
-    console.log(
-      "orgunit1",
-      metadata.items[metadata?.dimensions?.pe]?.name,
-      metadata.items[metadata?.dimensions?.ou]?.name
-    );
+
     let orgunit = metadata?.dimensions?.ou?.map((ou) => (
       <Chip label={metadata.items[ou]?.name}></Chip>
     ));
@@ -62,7 +59,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
             display="flex"
             alignItems="center"
             component="div"
-            variant="h1"
+            variant="h2"
             color={textColor}
           >
             {value + "%"}
