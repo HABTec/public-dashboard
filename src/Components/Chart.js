@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTheme } from "@mui/material/styles";
-import { Box, CircularProgress } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import {
   FormControl,
@@ -28,7 +27,7 @@ export default function Chart({
   setSelectedSavedChart,
 }) {
   const theme = useTheme();
-  const [dashboard, setDashbaord] = React.useState(null);
+  const [dashboard, setDashbaord] = React.useState({ id: "" });
   const [dashboards, setDashboards] = React.useState([]);
   const snackbar = useSnackbar();
   const [loading, setLoading] = React.useState(true); // State variable for loading indicator
@@ -61,6 +60,8 @@ export default function Chart({
 
         if (favoriteDashboard) {
           setDashbaord(favoriteDashboard);
+          const newUrl = `${window.location.origin}${window.location.pathname}?dashboard=${favoriteDashboard.id}`;
+          window.history.pushState({ path: newUrl }, "", newUrl);
         }
         if (dashboardId) {
           const selectedDashboard = dashboards_json.find(
@@ -115,7 +116,6 @@ export default function Chart({
     window.history.pushState({ path: newUrl }, "", newUrl);
   };
 
-  console.log("dashboards", dashboards);
   const dashboardMenuList = () => {
     const dashboardToRender = dashboards.filter(
       (dashboard) => dashboard.name.slice(-1) === "."
