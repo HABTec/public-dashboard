@@ -60,7 +60,7 @@ export default function Chart({
           (_dashboard) => _dashboard.favorite
         );
 
-        if (favoriteDashboard) {
+        if (favoriteDashboard && !dashboardId) {
           setDashbaord(favoriteDashboard);
           const newUrl = `${window.location.origin}${window.location.pathname}?dashboard=${favoriteDashboard.id}`;
           window.history.pushState({ path: newUrl }, "", newUrl);
