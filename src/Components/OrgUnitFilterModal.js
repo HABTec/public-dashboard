@@ -26,7 +26,7 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   const [hideEmptyCharts, setHideEmptyCharts] = useState(false);
 
   const fetchData = async () => {
-    const url = `${apiBase}api/organisationUnits/b3aCK1PTn5S?fields=displayName, path, id, children%5Bid%2Cpath%2CdisplayName%5D ${
+    const url = `${apiBase}api/organisationUnits/b3aCK1PTn5S?fields=displayName, path, id, children%5Bid%2Cpath%2CdisplayName%5D&paging=false ${
       settings?.orgUnitLimit?.level
         ? `&filter=children.level:lt:${settings?.orgUnitLimit?.level}&filter=level:lt:${settings?.orgUnitLimit?.level}`
         : ""
@@ -41,14 +41,18 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   };
 
   const fetchOrgUnitGroups = async () => {
-    const url = `${apiBase}api/organisationUnitGroups?paging=false`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Failed to fetch data");
-    }
+    if (settings?.orgUnitLimit?.groups) {
+      setOrgUnitGroups(settings?.orgUnitLimit?.groups);
+    } else {
+      const url = `${apiBase}api/organisationUnitGroups?paging=false`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
 
-    const data = await response.json();
-    setOrgUnitGroups(data.organisationUnitGroups);
+      const data = await response.json();
+      setOrgUnitGroups(data.organisationUnitGroups);
+    }
   };
 
   const fetchOrgUnitLevels = async () => {
