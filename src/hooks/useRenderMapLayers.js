@@ -71,6 +71,23 @@ export const useRenderMapLayers = (
     return `#${hex}`; // Return the hex color
   };
 
+  const colorRange = (minValue, maxValue, ranges) => {
+    const interval = (maxValue - minValue) / ranges;
+    const colors = ["ffffd4", "fed98e", "fe9929", "d95f0e", "993404"];
+    const output = {};
+
+    for (let i = 0; i < ranges; i++) {
+      // Loop through the number of ranges
+      const start = minValue + i * interval; // Start of the current range
+      const end = Math.min(start + interval, maxValue); // End of the current range
+      const color = colors[i % colors.length]; // Assign a cyclic color
+      output[i] = {start, end, color}
+      // output.push({ start, end, color });
+    }
+
+    return output;
+  };
+
   const renderFacilityMarkers = (viewData) => {
     legendData.push({
       name: "facility",
@@ -194,11 +211,12 @@ export const useRenderMapLayers = (
       // console.log(coordinates, ">>>")
       return coordinates.map((polygon, polygonIndex) => {
         // console.log(">>>>>>>>>>>", polygon[0], polygonIndex, color)
+       
         return (
           <Polygon
-            key={`${region.id}-${polygonIndex}-${regionIndex}-${color}`}
+            key={`${region.id}-${polygonIndex}-${regionIndex}-${color}-${regionColor}-${Math.random()}`}
             positions={polygon}
-            fillColor={color}
+            fillColor={color && color.startsWith("#") ? color : `#${color}`}
             color={"#000"}
             fillOpacity={opacity}
             weight={2}
@@ -289,11 +307,11 @@ export const useRenderMapLayers = (
       );
       const color = regionColor ? regionColor.color : "#3388ff";
       const opacity = viewData.opacity;
-      // console.log("bubble color", color, "region", region.na);
+      console.log("bubble color", color, "region", region.na, "orgDrawn", orgDrawn);
 
       const polygons = fetchedCoordinates.map((polygon, polygonIndex) => (
         <Polygon
-          key={`${region.id}-${polygonIndex}-${regionIndex}-${color}`}
+          key={`${region.id}-${polygonIndex}-${regionIndex}-${color}-${Date.now()}-${Math.random()}`}
           positions={polygon}
           color="#000"
           fillOpacity={0}
@@ -316,11 +334,12 @@ export const useRenderMapLayers = (
       return (
         <>
           {orgDrawn ? "" : polygons}
+          {/* {polygons} */}
           <Circle
             key={`${region.id}-${regionIndex}-${color}`}
             center={coordinates}
             radius={radius * 1000}
-            fillColor={color}
+            fillColor={color && color.startsWith("#") ? color : `#${color}`}
             color="#000"
             fillOpacity={opacity}
             weight={1}
@@ -371,6 +390,8 @@ export const useRenderMapLayers = (
       return { start, end };
     });
 
+    const colorReference = colorRange(minValue, maxValue, 5);
+
     return periods.map((period, periodIndex) => {
       // Assign colors to each region based on their data values for the current period
       const regionColors = viewData.mapData.map((data) => {
@@ -385,13 +406,18 @@ export const useRenderMapLayers = (
           // Normalize the value between minValue and maxValue
           const normalizedValue = (value - minValue) / (maxValue - minValue);
 
-          // Use normalized value to find the corresponding color
-          const colorIndex = Math.floor(
-            normalizedValue * (viewData.colorScaleArray.length - 1)
-          );
-          // const color = viewData.colorScaleArray[colorIndex];
-          colorAssigned = viewData.colorScaleArray[colorIndex];
-        }
+        // Use normalized value to find the corresponding color
+        // const colorIndex = Math.floor(
+        //   normalizedValue * (viewData.colorScaleArray.length - 1)
+        // );
+        // const color = viewData.colorScaleArray[colorIndex];
+        const color = Object.values(colorReference).reverse()?.find(
+          ({ start, end }) => value >= start && value < end+0.1
+        )
+        colorAssigned = color?.color;
+      }
+        
+
         return {
           region: data.name.match(/\(([^)]+)\)/)[1], // Extract region name
           value: value,
@@ -429,12 +455,17 @@ export const useRenderMapLayers = (
         return { year, month, day, label };
       });
 
+      // const colorReference = colorRange(minValue, maxValue, 5);
+      console.log("minimum timeline", minValue, "maximum timeline", maxValue, "reference", colorReference);
+
+
       return {
         ...viewData,
         regionList: regionList,
         regionColors: regionColors,
         mapData: [{ name, data }],
         timePeriods: timePeriods,
+        // legendDatas : {...colorReference, displayName : viewData?.displayName},
       };
     });
   };

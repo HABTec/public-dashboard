@@ -11,6 +11,7 @@ import {
 } from "./TileComponent";
 import Timeline from "./Timeline";
 import { useRenderMapLayers } from "../hooks/useRenderMapLayers";
+import MapGrid from "./MapGrid";
 
 const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   const [tileLayer, setTileLayer] = useState(
@@ -21,6 +22,8 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
   const [timelineData, setTimelineData] = useState(null);
   const [timelineDataPeriod, setTimelineDataPeriod] = useState(null);
   const legendData = [];
+  const [splitPeriodData, setSplitPeriodData] = useState([]);
+  const [legendRange, setLegendRange] = useState(null);
   let legendSet = null;
   console.log("mapViews__", mapViews, selectedTimeline);
 
@@ -92,12 +95,36 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     const timelineViewData = parsedMapViews?.find(
       (viewData) => viewData?.renderingStrategy === "TIMELINE"
     );
+
+    const dataSplitByPeriod = parsedMapViews?.find((viewData) => {
+      return viewData?.renderingStrategy === "SPLIT_BY_PERIOD";
+    });
+    
+
     if (timelineViewData) {
       const timeline = renderTimelineDatas(timelineViewData);
       setTimelineData(timeline);
       setTimelineDataPeriod(timeline[0].timePeriods);
       setSelectedTimeline(timeline[0]); // Set initial selected timeline
+      // setLegendData(prev => [...prev, timeline[0]?.legendDatas]);
+    } else if(dataSplitByPeriod){
+      const data = renderTimelineDatas(dataSplitByPeriod);
+      let mn = Infinity;
+      let mx = -Infinity;
+      let displayName, name
+      data.map((d) => {
+        displayName = d.displayName;
+        name = d.layer
+        d.regionColors.map((region) => {
+          mn = Math.min(mn, region.value);
+          mx = Math.max(mx, region.value);
+        })
+      })
+      console.log("split_data", data)
+      setSplitPeriodData(data);
+      setLegendRange({mn, mx, displayName, name});
     }
+    
   }, []);
 
   if (!mapBounds) return null;
@@ -113,28 +140,43 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
         flexDirection: "column",
         height: "100%",
         overflow: "hidden",
-        flexWrap: "wrap",
       }}
     >
-      <div style={{ flexGrow: 1 }}>
-        <MapContainer
-          key={selectedTimeline ? selectedTimeline + mapViews.id : mapViews.id}
-          bounds={mapBounds.isValid() ? mapBounds : defaultBounds}
-          style={{ height: "100%", width: "100%" }}
-        >
-          {tileLayer === "blankWhite" ? (
-            <BlankWhiteLayer />
-          ) : (
-            <TileLayer
-              url={tileLayers[tileLayer]?.url}
-              attribution={tileLayers[tileLayer]?.attribution}
+      {splitPeriodData && splitPeriodData.length > 0 ? (
+        <MapGrid
+          splitPeriodData={splitPeriodData}
+          renderThematicPolygons={renderThematicPolygons}
+          renderBubbleMap={renderBubbleMap}
+          renderOrgUnitPolygons={renderOrgUnitPolygons}
+          renderFacilityMarkers={renderFacilityMarkers}
+          basemap={basemap}
+          mapBounds={mapBounds}
+          legendRange={legendRange}
+        />
+      ) : 
+      (
+        <div style={{ flexGrow: 1 }}>
+          <MapContainer
+            key={
+              selectedTimeline ? selectedTimeline + mapViews.id : mapViews.id
+            }
+            bounds={mapBounds.isValid() ? mapBounds : defaultBounds}
+            style={{ height: "100%", width: "100%" }}
+          >
+            {tileLayer === "blankWhite" ? (
+              <BlankWhiteLayer />
+            ) : (
+              <TileLayer
+                url={tileLayers[tileLayer]?.url}
+                attribution={tileLayers[tileLayer]?.attribution}
+              />
+            )}
+
+            <TileLayerControl
+              tileLayer={tileLayer}
+              setTileLayer={setTileLayer}
+              tileLayers={tileLayers}
             />
-          )}
-          <TileLayerControl
-            tileLayer={tileLayer}
-            setTileLayer={setTileLayer}
-            tileLayers={tileLayers}
-          />
 
           {parsedMapViews?.map((viewData) => {
             legendSet = viewData?.legendSet;
@@ -161,40 +203,40 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                   }
                   break;
 
-                default:
-                  return null;
-              }
-            } else {
-              // Use the timeline data if available
-              console.log("selectedTimeline", selectedTimeline);
-              switch (selectedTimeline?.layer) {
-                case "facility":
-                  return renderFacilityMarkers(selectedTimeline);
+                  default:
+                    return null;
+                }
+              } else {
+                // Render based on the selected timeline
+                console.log("selectedTimeline__", selectedTimeline);
+                switch (selectedTimeline?.layer) {
+                  case "facility":
+                    return renderFacilityMarkers(selectedTimeline);
 
-                case "orgUnit":
-                  return renderOrgUnitPolygons(selectedTimeline);
+                  case "orgUnit":
+                    return renderOrgUnitPolygons(selectedTimeline);
 
-                case "thematic":
-                  if (selectedTimeline?.thematicMapType === "CHOROPLETH") {
+                  case "thematic":
                     orgDrawn = true;
-                    console.log("rendering agai", selectedTimeline);
-                    return renderThematicPolygons(selectedTimeline);
-                  } else if (selectedTimeline?.thematicMapType === "BUBBLE") {
-                    const draw = orgDrawn;
-                    orgDrawn = true;
-                    return renderBubbleMap(selectedTimeline, draw);
-                  }
-                  break;
+                    if (selectedTimeline?.thematicMapType === "CHOROPLETH") {;
+                      return renderThematicPolygons(selectedTimeline);
+                    } else if (selectedTimeline?.thematicMapType === "BUBBLE") {
+                      const draw = orgDrawn;
+                      return renderBubbleMap(selectedTimeline, draw);
+                    }
+                    break;
 
-                default:
-                  return null;
+                  default:
+                    return null;
+                }
               }
-            }
-          })}
+            })}
 
-          <Legend legendDatas={legendData} legendSet={legendSet} />
-        </MapContainer>
-      </div>
+            <Legend legendDatas={legendData} legendSet={legendSet}/>
+          </MapContainer>
+        </div>
+      )}
+
       {timelineData && (
         <Timeline
           timelineData={timelineDataPeriod}

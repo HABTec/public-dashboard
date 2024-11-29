@@ -6,6 +6,23 @@ import { getItemName } from "../utils/common";
 export const useMapLogic = (mapViews, chartDatas, shapes) => {
   const [hoveredRegion, setHoveredRegion] = useState(null);
   let mapBounds = null;
+  console.log("mapViews", mapViews, "chartDatas", chartDatas, "shapes", shapes);
+
+  const colorRange = (minValue, maxValue, ranges) => {
+    const interval = (maxValue - minValue) / ranges;
+    const colors = ["ffffd4", "fed98e", "fe9929", "d95f0e", "993404"];
+    const output = {};
+
+    for (let i = 0; i < ranges; i++) {
+      // Loop through the number of ranges
+      const start = minValue + i * interval; // Start of the current range
+      const end = Math.min(start + interval, maxValue); // End of the current range
+      const color = colors[i % colors.length]; // Assign a cyclic color
+      output[i] = {start, end, color}
+    }
+
+    return output;
+  };
 
   const processChartData = (chartData) => {
     console.log("deep chart data", chartData);
@@ -99,11 +116,16 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         console.log("maxValue", maxValue, "minValue", minValue, timePeriodData);
         timePeriodData[timePeriod].forEach((dataPoint) => {
           const colorRange = [
-            "#993404",
-            "#fed98e",
-            "#fe9929",
-            "#d95f0e",
-            "#ffffd4",
+            // "#993404",
+            // "#fed98e",
+            // "#fe9929",
+            // "#d95f0e",
+            // "#ffffd4",
+            "993404",
+            "d95f0e",
+            "fe9929",
+            "fed98e",
+            "ffffd4",
           ];
           const dataLength = timePeriodData[timePeriod].length;
 
@@ -330,6 +352,20 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     const mapData = chartConfig?.series;
     const regionList = chartConfig?.yAxis?.categories;
     const numColors = regionList?.length;
+    // const numColors = 5;
+    console.log("mapData to check", mapData)
+    let globalMax = -Infinity;
+    let globalMin = Infinity;
+
+    mapData?.forEach((series) => {
+      const max = Math.max(...series.data);
+      const min = Math.min(...series.data);
+      if (max > globalMax) globalMax = max;
+      if (min < globalMin) globalMin = min;
+    })
+
+
+    const colorReference = colorRange(globalMin, globalMax, 5);
 
     const combinedData = mapData?.reduce((acc, series) => {
       return series.data.map((value, index) => (acc[index] || 0) + value);
@@ -346,6 +382,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         .domain([mn, mx])
         .colors(numColors);
     }
+
 
     let regionColors;
 
@@ -367,16 +404,32 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     } else {
       regionColors = regionList?.map((regionName, index) => {
         const value = combinedData[index];
-        const colorIndex = Math.floor(((value - mn) / range) * (numColors - 1));
+        let colorIndex = null;
+    
+      // Convert colorReference to an array if it's an object
+      const colorArray = Object.values(colorReference).reverse();
+    
+      // Find the corresponding color interval
+      const interval = colorArray.find((interval) => {
+        return value >= interval.start && value < interval.end + 0.1;
+      });
+    
+      // Assign colorIndex if an interval is found
+      if (interval) {
+        colorIndex = interval.color;
+      }
+      console.log("colorInterval", interval, mapData,"mapData", colorReference, "region", regionName, "value", value);
+    
         return {
           region: regionName,
           value: value,
-          color: colorScale && colorScaleArray[colorIndex],
+          color: colorScale && colorIndex,
         };
       });
     }
+    
 
-    console.log("regionColors", regionColors);
+    console.log("regionColors", regionColors, mx, mn);
 
     const sortedShape = shape.slice().sort((a, b) => {
       const areaA = parseCoordinates(a.co).reduce(
