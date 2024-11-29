@@ -107,18 +107,18 @@ const Home = () => {
 
   const testimonials = [
     {
+      name: "Dr. Mekdes Daba",
+      role: "Ministry of Health",
+      quote:
+        "Data is the cornerstone of effective decision-making. It enables us to identify challenges, measure progress, and allocate resources where they are needed most. This dashboard is more than just a collection of numbers—it’s a tool for collaboration and innovation. Together, we can use these insights to address health disparities, enhance service delivery, and build a future where every individual has the opportunity to live a healthy and fulfilling life.",
+      avatar: "/mekdes.png",
+    },
+    {
       name: "Mesoud Mohammed ",
       role: "Strategic Affairs Executive Office, Ministry of Health",
       quote:
         "Our commitment is to ensure transparency and accountability through accessible health data for every citizen. This public dashboard is a reflection of our efforts to provide accurate, timely, and actionable information to empower individuals, communities, and decision-makers. We believe that when people have access to health data, they can advocate for better services, hold systems accountable, and contribute to the development of a healthier society",
       avatar: "/mesud.png",
-    },
-    {
-      name: "Gemechis Melkamu",
-      role: "Digital Health Lead Executive Officer, Ministry of Health",
-      quote:
-        "Data is the cornerstone of effective decision-making. It enables us to identify challenges, measure progress, and allocate resources where they are needed most. This dashboard is more than just a collection of numbers—it’s a tool for collaboration and innovation. Together, we can use these insights to address health disparities, enhance service delivery, and build a future where every individual has the opportunity to live a healthy and fulfilling life.",
-      avatar: "/gemechu.png",
     },
   ];
 
