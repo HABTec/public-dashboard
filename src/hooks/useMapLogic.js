@@ -18,7 +18,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       const start = minValue + i * interval; // Start of the current range
       const end = Math.min(start + interval, maxValue); // End of the current range
       const color = colors[i % colors.length]; // Assign a cyclic color
-      output[i] = {start, end, color}
+      output[i] = { start, end, color };
     }
 
     return output;
@@ -353,7 +353,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     const regionList = chartConfig?.yAxis?.categories;
     const numColors = regionList?.length;
     // const numColors = 5;
-    console.log("mapData to check", mapData)
+    console.log("mapData to check", mapData);
     let globalMax = -Infinity;
     let globalMin = Infinity;
 
@@ -362,8 +362,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       const min = Math.min(...series.data);
       if (max > globalMax) globalMax = max;
       if (min < globalMin) globalMin = min;
-    })
-
+    });
 
     const colorReference = colorRange(globalMin, globalMax, 5);
 
@@ -382,7 +381,6 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         .domain([mn, mx])
         .colors(numColors);
     }
-
 
     let regionColors;
 
@@ -405,21 +403,31 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       regionColors = regionList?.map((regionName, index) => {
         const value = combinedData[index];
         let colorIndex = null;
-    
-      // Convert colorReference to an array if it's an object
-      const colorArray = Object.values(colorReference).reverse();
-    
-      // Find the corresponding color interval
-      const interval = colorArray.find((interval) => {
-        return value >= interval.start && value < interval.end + 0.1;
-      });
-    
-      // Assign colorIndex if an interval is found
-      if (interval) {
-        colorIndex = interval.color;
-      }
-      console.log("colorInterval", interval, mapData,"mapData", colorReference, "region", regionName, "value", value);
-    
+
+        // Convert colorReference to an array if it's an object
+        const colorArray = Object.values(colorReference).reverse();
+
+        // Find the corresponding color interval
+        const interval = colorArray.find((interval) => {
+          return value >= interval.start && value < interval.end + 0.1;
+        });
+
+        // Assign colorIndex if an interval is found
+        if (interval) {
+          colorIndex = interval.color;
+        }
+        console.log(
+          "colorInterval",
+          interval,
+          mapData,
+          "mapData",
+          colorReference,
+          "region",
+          regionName,
+          "value",
+          value
+        );
+
         return {
           region: regionName,
           value: value,
@@ -427,7 +435,6 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         };
       });
     }
-    
 
     console.log("regionColors", regionColors, mx, mn);
 
@@ -501,6 +508,44 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       }
       return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
     });
+
+  // Check if any mapView has a renderingStrategy of TIMELINE
+  // const hasTimelineStrategy = mapViews?.some(
+  //   (view) => view.renderingStrategy === "TIMELINE"
+  // );
+
+  // // Map through mapViews and ensure all have TIMELINE if any does
+  // const parsedMapViews = mapViews
+  //   ?.map((view) => {
+  //     const chartConfig = processChartData(chartDatas[view.id]);
+
+  //     if (view.layer === "thematic" && chartConfig.series.length === 0) {
+  //       return null;
+  //     }
+
+  //     return processMapLayer(
+  //       chartConfig,
+  //       view?.displayName,
+  //       shapes[view.id],
+  //       view?.colorScale ?? "#ffffd4,#fed98e,#fe9929,#d95f0e,#993404",
+  //       view?.opacity,
+  //       view.layer,
+  //       view?.thematicMapType,
+  //       hasTimelineStrategy ? "TIMELINE" : view?.renderingStrategy,
+  //       view?.legendSet
+  //     );
+  //   })
+  //   .filter(Boolean)
+  //   .sort((a, b) => {
+  //     if (a.layer === "thematic" && b.layer === "thematic") {
+  //       const thematicOrder = ["CHOROPLETH", "BUBBLE"];
+  //       return (
+  //         thematicOrder.indexOf(a.thematicMapType) -
+  //         thematicOrder.indexOf(b.thematicMapType)
+  //       );
+  //     }
+  //     return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
+  //   });
 
   console.log("parsedcomp", parsedMapViews);
 

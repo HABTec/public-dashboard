@@ -99,7 +99,6 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
     const dataSplitByPeriod = parsedMapViews?.find((viewData) => {
       return viewData?.renderingStrategy === "SPLIT_BY_PERIOD";
     });
-    
 
     if (timelineViewData) {
       const timeline = renderTimelineDatas(timelineViewData);
@@ -107,24 +106,23 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
       setTimelineDataPeriod(timeline[0].timePeriods);
       setSelectedTimeline(timeline[0]); // Set initial selected timeline
       // setLegendData(prev => [...prev, timeline[0]?.legendDatas]);
-    } else if(dataSplitByPeriod){
+    } else if (dataSplitByPeriod) {
       const data = renderTimelineDatas(dataSplitByPeriod);
       let mn = Infinity;
       let mx = -Infinity;
-      let displayName, name
+      let displayName, name;
       data.map((d) => {
         displayName = d.displayName;
-        name = d.layer
+        name = d.thematicMapType;
         d.regionColors.map((region) => {
           mn = Math.min(mn, region.value);
           mx = Math.max(mx, region.value);
-        })
-      })
-      console.log("split_data", data)
+        });
+      });
+      console.log("split_data", data);
       setSplitPeriodData(data);
-      setLegendRange({mn, mx, displayName, name});
+      setLegendRange({ mn, mx, displayName, name });
     }
-    
   }, []);
 
   if (!mapBounds) return null;
@@ -153,8 +151,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
           mapBounds={mapBounds}
           legendRange={legendRange}
         />
-      ) : 
-      (
+      ) : (
         <div style={{ flexGrow: 1 }}>
           <MapContainer
             key={
@@ -178,30 +175,31 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
               tileLayers={tileLayers}
             />
 
-          {parsedMapViews?.map((viewData) => {
-            legendSet = viewData?.legendSet;
-            if (!selectedTimeline) {
-              switch (viewData?.layer) {
-                case "facility":
-                  return renderFacilityMarkers(viewData);
+            {parsedMapViews?.map((viewData) => {
+              legendSet = viewData?.legendSet;
+              if (viewData?.renderingStrategy !== "TIMELINE") {
+                console.log("is it called", viewData, selectedTimeline);
+                switch (viewData?.layer) {
+                  case "facility":
+                    return renderFacilityMarkers(viewData);
 
-                case "orgUnit":
-                  return renderOrgUnitPolygons(viewData);
+                  case "orgUnit":
+                    return renderOrgUnitPolygons(viewData);
 
-                case "thematic":
-                  if (viewData?.thematicMapType === "CHOROPLETH") {
-                    orgDrawn = true;
-                    return renderThematicPolygons(viewData);
-                  } else if (viewData?.thematicMapType === "BUBBLE") {
-                    const draw = orgDrawn;
-                    orgDrawn = true;
-                    return renderBubbleMap(viewData, draw);
-                  } else {
-                    // thematicMapType set the default render to CHOROPLETH
-                    orgDrawn = true;
-                    return renderThematicPolygons(viewData);
-                  }
-                  break;
+                  case "thematic":
+                    if (viewData?.thematicMapType === "CHOROPLETH") {
+                      orgDrawn = true;
+                      return renderThematicPolygons(viewData);
+                    } else if (viewData?.thematicMapType === "BUBBLE") {
+                      const draw = orgDrawn;
+                      orgDrawn = true;
+                      return renderBubbleMap(viewData, draw);
+                    } else {
+                      // thematicMapType set the default render to CHOROPLETH
+                      orgDrawn = true;
+                      return renderThematicPolygons(viewData);
+                    }
+                    break;
 
                   default:
                     return null;
@@ -218,7 +216,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
 
                   case "thematic":
                     orgDrawn = true;
-                    if (selectedTimeline?.thematicMapType === "CHOROPLETH") {;
+                    if (selectedTimeline?.thematicMapType === "CHOROPLETH") {
                       return renderThematicPolygons(selectedTimeline);
                     } else if (selectedTimeline?.thematicMapType === "BUBBLE") {
                       const draw = orgDrawn;
@@ -232,7 +230,7 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
               }
             })}
 
-            <Legend legendDatas={legendData} legendSet={legendSet}/>
+            <Legend legendDatas={legendData} legendSet={legendSet} />
           </MapContainer>
         </div>
       )}

@@ -1,7 +1,13 @@
 import React, { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 import ReactDOM from "react-dom";
 
 const TileLayerControl = ({ tileLayer, setTileLayer, tileLayers }) => {
@@ -14,14 +20,23 @@ const TileLayerControl = ({ tileLayer, setTileLayer, tileLayers }) => {
     );
 
     const formControl = (
-      <FormControl variant="outlined" style={{ minWidth: 120 }}>
-        <InputLabel id="tile-layer-select-label">Base Map</InputLabel>
+      <FormControl
+        style={{
+          position: "absolute",
+          top: 3,
+          right: -8,
+          zIndex: 1000,
+          borderRadius: "4px",
+          padding: "4px 8px",
+        }}
+      >
+        <InputLabel sx={{ marginBottom: 2 }}>
+          <Typography>Base Map</Typography>
+        </InputLabel>
         <Select
-          labelId="tile-layer-select-label"
-          id="tile-layer-select"
           value={tileLayer}
           onChange={(e) => setTileLayer(e.target.value)}
-          label="Base Map"
+          style={{ minWidth: 120, backgroundColor: "white" }}
         >
           {Object.keys(tileLayers).map((layer) => (
             <MenuItem key={layer} value={layer}>
