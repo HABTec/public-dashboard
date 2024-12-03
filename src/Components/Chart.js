@@ -208,6 +208,7 @@ export default function Chart({
           selectedSavedChart ? selectedSavedChart : dashboard?.dashboardItems
         }
         filters={filters}
+        dashboard={dashboard}
       ></DashboardItems>
     </React.Fragment>
   );

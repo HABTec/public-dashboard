@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
 import { Chip } from "@mui/material";
 
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import {
   PieChart,
   BarChart,
@@ -22,6 +23,7 @@ import {
   lineElementClasses,
   markElementClasses,
 } from "@mui/x-charts/LineChart";
+import InterpretationComponent from "./InterpretationComponent";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import SplitscreenIcon from "@mui/icons-material/Splitscreen";
@@ -86,7 +88,10 @@ const apiBase = process.env.REACT_APP_BASE_URI;
 const dimensionParam =
   "dimension,filter,programStage,items[dimensionItem,dimensionItemType]";
 
+const interpretationParam =
+  ",description,interpretations[id,user[id,displayName,userCredentials[username]],created,lastUpdated,text,publicAccess,externalAccess,userAccesses,userGroupAccesses,comments[id,text,created,lastUpdated,user[id,displayName,userCredentials[username]]]]";
 function DashboardItem(props) {
+  const params = new URLSearchParams(window.location.search);
   const fullWidth = props?.fullWidth || false;
   const [chartInfo, setChartInfo] = React.useState();
   const [chartData, setChartData] = React.useState();
@@ -113,10 +118,9 @@ function DashboardItem(props) {
       item.type === "REPORT_TABLE"
     ) {
       id = item.visualization.id;
-      url +=
-        "api/visualizations/" +
-        id +
-        ".json?fields=id,displayName,aggregationType,showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]";
+      url += `api/visualizations/${id}.json?fields=id,displayName,aggregationType${
+        params.get("fullDetail") ? interpretationParam : ``
+      },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -131,11 +135,9 @@ function DashboardItem(props) {
         "]";
     } else if (item.type == "MAP") {
       id = item.map.id;
-      console.log("map id", id);
-      url +=
-        "api/maps/" +
-        id +
-        ".json?fields=id,displayName,latitude,zoom,basemap,mapViews[id,colorScale,legendSet[name,legends[name,color,startValue,endValue]],aggregationType,opacity,layer,thematicMapType,renderingStrategy,displayName,type,displayDescription,columns[dimension,legendSet[id],filter,programStage,items[dimensionItem~rename(id),displayName~rename(name),dimensionItemType]],rows[:all],filters[:all]]";
+      url += `api/maps/${id}.json?fields=id,displayName${
+        params.get("fullDetail") ? interpretationParam : ``
+      }latitude,zoom,basemap,mapViews[id,colorScale,legendSet[name,legends[name,color,startValue,endValue]],aggregationType,opacity,layer,thematicMapType,renderingStrategy,displayName,type,displayDescription,columns[dimension,legendSet[id],filter,programStage,items[dimensionItem~rename(id),displayName~rename(name),dimensionItemType]],rows[:all],filters[:all]]`;
     } else if (item.type == "TEXT") {
       id = item._id;
       setChartInfo({ ...item });
@@ -911,12 +913,15 @@ function DashboardItem(props) {
             colors={colors}
             target={chartInfo.targetLineValue}
             baseline={chartInfo.baseLineValue}
+            style={{}}
           />
-          <span align="center">
-            {dataItem} <br />
-            {orgunit} <br />
-            {period}
-          </span>
+          <div align="center" style={{ padding: "10px" }}>
+            <span align="center">
+              {dataItem} <br />
+              {orgunit} <br />
+              {period}
+            </span>
+          </div>
         </>
       );
 
@@ -1104,291 +1109,353 @@ function DashboardItem(props) {
     setShareURL(shareURL);
     // return <ShareModal />;
   };
+
+  const handelOpenInfull = () => {
+    const currentURL = new URL(window.location.href);
+    currentURL.searchParams.set("dashboard", props?.dashboard?.id);
+    const dashboardItemId = item.id || item._id;
+    currentURL.searchParams.set("dashboardItemId", dashboardItemId);
+    currentURL.searchParams.set("fullDetail", true);
+    console.log("dashboard", currentURL.href, props.dashboard);
+    window.location.href = currentURL.toString();
+  };
+
   return (
-    <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
-      <Paper
-        ref={componentRef}
-        sx={
-          fullScreenItem != null && fullScreenItem == id
-            ? {
-                zIndex: 1300,
-                p: 2,
-                display: "block",
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                flexDirection: "column",
-                width: "100vw",
-                height: "100vh",
-                padding: "2%",
-                paddingBottom: "4%",
-              }
-            : {
-                p: 2,
-                display: "flex",
-                flexDirection: "column",
-                height: "13cm",
-                width: "100%",
-                position: "relative",
-              }
-        }
-      >
-        <Grid container spacing={2}>
-          <Grid item xs={10} sm={11}>
-            <Title>{title}</Title>
-          </Grid>
-          <Grid item xs={2} sm={1}>
-            {fullScreenItem ? (
-              <IconButton
-                style={{
-                  position: "fixed",
-                  top: "3%",
-                  right: "3%",
-                }}
-                aria-label="exit"
-                aria-controls="long-menu"
-                aria-haspopup="true"
-                onClick={handelFullScreenExit}
-              >
-                <FullscreenExitIcon style={{ color: "grey" }} />
-              </IconButton>
-            ) : (
-              <IconButton
-                aria-label="more"
-                aria-controls="long-menu"
-                aria-haspopup="true"
-                onClick={handleClick}
-              >
-                <MoreVertIcon style={{ color: "grey" }} />
-              </IconButton>
-            )}
-            <Menu
-              id="long-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              {props?.displayFullScreen ? (
-                <MenuItem onClick={handelFullScreen}>
-                  <ListItemIcon>
-                    <FullscreenIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Full Screen" />
-                </MenuItem>
-              ) : (
-                <></>
-              )}
-
-              {props?.displaySave ? (
-                <MenuItem onClick={handleSaveChart}>
-                  <ListItemIcon>
-                    <BookmarkAddIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Save" />
-                </MenuItem>
-              ) : (
-                <></>
-              )}
-
-              <MenuItem>
-                <ListItemIcon>
-                  <InsightsIcon />
-                </ListItemIcon>
-                <Popover
-                  id={popover_id2}
-                  open={Boolean(subMenuAnchorChangeChartType)}
-                  anchorEl={subMenuAnchorChangeChartType}
-                  onClose={() => setSubMenuAnchorChangeChartType(null)}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                >
-                  <MenuItem onClick={() => setCustomChartType("line")}>
-                    <ListItemIcon>
-                      <ShowChartIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Line Chart" />
-                  </MenuItem>
-                  <MenuItem onClick={() => setCustomChartType("column")}>
-                    <ListItemIcon>
-                      <BarChartIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Column Chart" />
-                  </MenuItem>
-                  <MenuItem onClick={() => setCustomChartType("pie")}>
-                    <ListItemIcon>
-                      <PieChartIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Pie Chart" />
-                  </MenuItem>
-                  <MenuItem onClick={() => setCustomChartType("bar")}>
-                    <ListItemIcon>
-                      <SplitscreenIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Bar Chart" />
-                  </MenuItem>
-                  <MenuItem onClick={() => setCustomChartType("scatter")}>
-                    <ListItemIcon>
-                      <ScatterPlotIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Scatter Chart" />
-                  </MenuItem>
-                  <MenuItem onClick={() => setCustomChartType("gauge")}>
-                    <ListItemIcon>
-                      <SpeedIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Gauge Chart" />
-                  </MenuItem>
-                  <MenuItem onClick={() => setCustomChartType("pivot_table")}>
-                    <ListItemIcon>
-                      <PivotTableChartIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Pivot Table" />
-                  </MenuItem>
-                </Popover>
-                <ListItemText
-                  onMouseEnter={handleSubMenuOpenChangeChartType}
-                  primary="Change Chart Type"
-                ></ListItemText>
-              </MenuItem>
-              <MenuItem onClick={handleShare}>
-                <ListItemIcon>
-                  <Share />
-                </ListItemIcon>
-                <ListItemText primary="Share" />
-              </MenuItem>
-
-              <MenuItem>
-                <ListItemIcon>
-                  <FileDownloadIcon />
-                </ListItemIcon>
-                <Popover
-                  id={popover_id}
-                  open={Boolean(subMenuAnchorEl)}
-                  anchorEl={subMenuAnchorEl}
-                  onClose={() => setSubMenuAnchorEl(null)}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                >
-                  <MenuItem onClick={() => handleDownload("csv")}>
-                    <ListItemIcon>
-                      <InsertDriveFileIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Download CSV" />
-                  </MenuItem>
-                  <MenuItem onClick={() => handleDownload("excel")}>
-                    <ListItemIcon>
-                      <InsertDriveFileIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Download Excel" />
-                  </MenuItem>
-                  <MenuItem onClick={() => handleDownload("png")}>
-                    <ListItemIcon>
-                      <InsertPhotoIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Download PNG Image" />
-                  </MenuItem>
-                </Popover>
-                <ListItemText
-                  onMouseEnter={handleSubMenuOpen}
-                  primary="Download"
-                ></ListItemText>
-              </MenuItem>
-            </Menu>
-          </Grid>
-        </Grid>
-        {loading ? (
-          <MenuItem disabled>
-            <CircularProgress size={24} />
-          </MenuItem>
-        ) : (
-          renderChart()
-        )}
-        {selectShare && (
-          <ShareModal
-            open={selectShare}
-            onClose={() => setSelectShare(false)}
-            url={shareURL}
-          />
-        )}
+    <>
+      <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
         <Paper
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "fit-content",
-            maxHeight: "fit-content",
-            zIndex: 200,
-            margin: "2%",
-            display: chartInfo?.legend?.showKey ? "block" : "none",
-          }}
-          onClick={toggleLegendKeyDisplay}
+          ref={componentRef}
+          sx={
+            fullScreenItem != null && fullScreenItem == id
+              ? {
+                  zIndex: 1300,
+                  p: 2,
+                  display: "block",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  flexDirection: "column",
+                  width: "100vw",
+                  height: "100vh",
+                  padding: "2%",
+                  paddingBottom: "4%",
+                }
+              : {
+                  p: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  height: props?.homePageMode
+                    ? "13cm"
+                    : fullWidth
+                    ? "max(75vh,13cm)"
+                    : "13cm",
+                  width: "100%",
+                  position: "relative",
+                }
+          }
         >
-          <Grid container>
-            <Grid item xs={2}>
-              <IconButton>
-                <FormatListBulletedOutlinedIcon />
-              </IconButton>
+          <Grid container spacing={2}>
+            <Grid item xs={10} sm={11}>
+              <Title>{title}</Title>
             </Grid>
-            <Grid item xs={10}>
-              {openLegendKey ? (
-                <IconButton variant="body2">
-                  <Typography>Legend</Typography>
+            <Grid item xs={2} sm={1}>
+              {fullScreenItem ? (
+                <IconButton
+                  style={{
+                    position: "fixed",
+                    top: "3%",
+                    right: "3%",
+                  }}
+                  aria-label="exit"
+                  aria-controls="long-menu"
+                  aria-haspopup="true"
+                  onClick={handelFullScreenExit}
+                >
+                  <FullscreenExitIcon style={{ color: "grey" }} />
                 </IconButton>
               ) : (
-                ""
+                <IconButton
+                  aria-label="more"
+                  aria-controls="long-menu"
+                  aria-haspopup="true"
+                  onClick={handleClick}
+                  sx={{ position: "relative", top: "0", right: "0" }}
+                >
+                  <MoreVertIcon style={{ color: "grey" }} />
+                </IconButton>
               )}
+              <Menu
+                id="long-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                {props?.displayFullScreen ? (
+                  <MenuItem onClick={handelFullScreen}>
+                    <ListItemIcon>
+                      <FullscreenIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Full Screen" />
+                  </MenuItem>
+                ) : (
+                  <></>
+                )}
+
+                {props?.displaySave ? (
+                  <MenuItem onClick={handleSaveChart}>
+                    <ListItemIcon>
+                      <BookmarkAddIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Save" />
+                  </MenuItem>
+                ) : (
+                  <></>
+                )}
+
+                <MenuItem>
+                  <ListItemIcon>
+                    <InsightsIcon />
+                  </ListItemIcon>
+                  <Popover
+                    id={popover_id2}
+                    open={Boolean(subMenuAnchorChangeChartType)}
+                    anchorEl={subMenuAnchorChangeChartType}
+                    onClose={() => setSubMenuAnchorChangeChartType(null)}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
+                  >
+                    <MenuItem onClick={() => setCustomChartType("line")}>
+                      <ListItemIcon>
+                        <ShowChartIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Line Chart" />
+                    </MenuItem>
+                    <MenuItem onClick={() => setCustomChartType("column")}>
+                      <ListItemIcon>
+                        <BarChartIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Column Chart" />
+                    </MenuItem>
+                    <MenuItem onClick={() => setCustomChartType("pie")}>
+                      <ListItemIcon>
+                        <PieChartIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Pie Chart" />
+                    </MenuItem>
+                    <MenuItem onClick={() => setCustomChartType("bar")}>
+                      <ListItemIcon>
+                        <SplitscreenIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Bar Chart" />
+                    </MenuItem>
+                    <MenuItem onClick={() => setCustomChartType("scatter")}>
+                      <ListItemIcon>
+                        <ScatterPlotIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Scatter Chart" />
+                    </MenuItem>
+                    <MenuItem onClick={() => setCustomChartType("gauge")}>
+                      <ListItemIcon>
+                        <SpeedIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Gauge Chart" />
+                    </MenuItem>
+                    <MenuItem onClick={() => setCustomChartType("pivot_table")}>
+                      <ListItemIcon>
+                        <PivotTableChartIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Pivot Table" />
+                    </MenuItem>
+                  </Popover>
+                  <ListItemText
+                    onMouseEnter={handleSubMenuOpenChangeChartType}
+                    primary="Change Chart Type"
+                  ></ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handleShare}>
+                  <ListItemIcon>
+                    <Share />
+                  </ListItemIcon>
+                  <ListItemText primary="Share" />
+                </MenuItem>
+
+                <MenuItem>
+                  <ListItemIcon>
+                    <FileDownloadIcon />
+                  </ListItemIcon>
+                  <Popover
+                    id={popover_id}
+                    open={Boolean(subMenuAnchorEl)}
+                    anchorEl={subMenuAnchorEl}
+                    onClose={() => setSubMenuAnchorEl(null)}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
+                  >
+                    <MenuItem onClick={() => handleDownload("csv")}>
+                      <ListItemIcon>
+                        <InsertDriveFileIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Download CSV" />
+                    </MenuItem>
+                    <MenuItem onClick={() => handleDownload("excel")}>
+                      <ListItemIcon>
+                        <InsertDriveFileIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Download Excel" />
+                    </MenuItem>
+                    <MenuItem onClick={() => handleDownload("png")}>
+                      <ListItemIcon>
+                        <InsertPhotoIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Download PNG Image" />
+                    </MenuItem>
+                  </Popover>
+                  <ListItemText
+                    onMouseEnter={handleSubMenuOpen}
+                    primary="Download"
+                  ></ListItemText>
+                </MenuItem>
+              </Menu>
             </Grid>
           </Grid>
-          <TableContainer
-            sx={{ display: openLegendKey ? "block" : "none" }}
-            mx="2"
+          {loading ? (
+            <MenuItem disabled>
+              <CircularProgress size={24} />
+            </MenuItem>
+          ) : (
+            renderChart()
+          )}
+          {selectShare && (
+            <ShareModal
+              open={selectShare}
+              onClose={() => setSelectShare(false)}
+              url={shareURL}
+            />
+          )}
+          <Paper
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: "fit-content",
+              maxHeight: "fit-content",
+              zIndex: 200,
+              margin: "2%",
+              display: chartInfo?.legend?.showKey ? "block" : "none",
+            }}
+            onClick={toggleLegendKeyDisplay}
           >
-            <Table aria-label="legend table">
-              <TableRow>
-                <TableCell colSpan={3} align="center">
-                  {chartInfo?.legend?.set?.name}
-                </TableCell>
-              </TableRow>
-              <TableBody>
-                {chartInfo?.legend?.set?.legends?.map((row) => (
-                  <TableRow
-                    key={row.name}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell
-                      sx={{ backgroundColor: row.color, width: "2px" }}
-                    ></TableCell>
-                    <TableCell>
-                      {row.name} <br />
-                      <Typography variant="caption">
-                        {row.startValue}
-                        {"-<"}
-                        {row.endValue}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+            <Grid container>
+              <Grid item xs={2}>
+                <IconButton>
+                  <FormatListBulletedOutlinedIcon />
+                </IconButton>
+              </Grid>
+              <Grid item xs={10}>
+                {openLegendKey ? (
+                  <IconButton variant="body2">
+                    <Typography>Legend</Typography>
+                  </IconButton>
+                ) : (
+                  ""
+                )}
+              </Grid>
+            </Grid>
+            <TableContainer
+              sx={{ display: openLegendKey ? "block" : "none" }}
+              mx="2"
+            >
+              <Table aria-label="legend table">
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    {chartInfo?.legend?.set?.name}
+                  </TableCell>
+                </TableRow>
+                <TableBody>
+                  {chartInfo?.legend?.set?.legends?.map((row) => (
+                    <TableRow
+                      key={row.name}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell
+                        sx={{ backgroundColor: row.color, width: "2px" }}
+                      ></TableCell>
+                      <TableCell>
+                        {row.name} <br />
+                        <Typography variant="caption">
+                          {row.startValue}
+                          {"-<"}
+                          {row.endValue}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+
+          <Paper
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: "fit-content",
+              maxHeight: "fit-content",
+              zIndex: 1000,
+              margin: "2%",
+              display:
+                params.get("fullDetail") || props?.homePageMode
+                  ? "none"
+                  : "block",
+            }}
+          >
+            <Grid container>
+              <Grid item xs={2}>
+                <IconButton
+                  onClick={handelOpenInfull}
+                  aria-label="open in full"
+                  title="Open in Full "
+                >
+                  <OpenInFullIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+          </Paper>
         </Paper>
-      </Paper>
-    </Grid>
+      </Grid>
+      {params.get("fullDetail") ? (
+        <>
+          {chartInfo?.interpretations?.length > 0 || chartInfo?.description ? (
+            <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
+              <InterpretationComponent
+                interpretations={chartInfo.interpretations}
+                chartDescription={chartInfo.description}
+              />
+            </Grid>
+          ) : (
+            ""
+          )}
+        </>
+      ) : (
+        ""
+      )}
+    </>
   );
 }
 
@@ -1403,6 +1470,9 @@ function DashboardItems(props) {
       </Grid>
     );
   }
+
+  const params = new URLSearchParams(window.location.search);
+
   return props?.items?.map((item, i) => {
     console.log("item +", item);
     return (
@@ -1412,6 +1482,7 @@ function DashboardItems(props) {
         item={{ ...item, id: item.id ?? item._id }}
         displaySave={true}
         displayFullScreen={true}
+        fullWidth={params.get("dashboardItemId")}
       ></DashboardItem>
     );
   });
