@@ -81,7 +81,7 @@ export const useRenderMapLayers = (
       const start = minValue + i * interval; // Start of the current range
       const end = Math.min(start + interval, maxValue); // End of the current range
       const color = colors[i % colors.length]; // Assign a cyclic color
-      output[i] = {start, end, color}
+      output[i] = { start, end, color };
       // output.push({ start, end, color });
     }
 
@@ -211,10 +211,12 @@ export const useRenderMapLayers = (
       // console.log(coordinates, ">>>")
       return coordinates.map((polygon, polygonIndex) => {
         // console.log(">>>>>>>>>>>", polygon[0], polygonIndex, color)
-       
+
         return (
           <Polygon
-            key={`${region.id}-${polygonIndex}-${regionIndex}-${color}-${regionColor}-${Math.random()}`}
+            key={`${
+              region.id
+            }-${polygonIndex}-${regionIndex}-${color}-${regionColor}-${Math.random()}`}
             positions={polygon}
             fillColor={color && color.startsWith("#") ? color : `#${color}`}
             color={"#000"}
@@ -307,11 +309,20 @@ export const useRenderMapLayers = (
       );
       const color = regionColor ? regionColor.color : "#3388ff";
       const opacity = viewData.opacity;
-      console.log("bubble color", color, "region", region.na, "orgDrawn", orgDrawn);
+      console.log(
+        "bubble color",
+        color,
+        "region",
+        region.na,
+        "orgDrawn",
+        orgDrawn
+      );
 
       const polygons = fetchedCoordinates.map((polygon, polygonIndex) => (
         <Polygon
-          key={`${region.id}-${polygonIndex}-${regionIndex}-${color}-${Date.now()}-${Math.random()}`}
+          key={`${
+            region.id
+          }-${polygonIndex}-${regionIndex}-${color}-${Date.now()}-${Math.random()}`}
           positions={polygon}
           color="#000"
           fillOpacity={0}
@@ -404,19 +415,18 @@ export const useRenderMapLayers = (
           )?.color;
         } else {
           // Normalize the value between minValue and maxValue
-          const normalizedValue = (value - minValue) / (maxValue - minValue);
+          // const normalizedValue = (value - minValue) / (maxValue - minValue);
 
-        // Use normalized value to find the corresponding color
-        // const colorIndex = Math.floor(
-        //   normalizedValue * (viewData.colorScaleArray.length - 1)
-        // );
-        // const color = viewData.colorScaleArray[colorIndex];
-        const color = Object.values(colorReference).reverse()?.find(
-          ({ start, end }) => value >= start && value < end+0.1
-        )
-        colorAssigned = color?.color;
-      }
-        
+          // Use normalized value to find the corresponding color
+          // const colorIndex = Math.floor(
+          //   normalizedValue * (viewData.colorScaleArray.length - 1)
+          // );
+          // const color = viewData.colorScaleArray[colorIndex];
+          const color = Object.values(colorReference)
+            .reverse()
+            ?.find(({ start, end }) => value >= start && value < end + 0.1);
+          colorAssigned = color?.color;
+        }
 
         return {
           region: data.name.match(/\(([^)]+)\)/)[1], // Extract region name
@@ -456,8 +466,14 @@ export const useRenderMapLayers = (
       });
 
       // const colorReference = colorRange(minValue, maxValue, 5);
-      console.log("minimum timeline", minValue, "maximum timeline", maxValue, "reference", colorReference);
-
+      console.log(
+        "minimum timeline",
+        minValue,
+        "maximum timeline",
+        maxValue,
+        "reference",
+        colorReference
+      );
 
       return {
         ...viewData,

@@ -9,33 +9,41 @@ import RoomIcon from "@mui/icons-material/ControlPoint";
 import HealthPostIcon from "@mui/icons-material/MedicalInformation";
 import LandslideOutlinedIcon from "@mui/icons-material/LandslideOutlined";
 import chroma from "chroma-js";
+import PredefinedColorLegend from "./PredefinedColorLegend";
 
-const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
+const SplitMapLegend = ({
+  legendDatas,
+  legendRange = null,
+  legendSet = null,
+}) => {
   const [showDetails, setShowDetails] = useState(false);
-  console.log("split legendData", legendDatas, legendRange)
-  
+  console.log("split legendData", legendDatas, legendRange);
+
   const renderLegendItems = () => {
-   
+    if (legendSet) {
+      return <PredefinedColorLegend key={legendSet} legendSet={legendSet} />;
+    }
+
     const combinedLegends = [
-      ...(legendRange ? [legendRange] : []), 
-      ...(legendDatas || []), 
+      ...(legendRange ? [legendRange] : []),
+      ...(legendDatas || []),
     ];
-  
+
     return combinedLegends.map((legendData, index) => {
       const { displayName, mn, mx, name, regionColors } = legendData;
-      console.log("legendsplit", combinedLegends)
-  
-      if (name === "thematic") {
+      console.log("legendsplit", combinedLegends);
+
+      if (name.toLowerCase() === "choropleth") {
         // Thematic legend logic
         const intervalCount = 5;
         const intervalSize = (mx - mn) / intervalCount;
-  
+
         const intervals = Array.from({ length: intervalCount }, (_, i) => {
           const start = mn + i * intervalSize;
           const end = start + intervalSize;
           return { start, end };
         });
-  
+
         const colors = ["#ffffd4", "#fed98e", "#fe9929", "#d95f0e", "#993404"];
         const counts = intervals.map(
           ({ start, end }) =>
@@ -43,10 +51,10 @@ const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
               ({ value }) => value >= start && value < end + 0.1
             ).length || 0
         );
-  
+
         return (
-          <div key={`thematic-${index}`} style={{fontSize : "0.8rem"}}>
-            <b >{displayName}</b>
+          <div key={`thematic-${index}`} style={{ fontSize: "0.8rem" }}>
+            <b>{displayName}</b>
             {intervals.map(({ start, end }, idx) => (
               <div
                 key={`thematic-${index}-${idx}`}
@@ -66,14 +74,12 @@ const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
                     border: "1px solid #999",
                   }}
                 ></div>
-                <span>{`${start.toFixed(2)} - ${end.toFixed(2)}                 `
-                }
-                </span>
+                <span>{`${start.toFixed(2)} - ${end.toFixed(2)}`}</span>
               </div>
             ))}
           </div>
         );
-      } else if (name === "bubble") {
+      } else if (name.toLowerCase() === "bubble") {
         // Bubble legend logic
         const bubbleData = Array.from({ length: 5 }, (_, idx) => {
           const midpoint = mn + idx * ((mx - mn) / 5);
@@ -87,11 +93,16 @@ const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
             end: midpoint + (mx - mn) / 5,
           };
         });
-  
+
         return (
           <div
             key={`bubble-${index}`}
-            style={{ position: "relative", padding: "10px" }}
+            style={{
+              position: "relative",
+              padding: "10px",
+              height: "9rem",
+              marginBottom: "1rem",
+            }}
           >
             <b>{displayName}</b>
             <Box
@@ -122,7 +133,7 @@ const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
             </Box>
           </div>
         );
-      } else if (name === "facility") {
+      } else if (name.toLowerCase() === "facility") {
         // Facility legend logic
         return (
           <div
@@ -167,18 +178,17 @@ const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
       return null;
     });
   };
-  
-  
+
   return (
     <Paper
       elevation={1}
       sx={{
         position: "absolute",
-        bottom: "1.5rem",
-        left: "1.5rem",
+        bottom: 13,
+        left: 13,
         zIndex: 1001,
         borderRadius: "4px",
-        padding: "4px 8px",
+        padding: "3px 5px",
       }}
       onClick={() => setShowDetails(!showDetails)}
       style={{ cursor: "pointer" }}
@@ -187,6 +197,7 @@ const SplitMapLegend = ({ legendDatas, legendRange = null }) => {
         <FormatListBulletedIcon />
         {showDetails ? " Legend" : ""}
       </Box>
+      <Box></Box>
       {showDetails && renderLegendItems()}
     </Paper>
   );

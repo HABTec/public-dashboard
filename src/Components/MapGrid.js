@@ -8,10 +8,11 @@ import {
   FormControl,
   InputLabel,
   IconButton,
+  Divider,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { WhiteTileLayer } from "./TileComponent";
-import debounce from "lodash.debounce"; 
+import debounce from "lodash.debounce";
 import SplitMapLegend from "./SplitMapLegend";
 import MapSyncComponent from "./MapSyncComponent";
 
@@ -31,8 +32,9 @@ const MapGrid = ({
   );
   const [center, setCenter] = useState([9.145, 40.489673]);
   const [zoom, setZoom] = useState(4);
+  const legendSet = splitPeriodData[0]?.legendSet || null;
 
-  console.log("split grid", legendData, legendRange)
+  console.log("split grid", legendData, legendRange, splitPeriodData, legendSet );
 
   const tileLayers = {
     osm: { url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
@@ -54,12 +56,12 @@ const MapGrid = ({
   const debouncedZoomChange = useCallback(debounce(setZoom, 50), []);
 
   return (
-    <Box p={2} height="100vh" width="100%" position="relative">
+    <Box height="100vh" width="100%" position="relative">
       <FormControl
         style={{
           position: "absolute",
           top: 10,
-          right: 10,
+          right: 3,
           zIndex: 1000,
           borderRadius: "4px",
           padding: "4px 8px",
@@ -80,25 +82,36 @@ const MapGrid = ({
       </FormControl>
 
       <Box
-        style={{
+        sx={{
           position: "absolute",
-          top: 10,
-          left: 10,
+          top: 3,
+          left: 3,
           zIndex: 1000,
           display: "flex",
           flexDirection: "column",
-          gap: "1px",
+          // gap: "1px",
           background: "white",
           borderRadius: "4px",
           margin: "4px 8px",
-          border: "1px solid gray",
+          border: "2px solid #C8C8C6",
+          width: "2.1rem",
+          height: "fit-content",
         }}
       >
-        <IconButton onClick={() => setZoom((prev) => prev + 1)} size="small">
-          <Add />
+        <IconButton
+          onClick={() => setZoom((prev) => prev + 1)}
+          size="small"
+          sx={{ height: "1.8rem" }}
+        >
+          <Add sx={{ color: "#000" }} />
         </IconButton>
-        <IconButton onClick={() => setZoom((prev) => prev - 1)} size="small">
-          <Remove />
+        <Divider />
+        <IconButton
+          onClick={() => setZoom((prev) => prev - 1)}
+          size="small"
+          sx={{ height: "1.8rem" }}
+        >
+          <Remove sx={{ color: "#000" }} />
         </IconButton>
       </Box>
 
@@ -130,7 +143,6 @@ const MapGrid = ({
             <MapContainer
               style={{ height: "100%", width: "100%" }}
               center={center}
-              // zoom={zoom}
               zoomControl={false}
               attributionControl={false}
             >
@@ -163,8 +175,7 @@ const MapGrid = ({
             </Typography>
           </Box>
         ))}
-      <SplitMapLegend legendData={legendData} legendRange={legendRange} />
-
+        <SplitMapLegend legendData={legendData} legendRange={legendRange} legendSet={legendSet} />
       </Box>
     </Box>
   );
