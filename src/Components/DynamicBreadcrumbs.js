@@ -21,8 +21,9 @@ const DynamicBreadcrumbs = ({ dashboard }) => {
     // Find the chart name based on dashboardItemId
     if (dashboardItemId && dashboard) {
       const foundChartName =
-        dashboard.dashboardItems?.find((item) => item.map?.id === dashboardItemId)
-          ?.map?.displayName ||
+        dashboard.dashboardItems?.find(
+          (item) => item.map?.id === dashboardItemId
+        )?.map?.displayName ||
         dashboard.dashboardItems?.find((item) => {
           const subType = item[item.type?.toLowerCase()];
           return subType?.id === dashboardItemId;
@@ -42,7 +43,7 @@ const DynamicBreadcrumbs = ({ dashboard }) => {
   const handleClick = (segmentIndex) => {
     const pathSegments = location.pathname.split("/").filter(Boolean);
     const newPath = "/" + pathSegments.slice(0, segmentIndex + 1).join("/");
-    navigate(newPath);
+    return newPath;
   };
 
   // Split the pathname into segments
@@ -55,26 +56,18 @@ const DynamicBreadcrumbs = ({ dashboard }) => {
   return (
     <Breadcrumbs>
       {/* Home breadcrumb */}
-      <Link underline="hover" color="inherit" onClick={() => navigate("/")}>
+      <Link underline="hover" color="inherit" href="/">
         Home
       </Link>
 
       {/* Dashboard breadcrumb */}
       {pathSegments.includes("dashboard") ? (
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={() => navigate("/dashboard")}
-        >
+        <Link underline="hover" color="inherit" href="/dashboard">
           Dashboard
         </Link>
       ) : (
         pathSegments.map((segment, index) => (
-          <Link
-            key={index}
-            underline="hover"
-            onClick={() => handleClick(index)}
-          >
+          <Link key={index} underline="hover" href={handleClick(index)}>
             {segment.charAt(0).toUpperCase() + segment.slice(1)}
           </Link>
         ))
@@ -85,18 +78,14 @@ const DynamicBreadcrumbs = ({ dashboard }) => {
         <Link
           underline="hover"
           color={chartName ? "inherit" : "#1876D1"}
-          onClick={() => navigate(`/dashboard?dashboard=${dashboardId}`)}
+          href={`/dashboard?dashboard=${dashboardId}`}
         >
           {dashboardName}
         </Link>
       )}
 
       {/* Chart name breadcrumb */}
-      {chartName && (
-        <Typography color="#1876D1">
-          {chartName}
-        </Typography>
-      )}
+      {chartName && <Typography color="#1876D1">{chartName}</Typography>}
     </Breadcrumbs>
   );
 };
