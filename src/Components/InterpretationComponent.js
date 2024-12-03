@@ -6,20 +6,57 @@ import {
   List,
   ListItem,
   Divider,
+  Chip,
 } from "@mui/material";
 
 export default function InterpretationComponent({
   interpretations,
   chartDescription,
+  chartData,
 }) {
-  console.log("hit", chartDescription);
+  const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
+    <Chip label={chartData.metaData.items[pe]?.name} />
+  ));
+  const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
+    <Chip label={chartData.metaData.items[ou]?.name} />
+  ));
+  const dataItem = chartData?.metaData?.dimensions?.dx?.map((di) => (
+    <Chip label={chartData.metaData.items[di]?.name} />
+  ));
+  const otherDimensions = Object.keys(chartData?.metaData?.dimensions ?? {})
+    ?.filter((dim) => !["ou", "pe", "dx"].includes(dim))
+    ?.map((dim) =>
+      chartData?.metaData?.dimensions[dim]?.map((item) => (
+        <Chip label={chartData?.metaData?.items[item]?.name} />
+      ))
+    );
+  console.log(
+    "hit",
+    chartData?.metaData,
+    Object.keys(chartData?.metaData?.dimensions ?? {}),
+    Object.keys(chartData?.metaData?.dimensions ?? {})?.filter(
+      (dim) => !["ou", "pe", "dx"].includes(dim)
+    )
+  );
   return (
     <div>
-      {chartDescription && (
-        <Typography variant="h6" gutterBottom sx={{ marginBottom: 3 }}>
-          {chartDescription}
-        </Typography>
-      )}
+      {
+        <Card sx={{ marginBottom: 2 }}>
+          <CardContent>
+            <Typography variant="h6">Chart Details</Typography>
+            <Typography variant="body1" gutterBottom sx={{ marginBottom: 3 }}>
+              {chartDescription && <>Chart Description: {chartDescription}</>}
+              <br />
+              Period Dimension: {period} <br />
+              Orgunit Dimension: {orgunit} <br />
+              Data Item Dimension: {dataItem} <br />
+              {otherDimensions?.length > 0 && (
+                <>Other Dimensions: {otherDimensions}</>
+              )}
+            </Typography>
+          </CardContent>
+        </Card>
+      }
       {interpretations?.map((interpretation) => (
         <Card key={interpretation.id} sx={{ marginBottom: 2 }}>
           <CardContent>

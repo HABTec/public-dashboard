@@ -1441,16 +1441,13 @@ function DashboardItem(props) {
       </Grid>
       {params.get("fullDetail") ? (
         <>
-          {chartInfo?.interpretations?.length > 0 || chartInfo?.description ? (
-            <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
-              <InterpretationComponent
-                interpretations={chartInfo.interpretations}
-                chartDescription={chartInfo.description}
-              />
-            </Grid>
-          ) : (
-            ""
-          )}
+          <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
+            <InterpretationComponent
+              interpretations={chartInfo?.interpretations}
+              chartDescription={chartInfo?.description}
+              chartData={chartData}
+            />
+          </Grid>
         </>
       ) : (
         ""
