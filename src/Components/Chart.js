@@ -14,6 +14,7 @@ import Title from "./Title";
 import { useSnackbar } from "material-ui-snackbar-provider";
 import OrgUnitFilterModal from "./OrgUnitFilterModal";
 import ReactGA from "react-ga4";
+import DynamicBreadcrumbs from "./DynamicBreadcrumbs";
 
 const apiBase = process.env.REACT_APP_BASE_URI;
 
@@ -147,6 +148,9 @@ export default function Chart({
   return (
     <React.Fragment>
       <Grid item xs={12} md={10} lg={10}>
+        <Grid item xs={12} md={12} lg={12} marginBottom={2}>
+          <DynamicBreadcrumbs dashboard = {dashboard}/>
+        </Grid>
         <Paper
           sx={{
             p: 2,
@@ -208,6 +212,7 @@ export default function Chart({
           selectedSavedChart ? selectedSavedChart : dashboard?.dashboardItems
         }
         filters={filters}
+        dashboard={dashboard}
       ></DashboardItems>
     </React.Fragment>
   );

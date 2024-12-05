@@ -30,6 +30,7 @@ import ReactGA from "react-ga4";
 import Footer from "../Components/Footer";
 import { Select, MenuItem, Checkbox, FormControlLabel } from "@mui/material";
 import NavBar from "../Components/AppBar";
+import DynamicBreadcrumbs from "../Components/DynamicBreadcrumbs";
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -73,6 +74,9 @@ export default function FeedBack() {
           width="100%"
         >
           <Container width="100%" sx={{ mt: 4, mb: 4, p: 4 }}>
+          <Grid item xs={12} md={12} lg={12} marginTop={2} paddingTop={3} marginLeft={-2.5}>
+            <DynamicBreadcrumbs dashboards={null} />
+          </Grid>
             {showChart ? (
               <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <Grid container spacing={3}>

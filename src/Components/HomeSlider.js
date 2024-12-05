@@ -81,7 +81,11 @@ function HomeSlider() {
                   sx={{ width: "100%", height: "auto" }}
                   loading="lazy"
                 >
-                  <DashboardItem item={item} fullWidth={true} />
+                  <DashboardItem
+                    item={item}
+                    fullWidth={true}
+                    homePageMode={true}
+                  />
                 </Box>
               </Grid>
             </Grid>
