@@ -231,6 +231,20 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       }
     }
 
+    mapViews.map((mapView, index) => {
+      if (
+        mapView.renderingStrategy == "TIMELINE" ||
+        mapView.renderingStrategy == "SPLIT_BY_PERIOD"
+      ) {
+        chartConfig.yAxis.categories = chartConfig?.yAxis?.categories.map(
+          (time) => {
+            return chartDatas[mapView.id].metaData?.items[time].name || time;
+          }
+        );
+      }
+    });
+    console.log("check chart config", chartConfig);
+
     return chartConfig;
   };
 
@@ -508,44 +522,6 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       }
       return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
     });
-
-  // Check if any mapView has a renderingStrategy of TIMELINE
-  // const hasTimelineStrategy = mapViews?.some(
-  //   (view) => view.renderingStrategy === "TIMELINE"
-  // );
-
-  // // Map through mapViews and ensure all have TIMELINE if any does
-  // const parsedMapViews = mapViews
-  //   ?.map((view) => {
-  //     const chartConfig = processChartData(chartDatas[view.id]);
-
-  //     if (view.layer === "thematic" && chartConfig.series.length === 0) {
-  //       return null;
-  //     }
-
-  //     return processMapLayer(
-  //       chartConfig,
-  //       view?.displayName,
-  //       shapes[view.id],
-  //       view?.colorScale ?? "#ffffd4,#fed98e,#fe9929,#d95f0e,#993404",
-  //       view?.opacity,
-  //       view.layer,
-  //       view?.thematicMapType,
-  //       hasTimelineStrategy ? "TIMELINE" : view?.renderingStrategy,
-  //       view?.legendSet
-  //     );
-  //   })
-  //   .filter(Boolean)
-  //   .sort((a, b) => {
-  //     if (a.layer === "thematic" && b.layer === "thematic") {
-  //       const thematicOrder = ["CHOROPLETH", "BUBBLE"];
-  //       return (
-  //         thematicOrder.indexOf(a.thematicMapType) -
-  //         thematicOrder.indexOf(b.thematicMapType)
-  //       );
-  //     }
-  //     return layerOrder.indexOf(a.layer) - layerOrder.indexOf(b.layer);
-  //   });
 
   console.log("parsedcomp", parsedMapViews);
 

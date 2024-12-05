@@ -34,7 +34,14 @@ const MapGrid = ({
   const [zoom, setZoom] = useState(4);
   const legendSet = splitPeriodData[0]?.legendSet || null;
 
-  console.log("split grid", legendData, legendRange, splitPeriodData, legendSet );
+  console.log(
+    "split grid",
+    legendData,
+    legendRange,
+    "split map data here",
+    splitPeriodData,
+    legendSet
+  );
 
   const tileLayers = {
     osm: { url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" },
@@ -140,6 +147,30 @@ const MapGrid = ({
               width: "100%",
             }}
           >
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: "1rem",
+                left: "40%",
+                backgroundColor: "white",
+                width: "fit-content",
+                height: "fit-content",
+                zIndex: 1000,
+                padding: "0.5rem",
+                boxShadow: 2,
+                borderRadius: "12px",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: "0.8rem",
+                  wordWrap: "break-word",
+                  // marginBottom: "2px"
+                }}
+              >
+                {periodData.timePeriods[index].timePeriod.label}
+              </Typography>
+            </Box>
             <MapContainer
               style={{ height: "100%", width: "100%" }}
               center={center}
@@ -175,7 +206,11 @@ const MapGrid = ({
             </Typography>
           </Box>
         ))}
-        <SplitMapLegend legendData={legendData} legendRange={legendRange} legendSet={legendSet} />
+        <SplitMapLegend
+          legendData={legendData}
+          legendRange={legendRange}
+          legendSet={legendSet}
+        />
       </Box>
     </Box>
   );
