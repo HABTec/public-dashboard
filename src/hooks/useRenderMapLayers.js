@@ -56,20 +56,53 @@ export const useRenderMapLayers = (
     Dec: 4,
   };
 
-  const rgbToHex = (rgb) => {
-    // Extract the RGB values from the string
-    const rgbValues = rgb.match(/\d+/g);
+  const parsePeriod = (period) => {
+    // Split the input into start and end parts
+    const [start, end] = period.split("-").map((part) => part.trim());
+    // If no "-" is present, `end` will be undefined
 
-    // Convert each value to hex and pad with '0' if necessary
-    const hex = rgbValues
-      .map((value) => {
-        const hexValue = parseInt(value).toString(16);
-        return hexValue.length === 1 ? "0" + hexValue : hexValue;
-      })
-      .join(""); // Join the hex values into a single string
+    // Function to extract year and month from a part
+    const extractDate = (part) => {
+      // Match both "Year Month" and "Month Year" formats
+      const match = part.match(/(\d{4})\s+(\w+)|(\w+)\s+(\d{4})/);
+      if (!match) return null;
 
-    return `#${hex}`; // Return the hex color
+      // Extract year and month based on the matched format
+      const year = match[1] || match[4];
+      const month = match[2] || match[3];
+      return { year, month };
+    };
+
+    // Extract start and end dates
+    const startDate = extractDate(start); // Always parse the start date
+    const endDate = end ? extractDate(end) : null; // Parse end only if it exists
+    console.log("period", period, "startDate", startDate);
+    // Build the final structure
+    const result = {
+      start: startDate
+        ? { year: startDate.year, month: startDate.month }
+        : null,
+      end: endDate ? { year: endDate.year, month: endDate.month } : null,
+      label: period, // The original input label
+    };
+
+    return result;
   };
+
+  // const rgbToHex = (rgb) => {
+  //   // Extract the RGB values from the string
+  //   const rgbValues = rgb.match(/\d+/g);
+
+  //   // Convert each value to hex and pad with '0' if necessary
+  //   const hex = rgbValues
+  //     .map((value) => {
+  //       const hexValue = parseInt(value).toString(16);
+  //       return hexValue.length === 1 ? "0" + hexValue : hexValue;
+  //     })
+  //     .join(""); // Join the hex values into a single string
+
+  //   return `#${hex}`; // Return the hex color
+  // };
 
   const colorRange = (minValue, maxValue, ranges) => {
     const interval = (maxValue - minValue) / ranges;
@@ -446,23 +479,8 @@ export const useRenderMapLayers = (
       });
 
       const timePeriods = viewData.regionList.map((period) => {
-        let year, month, day, label;
-        day = "";
-        if (period.length === 6) {
-          year = period.substring(0, 4);
-          month = period.substring(4, 6);
-          label = `${ethiopianMonths[parseInt(month, 10) - 1]} ${year}`;
-        } else if (period.length === 9) {
-          year = period.substring(0, 4);
-          const shortMonth = period.substring(4, 7);
-          day = period.substring(7);
-          const quarter = period.substring(7);
-          const monthIndex = shortMonthNameToIndex[shortMonth];
-          month = monthIndex;
-          label = `${ethiopianMonths[monthIndex - 1]} ${year} ${quarter}`;
-        }
-
-        return { year, month, day, label };
+        const timePeriod = parsePeriod(period);
+        return { timePeriod };
       });
 
       // const colorReference = colorRange(minValue, maxValue, 5);
