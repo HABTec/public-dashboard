@@ -215,11 +215,12 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
                     return renderOrgUnitPolygons(selectedTimeline);
 
                   case "thematic":
-                    orgDrawn = true;
                     if (selectedTimeline?.thematicMapType === "CHOROPLETH") {
+                      orgDrawn = true;
                       return renderThematicPolygons(selectedTimeline);
                     } else if (selectedTimeline?.thematicMapType === "BUBBLE") {
                       const draw = orgDrawn;
+                      orgDrawn = true;
                       return renderBubbleMap(selectedTimeline, draw);
                     }
                     break;
