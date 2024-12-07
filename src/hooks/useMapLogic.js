@@ -489,7 +489,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     };
   };
 
-  const layerOrder = ["orgUnit", "thematic", "facility"];
+  const layerOrder = ["thematic", "orgUnit", "facility"];
 
   const parsedMapViews = mapViews
     ?.map((view) => {
