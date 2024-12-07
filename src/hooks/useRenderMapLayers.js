@@ -283,7 +283,7 @@ export const useRenderMapLayers = (
       const dataValue =
         regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
 
-      let radius = (dataValue / (legendMx - legendMn)) * 90;
+      let radius = (dataValue + 20 ) * 2;
 
       if (Number.isNaN(radius)) radius = 0;
 
@@ -349,7 +349,7 @@ export const useRenderMapLayers = (
           <Circle
             key={`${region.id}-${regionIndex}-${color}`}
             center={coordinates}
-            radius={radius * 1000}
+            radius={radius * 1259}
             fillColor={color && color.startsWith("#") ? color : `#${color}`}
             color="#000"
             fillOpacity={opacity}
