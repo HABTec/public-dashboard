@@ -31,6 +31,7 @@ function SecondaryListItems({
   setSavedReports,
   setSelectedSavedChart,
   onSavedReportClick,
+  setShowChart = null,
 }) {
   const handleDelete = (index) => {
     const newReport = {
@@ -41,6 +42,10 @@ function SecondaryListItems({
   };
   const handelClick = (index) => {
     setSelectedSavedChart([savedReports.items[index]]);
+    if (setShowChart) {
+      setShowChart(true);
+      console.log("being clicked")
+    }
   };
 
   const [hoverIndex, setHoverIndex] = React.useState(null);

@@ -63,6 +63,7 @@ export default function NavBar({
   setSelectedSavedChart,
   setSavedReports,
   savedReports,
+  setShowChart,
 }) {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
@@ -122,6 +123,7 @@ export default function NavBar({
             savedReports={savedReports}
             setSavedReports={setSavedReports}
             setSelectedSavedChart={setSelectedSavedChart}
+            setShowChart={setShowChart}
           />
         </List>
       </Drawer>

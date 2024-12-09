@@ -276,6 +276,7 @@ export default function RequestForm() {
           setSelectedSavedChart={setSelectedSavedChart}
           savedReports={savedReports}
           setSavedReports={setSavedReports}
+          setShowChart={setShowChart}
         ></NavBar>
         <Box
           component="main"

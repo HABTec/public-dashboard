@@ -1107,6 +1107,7 @@ function DashboardItem(props) {
     }
     setSelectShare(true);
     setShareURL(shareURL);
+    console.log("shareURL now", shareURL);
     // return <ShareModal />;
   };
 
