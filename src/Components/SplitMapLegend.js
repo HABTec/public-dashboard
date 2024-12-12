@@ -17,11 +17,13 @@ const SplitMapLegend = ({
   legendSet = null,
 }) => {
   const [showDetails, setShowDetails] = useState(false);
-  console.log("split legendData", legendDatas, legendRange);
+  const thematicType = legendRange?.name.toLowerCase();
+
+  console.log("split legendData", legendDatas, legendRange, "legend set",legendSet);
 
   const renderLegendItems = () => {
     if (legendSet) {
-      return <PredefinedColorLegend key={legendSet} legendSet={legendSet} />;
+      return <PredefinedColorLegend key={legendSet} legendSet={legendSet} thematicType={thematicType}/>;
     }
 
     const combinedLegends = [

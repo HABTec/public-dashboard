@@ -11,28 +11,44 @@ import OrgUnitLegend from "./OrgUnitLegend";
 import PredefinedColorLegend from "./PredefinedColorLegend";
 
 const Legend = ({ legendDatas, legendSet = null }) => {
+  console.log("single legend", legendDatas);
   const [showDetails, setShowDetails] = useState(false);
   const map = useMap();
 
   const accumulatedLegendItems = useMemo(() => {
     const items = [];
 
-    if (legendSet) {
-      items.push(
-        <PredefinedColorLegend key={legendSet} legendSet={legendSet} />
-      );
-    } else {
-      legendDatas.forEach((legendData, index) => {
-        if (legendData.name === "thematic")
+    legendDatas.forEach((legendData, index) => {
+      if (legendData.name === "thematic")
+        if (legendSet) {
+          items.push(
+            <PredefinedColorLegend
+              key={legendSet}
+              legendSet={legendSet}
+              thematicType={"thematic"}
+            />
+          );
+        } else {
           items.push(<ThematicLegend key={index} legendData={legendData} />);
-        else if (legendData.name === "bubble")
+        }
+      else if (legendData.name === "bubble") {
+        if (legendSet) {
+          items.push(
+            <PredefinedColorLegend
+              key={legendSet}
+              legendSet={legendSet}
+              thematicType={"bubble"}
+            />
+          );
+        } else {
           items.push(<BubbleLegend key={index} legendData={legendData} />);
-        else if (legendData.name === "facility")
-          items.push(<FacilityLegend key={index} legendData={legendData} />);
-        else if (legendData.name === "orgUnit")
-          items.push(<OrgUnitLegend key={index} />);
-      });
-    }
+        }
+      } else if (legendData.name === "facility")
+        items.push(<FacilityLegend key={index} legendData={legendData} />);
+      else if (legendData.name === "orgUnit")
+        items.push(<OrgUnitLegend key={index} />);
+    });
+    // }
 
     return items;
   }, [legendDatas, legendSet]);
