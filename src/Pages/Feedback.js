@@ -59,7 +59,6 @@ export default function FeedBack() {
           setSavedReports={selectedSavedChart}
           savedReports={savedReports}
           setSelectedSavedChart={setSelectedSavedChart}
-          setShowChart={setShowChart}
         ></NavBar>
         <Box
           component="main"

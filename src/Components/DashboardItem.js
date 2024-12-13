@@ -250,6 +250,7 @@ function DashboardItem(props) {
   const id = item[type]?.id;
   item.id = id;
   let chartConfig = {};
+  // console.log(props, "props", item, "changed item")
 
   const renderChart = () => {
     console.log("entrance", chartType, chartData, shape, chartInfo);
@@ -1011,6 +1012,7 @@ function DashboardItem(props) {
   };
 
   const handleSaveChart = () => {
+    console.log("items saved here", item);
     let saved_reports = localStorage.getItem("saved_reports");
     let saved_reports_json;
     if (saved_reports && saved_reports != null) {
@@ -1098,17 +1100,17 @@ function DashboardItem(props) {
   const [shareURL, setShareURL] = React.useState("");
 
   const handleShare = () => {
-    const currentURL = window.location.href;
+    const domain = window.location.origin;
     let shareURL;
+
     if (item.id) {
-      shareURL = `${currentURL}&dashboardItemId=${item.id}`;
+      shareURL = `${domain}/dashboard?dashboard=${item.chartId}&dashboardItemId=${item.id}`;
     } else {
-      shareURL = `${currentURL}&dashboardItemId=${item._id}`;
+      shareURL = `${item?.chartId}&dashboardItemId=${item._id}`;
     }
     setSelectShare(true);
     setShareURL(shareURL);
-    console.log("shareURL now", shareURL);
-    // return <ShareModal />;
+    console.log("share item", item);
   };
 
   const handelOpenInfull = () => {
@@ -1472,12 +1474,16 @@ function DashboardItems(props) {
   const params = new URLSearchParams(window.location.search);
 
   return props?.items?.map((item, i) => {
-    console.log("item +", item);
+    console.log("item +", item, "props work ", props);
     return (
       <DashboardItem
         {...props}
         key={item.id ?? item._id + i}
-        item={{ ...item, id: item.id ?? item._id }}
+        item={{
+          ...item,
+          id: item.id ?? item._id,
+          chartId: item.chartId ?? props.dashboard.id,
+        }}
         displaySave={true}
         displayFullScreen={true}
         fullWidth={params.get("dashboardItemId")}

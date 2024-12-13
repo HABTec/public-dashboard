@@ -28,6 +28,7 @@ export default function Chart({
   setSavedReports,
   selectedSavedChart,
   setSelectedSavedChart,
+  breadCrumbsVisible = true,
 }) {
   const theme = useTheme();
   const [dashboard, setDashbaord] = React.useState({ id: "" });
@@ -63,8 +64,10 @@ export default function Chart({
 
         if (favoriteDashboard && !dashboardId) {
           setDashbaord(favoriteDashboard);
-          const newUrl = `${window.location.origin}${window.location.pathname}?dashboard=${favoriteDashboard.id}`;
-          window.history.pushState({ path: newUrl }, "", newUrl);
+          if (window.location.pathname != "/saved-report") {
+            const newUrl = `${window.location.origin}${window.location.pathname}?dashboard=${favoriteDashboard.id}`;
+            window.history.pushState({ path: newUrl }, "", newUrl);
+          }
         }
         if (dashboardId) {
           const selectedDashboard = dashboards_json.find(
@@ -148,9 +151,11 @@ export default function Chart({
   return (
     <React.Fragment>
       <Grid item xs={12} md={10} lg={10}>
-        <Grid item xs={12} md={12} lg={12} marginBottom={2}>
-          <DynamicBreadcrumbs dashboard = {dashboard}/>
-        </Grid>
+        {breadCrumbsVisible && (
+          <Grid item xs={12} md={12} lg={12} marginBottom={2}>
+            <DynamicBreadcrumbs dashboard={dashboard} />
+          </Grid>
+        )}
         <Paper
           sx={{
             p: 2,
