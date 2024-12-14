@@ -252,13 +252,21 @@ function DashboardItem(props) {
   let chartConfig = {};
 
   const renderChart = () => {
-    console.log("entrance", chartType, chartData, shape, chartInfo);
+    console.log(
+      "entrance",
+      chartType,
+      "entrance chart data",
+      chartData,
+      shape,
+      "entrance chart info",
+      chartInfo
+    );
     if (chartType == "resources") {
       return <ResourceComponent resourcesItems={chartInfo.resources} />;
     }
     if (chartType === "text") return <TextChart item={item} />;
     if (mapData && mapData.type === "map") {
-      console.log("mapData_", mapData);
+      console.log("mapData_", mapData, "props", props);
       return (
         <MapComponent
           data={mapData}
@@ -266,6 +274,8 @@ function DashboardItem(props) {
           mainProps={props}
           setLoading={setLoading}
           setChartData={setChartData}
+          setChartInfo={setChartInfo}
+          chartInfo={chartInfo}
         />
       );
     }
