@@ -61,6 +61,11 @@ function MapComponent({
               console.log("chartData", analyticsData, chartData_);
               console.log("url guessed", url + dimension + filters);
               setChartData(chartData_);
+              setChartInfo((prevChartInfo) => ({
+                ...prevChartInfo,
+                interpretations: data?.interpretations,
+                description: data?.description,
+              }));
               setChartData_((prevChartData) => ({
                 ...prevChartData,
                 [view.id]: chartData_,
