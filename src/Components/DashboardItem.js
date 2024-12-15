@@ -1120,6 +1120,33 @@ function DashboardItem(props) {
     window.location.href = currentURL.toString();
   };
 
+  // look into the chart data and identify which item is not in the header and show the item that is not in the header as title.
+  const graphHeaders = chartData?.headers?.map((header) => header.name);
+
+  const graphDimensions = ["dx", "pe", "ou"].filter(
+    (dimention) => !graphHeaders?.includes(dimention)
+  );
+
+  const graphTitle =
+    chartType === "column" ||
+    chartType === "line" ||
+    chartType === "bar" ||
+    chartType === "pivot_table" ||
+    chartType === "gauge" ||
+    chartType == "map" ||
+    chartType == "scatter" ||
+    chartType == "area" ||
+    chartType == "stacked_area" ||
+    chartType == "radar"
+      ? graphDimensions
+          .map((dimentions) => {
+            return chartData?.metaData?.dimensions[dimentions]?.map((dimen) => {
+              return <span>{chartData.metaData.items[dimen]?.name} </span>;
+            });
+          })
+          .flat()
+      : "";
+
   return (
     <>
       <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
@@ -1158,7 +1185,9 @@ function DashboardItem(props) {
         >
           <Grid container spacing={2}>
             <Grid item xs={10} sm={11}>
-              <Title>{title}</Title>
+              <Title>
+                {title} - {graphTitle}
+              </Title>
             </Grid>
             <Grid item xs={2} sm={1}>
               {fullScreenItem ? (
