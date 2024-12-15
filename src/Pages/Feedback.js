@@ -59,6 +59,7 @@ export default function FeedBack() {
           setSavedReports={selectedSavedChart}
           savedReports={savedReports}
           setSelectedSavedChart={setSelectedSavedChart}
+          setShowChart={setShowChart}
         ></NavBar>
         <Box
           component="main"
@@ -74,52 +75,47 @@ export default function FeedBack() {
           width="100%"
         >
           <Container width="100%" sx={{ mt: 4, mb: 4, p: 4 }}>
-          <Grid item xs={12} md={12} lg={12} marginTop={2} paddingTop={3} marginLeft={-2.5}>
-            <DynamicBreadcrumbs dashboards={null} />
-          </Grid>
-            {showChart ? (
-              <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                <Grid container spacing={3}>
-                  {/* Chart */}
-                  <Chart
-                    savedReports={savedReports}
-                    setSavedReports={setSavedReports}
-                    selectedSavedChart={selectedSavedChart}
-                    setSelectedSavedChart={setSelectedSavedChart}
-                  />
-                </Grid>
-              </Container>
-            ) : (
-              <Grid
-                container
-                justifyContent="center"
-                alignItems="center"
-                padding={4}
-                rowSpacing={2}
-                spacing={4}
-                sx={{ padding: "10px", marginTop: "2rem" }}
-                sm={12}
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              marginTop={2}
+              paddingTop={3}
+              marginLeft={-2.5}
+            >
+              <DynamicBreadcrumbs dashboards={null} />
+            </Grid>
+
+            <Grid
+              container
+              justifyContent="center"
+              alignItems="center"
+              padding={4}
+              rowSpacing={2}
+              spacing={4}
+              sx={{ padding: "10px", marginTop: "2rem" }}
+              sm={12}
+              width="100%"
+            >
+              <Paper
+                elevation={3}
                 width="100%"
+                sx={{ width: "100%", paddingTop: "2rem" }}
               >
-                <Paper
-                  elevation={3}
+                <iframe
+                  id="myIframe"
+                  src="https://docs.google.com/forms/d/e/1FAIpQLSeMDVXsEF2hNBdKf4XKRuGhbiDZxiN_gfqosz7sqrOHgx5otg/viewform?embedded=true"
                   width="100%"
-                  sx={{ width: "100%", paddingTop: "2rem" }}
+                  height="1880"
+                  frameborder="0"
+                  marginheight="0"
+                  marginwidth="0"
                 >
-                  <iframe
-                    id="myIframe"
-                    src="https://docs.google.com/forms/d/e/1FAIpQLSeMDVXsEF2hNBdKf4XKRuGhbiDZxiN_gfqosz7sqrOHgx5otg/viewform?embedded=true"
-                    width="100%"
-                    height="1880"
-                    frameborder="0"
-                    marginheight="0"
-                    marginwidth="0"
-                  >
-                    Loading…
-                  </iframe>
-                </Paper>
-              </Grid>
-            )}
+                  Loading…
+                </iframe>
+              </Paper>
+            </Grid>
           </Container>
 
           <Footer></Footer>
