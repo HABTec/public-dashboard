@@ -3,12 +3,20 @@ import { getFilters, getDimensions, getOuDimensions } from "../utils/filters";
 import Map from "./Map";
 import { useSnackbar } from "material-ui-snackbar-provider";
 
-function MapComponent({ data, setMapData, mainProps, setLoading }) {
+function MapComponent({
+  data,
+  setMapData,
+  mainProps,
+  setLoading,
+  setChartData,
+  setChartInfo,
+  chartInfo,
+}) {
   const apiBase = process.env.REACT_APP_BASE_URI;
   const [shapes, setShapes] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const snackbar = useSnackbar();
-  const [chartData, setChartData] = useState({});
+  const [chartData_, setChartData_] = useState({});
   let url = apiBase + "api/40/analytics.json?";
 
   useEffect(() => {
@@ -38,7 +46,10 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
           const response = await fetch(encodeURI(geoFeaturesUrl));
           const shapeData = await response.json();
           if (view.layer == "thematic") {
-            if (view.renderingStrategy === "TIMELINE" || view.renderingStrategy == "SPLIT_BY_PERIOD") {
+            if (
+              view.renderingStrategy === "TIMELINE" ||
+              view.renderingStrategy == "SPLIT_BY_PERIOD"
+            ) {
               filters = filters.replace("filter", "dimension");
             }
             try {
@@ -46,12 +57,18 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
               let analyticsData = await fetch(
                 encodeURI(url + dimension + filters + aggregationTypeFilter)
               );
-              let chartData = await analyticsData.json();
-              console.log("chartData", analyticsData, chartData);
-              console.log("url guessed", url + dimension + filters );
-              setChartData((prevChartData) => ({
+              let chartData_ = await analyticsData.json();
+              console.log("chartData", analyticsData, chartData_);
+              console.log("url guessed", url + dimension + filters);
+              setChartData(chartData_);
+              setChartInfo((prevChartInfo) => ({
+                ...prevChartInfo,
+                interpretations: data?.interpretations,
+                description: data?.description,
+              }));
+              setChartData_((prevChartData) => ({
                 ...prevChartData,
-                [view.id]: chartData,
+                [view.id]: chartData_,
               }));
             } catch (error) {
               console.error("Error fetching data:", error);
@@ -92,13 +109,13 @@ function MapComponent({ data, setMapData, mainProps, setLoading }) {
     return <div>Loading...</div>;
   }
 
-  console.log("data", data, "shapes", shapes, "chartData", chartData);
+  console.log("data", data, "shapes", shapes, "chartData_", chartData_);
 
   return (
     <Map
       key={data.id}
       mapViews={data.mapViews}
-      chartDatas={chartData}
+      chartDatas={chartData_}
       shapes={shapes}
       basemap={data.basemap}
     />
