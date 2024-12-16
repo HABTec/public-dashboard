@@ -17,3 +17,8 @@
     from = "/request-form"
     to = "/#/request-form"
     status = 200
+
+[[redirects]]
+    from = "/saved-report"
+    to = "/#/saved-report"
+    status = 200

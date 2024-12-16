@@ -19,6 +19,7 @@ import useDynamicPosition from "../hooks/useDynamicPosition";
 import Box from "@mui/material/Box";
 import Chart from "./Chart";
 import { Container, Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const truncateText = (text, maxLength) => {
   if (text.length <= maxLength) {
@@ -31,7 +32,9 @@ function SecondaryListItems({
   setSavedReports,
   setSelectedSavedChart,
   onSavedReportClick,
+  setShowChart,
 }) {
+  const navigate = useNavigate();
   const handleDelete = (index) => {
     const newReport = {
       items: [...savedReports.items.filter((e, i) => i != index)],
@@ -40,7 +43,22 @@ function SecondaryListItems({
     localStorage.setItem("saved_reports", JSON.stringify(newReport));
   };
   const handelClick = (index) => {
+    console.log("print what saved chart is1", [savedReports.items[index]]);
+
     setSelectedSavedChart([savedReports.items[index]]);
+
+    if (setShowChart) {
+      setShowChart(true);
+      navigate("/saved-report", {
+        state: {
+          selectedSavedChart: [savedReports.items[index]],
+          showChart: true,
+        },
+      });
+
+      console.log("being clicked");
+      console.log("print what saved", [savedReports.items[index]]);
+    }
   };
 
   const [hoverIndex, setHoverIndex] = React.useState(null);
@@ -66,6 +84,12 @@ function SecondaryListItems({
             if (onSavedReportClick) {
               onSavedReportClick();
             }
+            navigate("/saved-report", {
+              state: {
+                selectedSavedChart: savedReports.items,
+                showChart: true,
+              },
+            });
           } else {
             snackbar.showMessage(
               "No saved reports yet. You can save reports to display them here.",

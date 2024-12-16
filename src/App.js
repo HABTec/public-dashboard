@@ -6,6 +6,7 @@ import {
   Routes,
 } from "react-router-dom";
 import Dashboard from "./Components/Dashboard";
+import SavedReports from "./Pages/SavedReports";
 import RequestForm from "./Pages/RequestForm";
 import useServiceWorker from "./hooks/useServiceWorker";
 import ReactGA from "react-ga4";
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/request-form" element={<RequestForm />} />
             <Route path="/feedback" element={<FeedBack />} />
+            <Route path="/saved-report" element={<SavedReports />}/>
           </Routes>
         </Router>
       </div>
