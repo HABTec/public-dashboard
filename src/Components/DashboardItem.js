@@ -1189,7 +1189,7 @@ function DashboardItem(props) {
           <Grid container spacing={2}>
             <Grid item xs={10} sm={11}>
               <Title>
-                {title} - {graphTitle}
+                {title} {graphTitle ? <> - {graphTitle} </> : ""}
               </Title>
             </Grid>
             <Grid item xs={2} sm={1}>
