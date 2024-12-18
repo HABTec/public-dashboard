@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Paper, Box } from "@mui/material";
+import { Paper, Box, Typography } from "@mui/material";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import {
   Home as HomeIcon,
@@ -19,11 +19,23 @@ const SplitMapLegend = ({
   const [showDetails, setShowDetails] = useState(false);
   const thematicType = legendRange?.name.toLowerCase();
 
-  console.log("split legendData", legendDatas, legendRange, "legend set",legendSet);
+  console.log(
+    "split legendData",
+    legendDatas,
+    legendRange,
+    "legend set",
+    legendSet
+  );
 
   const renderLegendItems = () => {
-    if (legendSet) {
-      return <PredefinedColorLegend key={legendSet} legendSet={legendSet} thematicType={thematicType}/>;
+    if (legendSet?.legends) {
+      return (
+        <PredefinedColorLegend
+          key={legendSet}
+          legendSet={legendSet}
+          thematicType={thematicType}
+        />
+      );
     }
 
     const combinedLegends = [
@@ -32,8 +44,9 @@ const SplitMapLegend = ({
     ];
 
     return combinedLegends.map((legendData, index) => {
-      const { displayName, mn, mx, name, regionColors } = legendData;
-      console.log("legendsplit", combinedLegends);
+      const { displayName, mn, mx, name, regionColors, periodName } =
+        legendData;
+      console.log("legendsplit", combinedLegends, legendData.periodName);
 
       if (name.toLowerCase() === "choropleth") {
         // Thematic legend logic
@@ -57,6 +70,11 @@ const SplitMapLegend = ({
         return (
           <div key={`thematic-${index}`} style={{ fontSize: "0.8rem" }}>
             <b>{displayName}</b>
+            {periodName && (
+              <Typography fontSize={12} margin={0.5}>
+                {periodName}
+              </Typography>
+            )}
             {intervals.map(({ start, end }, idx) => (
               <div
                 key={`thematic-${index}-${idx}`}
@@ -102,11 +120,16 @@ const SplitMapLegend = ({
             style={{
               position: "relative",
               padding: "10px",
-              height: "9rem",
+              height: "9.7rem",
               marginBottom: "1rem",
             }}
           >
             <b>{displayName}</b>
+            {periodName && (
+              <Typography fontSize={12} margin={0.5}>
+                {periodName}
+              </Typography>
+            )}
             <Box
               style={{ position: "relative", width: "100%", height: "100%" }}
               marginBottom="2rem"
@@ -127,7 +150,7 @@ const SplitMapLegend = ({
                       bottom: 0,
                       zIndex: idx,
                       border: "1px solid #999",
-                      marginBottom: "10px",
+                      marginBottom: "27px",
                     }}
                     title={`${start.toFixed(2)} - ${end.toFixed(2)}`}
                   ></div>

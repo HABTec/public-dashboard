@@ -360,7 +360,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     layer,
     thematicMapType,
     renderingStrategy,
-    legendSet = null
+    legendSet = null,
+    periodName = null
   ) => {
     console.log("chartConfig", chartConfig);
     const mapData = chartConfig?.series;
@@ -486,6 +487,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       thematicMapType,
       renderingStrategy,
       legendSet,
+      periodName,
     };
   };
 
@@ -508,7 +510,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view.layer,
         view?.thematicMapType,
         view?.renderingStrategy,
-        view?.legendSet
+        view?.legendSet,
+        view?.filters?.[0]?.items[0]?.id
       );
     })
     .filter(Boolean)
