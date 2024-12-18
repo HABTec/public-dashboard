@@ -1,6 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
 import chroma from "chroma-js";
+import { Typography } from "@mui/material";
 
 const BubbleLegend = ({ legendData }) => {
   const intervalCount = 5;
@@ -32,11 +33,14 @@ const BubbleLegend = ({ legendData }) => {
       sx={{
         position: "relative",
         height: `${maxRadius + 50}px`,
-        overflow: "hidden",
+        overflow: "scroll",
         p: 1,
       }}
     >
       <b>{legendData.displayName}</b>
+      <Typography fontSize={12} margin={0.5}>
+        {legendData?.periodName}
+      </Typography>
       <Box sx={{ position: "relative", width: "100%", height: "100%", mb: 4 }}>
         {bubbleData.reverse().map(({ radius, color, start, end }, idx) => (
           <Box
