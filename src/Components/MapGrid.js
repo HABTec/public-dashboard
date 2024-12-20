@@ -32,7 +32,11 @@ const MapGrid = ({
   );
   const [center, setCenter] = useState([9.145, 40.489673]);
   const [zoom, setZoom] = useState(4);
-  const legendSet = splitPeriodData[0]?.legendSet || null;
+  const legendSet =
+    {
+      ...splitPeriodData[0]?.legendSet,
+      periodName: splitPeriodData[0]?.periodName,
+    } || null;
 
   console.log(
     "split grid",
