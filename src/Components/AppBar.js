@@ -78,6 +78,12 @@ export default function NavBar({
           sx={{
             pr: "24px", // keep right padding when drawer closed
           }}
+          style={{
+            background: "url(/ethiopian-flag.webp)",
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPositionX: "right",
+          }}
         >
           <IconButton
             edge="start"

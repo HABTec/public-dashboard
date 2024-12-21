@@ -141,6 +141,8 @@ const Home = () => {
     { label: "Features", id: "features" },
     { label: "Key Messages", id: "key messages" },
     { label: "Contact", id: "contact" },
+    { label: "             ", id: "none" },
+    { label: "             ", id: "none" },
   ];
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -183,13 +185,20 @@ const Home = () => {
 
   return (
     <Box>
-      <AppBar position="sticky">
+      <AppBar position="sticky" theme={theme}>
         <Container>
           <Box
             py={2}
             display="flex"
             justifyContent="space-between"
             alignItems="center"
+            style={{
+              background: "url(/ethiopian-flag.webp)",
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPositionX: "right",
+              backgroundColor: theme.palette.primary.main,
+            }}
           >
             <div
               style={{ display: "flex", alignItems: "center", maxWidth: "90%" }}
