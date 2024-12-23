@@ -111,6 +111,20 @@ function MapComponent({
 
   console.log("data", data, "shapes", shapes, "chartData_", chartData_);
 
+  const hasError = data.mapViews.some((view) => chartData_[view.id]?.errorCode);
+
+  if (hasError) {
+    const errorMessages = data.mapViews
+      .filter((view) => chartData_[view.id]?.errorCode)
+      .map((view) => (
+        <div key={view.id}>
+          No data available: {JSON.stringify(chartData_[view.id]?.message)}
+        </div>
+      ));
+
+    return <>{errorMessages}</>;
+  }
+
   return (
     <Map
       key={data.id}
