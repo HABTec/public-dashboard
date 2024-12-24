@@ -18,7 +18,7 @@ function HomeSlider() {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 5000,
     pauseOnHover: true,
   };
 
@@ -41,24 +41,18 @@ function HomeSlider() {
 
   return (
     <div className="slider-container">
+      <Typography variant="h2" component="h1" gutterBottom color="black">
+        Your Gateway to National Health Trends and Insights
+      </Typography>
       <Slider {...settings}>
         {loading && <div>Loading...</div>}
         {dashboard?.dashboardItems?.map((item) => (
           <div>
             <Grid p={1} container key={item.id} spacing={4} alignItems="center">
-              <Grid item xs={12} md={6}>
-                <Typography
-                  variant="h2"
-                  component="h1"
-                  gutterBottom
-                  color="black"
-                >
-                  Your Gateway to National Health Trends and Insights
-                </Typography>
+              <Grid item xs={12} md={4}>
                 <Typography variant="h5" paragraph color="black">
                   Health Data Hub: Empowering Communities with Data Transparency
                 </Typography>
-
                 <Typography variant="h6" paragraph color="black">
                   {item.visualization?.displayDescription}
                 </Typography>
@@ -75,7 +69,7 @@ function HomeSlider() {
                   </Button>
                 </Link>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={8}>
                 <Box
                   alt="Hero section illustration"
                   sx={{ width: "100%", height: "auto" }}
