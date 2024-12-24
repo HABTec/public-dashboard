@@ -45,6 +45,9 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
 
     console.log("chart data", chartData, dataElementMetadata);
 
+    // format the value variable to , separated
+    value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
     if (dataElementMetadata?.dimensionItemType == "INDICATOR") {
       if (dataElementMetadata?.indicatorType.factor == 100) {
         text = (
@@ -69,9 +72,6 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
               color={textColor}
             >
               {value}
-            </Typography>
-            <Typography>
-              {" " + dataElementMetadata?.indicatorType?.name}
             </Typography>
           </>
         );
