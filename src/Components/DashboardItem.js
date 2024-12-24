@@ -354,13 +354,6 @@ function DashboardItem(props) {
           value: Number(row[1]),
         });
       }
-      const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
-        <Chip label={chartData.metaData.items[pe]?.name} />
-      ));
-      const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
-        <Chip label={chartData.metaData.items[ou]?.name} />
-      ));
-
       return chartConfig.data.length > 0 ? (
         <>
           <PieChart
@@ -377,9 +370,6 @@ function DashboardItem(props) {
             series={[chartConfig]}
             align="center"
           />
-          <Typography align="center">
-            {period}-{orgunit}
-          </Typography>
         </>
       ) : (
         <span style={{ color: "#DDD" }}>No Data</span>

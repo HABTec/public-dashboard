@@ -13,13 +13,6 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
 
     const metadata = chartData?.metaData;
 
-    let orgunit = metadata?.dimensions?.ou?.map((ou) => (
-      <Chip label={metadata.items[ou]?.name}></Chip>
-    ));
-    let period = metadata?.dimensions?.pe?.map((p) => (
-      <Chip label={metadata.items[p]?.name}> </Chip>
-    ));
-
     if (chartInfo.legend?.strategy != "BY_DATA_ITEM") {
       color = chartInfo?.legend?.set?.legends.find(
         (leg) => value >= leg.startValue && value < leg.endValue
@@ -108,9 +101,7 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
         }}
       >
         {text}
-        <Typography align="center">
-          {title} <br /> {period} <br /> {orgunit}
-        </Typography>
+        <Typography align="center">{title}</Typography>
       </div>
     );
   } catch (error) {
