@@ -496,6 +496,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
   const parsedMapViews = mapViews
     ?.map((view) => {
       const chartConfig = processChartData(chartDatas[view.id]);
+      console.log("view all", view);
 
       if (view.layer === "thematic" && chartConfig.series.length === 0) {
         return null;
@@ -511,7 +512,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view?.thematicMapType,
         view?.renderingStrategy,
         view?.legendSet,
-        view?.filters?.[0]?.items[0]?.id
+        chartDatas[view.id].metaData.items[view?.filters?.[0]?.items[0]?.id]
+          ?.name
       );
     })
     .filter(Boolean)
