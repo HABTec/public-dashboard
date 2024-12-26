@@ -13,19 +13,38 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
 
     const metadata = chartData?.metaData;
 
+    function getLuminance(color) {
+      const rgb = color
+        .replace(/^#/, "")
+        .match(/.{2}/g)
+        .map((hex) => parseInt(hex, 16) / 255);
+      const [r, g, b] = rgb.map((c) =>
+        c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+      );
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    function getContrastColor(bgColor) {
+      const luminance = getLuminance(bgColor);
+      return luminance > 0.5 ? "black" : "white";
+    }
+
     if (chartInfo.legend?.strategy != "BY_DATA_ITEM") {
       color = chartInfo?.legend?.set?.legends.find(
         (leg) => value >= leg.startValue && value < leg.endValue
       )?.color;
 
       textColor =
-        chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
+        chartInfo?.legend?.style == "FILL"
+          ? getContrastColor(color || "#000000")
+          : color || "black";
       if (chartInfo?.legend?.style == "FILL") {
         componentRef.current.style.backgroundColor = color;
         componentRef.current.firstChild.firstChild.firstChild.style.color =
           "black";
       }
     }
+    console.log("text color", textColor, "background color", color);
 
     let title =
       chartData &&
@@ -101,7 +120,9 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
         }}
       >
         {text}
-        <Typography align="center">{title}</Typography>
+        <Typography align="center" color={textColor}>
+          {title}
+        </Typography>
       </div>
     );
   } catch (error) {
