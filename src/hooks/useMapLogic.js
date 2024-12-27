@@ -512,8 +512,9 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view?.thematicMapType,
         view?.renderingStrategy,
         view?.legendSet,
-        chartDatas[view.id].metaData.items[view?.filters?.[0]?.items[0]?.id]
-          ?.name
+        chartDatas[view.id]?.metaData?.items[
+          view?.filters?.[0]?.items[0]?.id
+        ] ?? view?.filters?.[0]?.items[0]?.id?.name
       );
     })
     .filter(Boolean)
