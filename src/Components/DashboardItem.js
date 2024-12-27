@@ -41,6 +41,12 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import * as csvtojson from "csvtojson";
 
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+
 import {
   Grid,
   Paper,
@@ -242,8 +248,13 @@ function DashboardItem(props) {
       });
   }, [props.filters]);
 
-  const type = props?.item?.type.toLowerCase();
-  const title = props?.item[type]?.displayName;
+  const type = props?.item?.type?.toLowerCase();
+  let title = props?.item[type]?.displayName;
+
+  // don't display the pipe characters
+  let titleParts = title?.split("||");
+  if (titleParts?.length > 1) title = title?.split("||")[0];
+
   let chartType = chartInfo?.type?.toLowerCase();
   const [fullScreenItem, setFullScreenItem] = React.useState(null);
   const item = props?.item;
@@ -1488,7 +1499,46 @@ function DashboardItem(props) {
   );
 }
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`vertical-tabpanel-${index}`}
+      aria-labelledby={`vertical-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index) {
+  return {
+    id: `vertical-tab-${index}`,
+    "aria-controls": `vertical-tabpanel-${index}`,
+  };
+}
+
 function DashboardItems(props) {
+  const params = new URLSearchParams(window.location.search);
+  const group = params.get("group") ?? "default";
+  const [activeTab, setActiveTab] = React.useState(0);
+
+  React.useEffect(() => {
+    if (group) {
+      setActiveTab(tabs.indexOf(group));
+    }
+  }, []);
+
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up("sm"));
   console.log("first props", props);
   if (props?.items?.length == 0) {
     return (
@@ -1500,25 +1550,112 @@ function DashboardItems(props) {
     );
   }
 
-  const params = new URLSearchParams(window.location.search);
+  //check if it is detail page and disable tab
+  if (params.get("fullDetail")) {
+    return props?.items?.map((item, i) => {
+      console.log("item +", item, "props work ", props);
+      return (
+        <DashboardItem
+          {...props}
+          key={item.id ?? item._id + i}
+          item={{
+            ...item,
+            id: item.id ?? item._id,
+            chartId: item.chartId ?? props.dashboard.id,
+          }}
+          displaySave={true}
+          displayFullScreen={true}
+          fullWidth={params.get("dashboardItemId")}
+        ></DashboardItem>
+      );
+    });
+  }
 
-  return props?.items?.map((item, i) => {
-    console.log("item +", item, "props work ", props);
-    return (
-      <DashboardItem
-        {...props}
-        key={item.id ?? item._id + i}
-        item={{
-          ...item,
-          id: item.id ?? item._id,
-          chartId: item.chartId ?? props.dashboard.id,
-        }}
-        displaySave={true}
-        displayFullScreen={true}
-        fullWidth={params.get("dashboardItemId")}
-      ></DashboardItem>
-    );
-  });
+  // calcualte the grouping here The charts name should be postfixed with two pipe characters (||)
+  // If the charts does not have the pipe characters they should be assigned to the default tab
+
+  console.log("grouping", group, props.items);
+
+  // go through the items and create the list of tabs
+  const tabs = [];
+  const tabsDashboardItems = [];
+
+  if (props?.items) {
+    for (const item of props?.items) {
+      console.log("item new", item);
+      const type = item?.type?.toLowerCase();
+      const title = type ? item[type]?.displayName : "";
+      // split title by pipe characters
+      const titleParts = title?.split("||");
+      // assign the first part of the title as the tab name
+      // check titleParts size and pick the second part as the tab name
+      let tabName;
+      if (titleParts?.length > 1) {
+        tabName = titleParts[titleParts?.length - 1];
+      } else {
+        tabName = "default";
+      }
+
+      // add item to tabsDashboard Item
+      tabsDashboardItems.push({ tab: tabName, item: item });
+
+      if (!tabs.includes(tabName)) {
+        tabs.push(tabName);
+      }
+    }
+  }
+
+  const handelTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+  return (
+    <Grid container>
+      <Grid sm="12" md="1">
+        <Tabs
+          orientation={matches ? "vertical" : "horizontal"}
+          // orientation="vertical"
+          variant="scrollable"
+          value={activeTab}
+          onChange={handelTabChange}
+          sx={{ borderRight: 1, borderColor: "divider" }}
+          centered
+        >
+          {tabs.map((tab, i) => (
+            <Tab key={i} label={tab} {...a11yProps(i)} />
+          ))}
+        </Tabs>
+      </Grid>
+      <Grid sm="12" md="11" xs={12}>
+        {tabs.map((tab, i) => {
+          return (
+            <TabPanel value={activeTab} index={i} key={i + tab}>
+              <Grid container spacing={2} xs={12}>
+                {tabsDashboardItems
+                  .filter((item) => item.tab == tab)
+                  .map((itemObj, i) => {
+                    const item = itemObj.item;
+                    return (
+                      <DashboardItem
+                        {...props}
+                        key={item.id ?? item._id + i}
+                        item={{
+                          ...item,
+                          id: item.id ?? item._id,
+                          chartId: item.chartId ?? props.dashboard.id,
+                        }}
+                        displaySave={true}
+                        displayFullScreen={true}
+                        fullWidth={params.get("dashboardItemId")}
+                      ></DashboardItem>
+                    );
+                  })}
+              </Grid>
+            </TabPanel>
+          );
+        })}
+      </Grid>
+    </Grid>
+  );
 }
 
 DashboardItem.propTypes = {
