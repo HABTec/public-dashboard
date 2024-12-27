@@ -32,6 +32,9 @@ const ThematicLegend = ({ legendData }) => {
   return (
     <div>
       <b>{legendData.displayName}</b>
+      <Typography fontSize={12} margin={0.5}>
+        {legendData?.periodName}
+      </Typography>
       {intervals.map(({ start, end }, idx) => (
         <Box
           key={idx}
