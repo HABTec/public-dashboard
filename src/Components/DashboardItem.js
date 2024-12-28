@@ -1533,7 +1533,7 @@ function DashboardItems(props) {
 
   React.useEffect(() => {
     if (group) {
-      setActiveTab(tabs.indexOf(group));
+      setActiveTab(0);
     }
   }, []);
 
@@ -1591,7 +1591,7 @@ function DashboardItems(props) {
       // check titleParts size and pick the second part as the tab name
       let tabName;
       if (titleParts?.length > 1) {
-        tabName = titleParts[titleParts?.length - 1];
+        tabName = titleParts[titleParts?.length - 1]?.trim().toLowerCase();
       } else {
         tabName = "default";
       }
