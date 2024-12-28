@@ -2,6 +2,7 @@ import React from "react";
 import Typography from "@mui/material/Typography";
 import Legend from "./Legend";
 import Chip from "@mui/material/Chip";
+import { getContrastColor } from "../utils/common";
 
 const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
@@ -12,22 +13,6 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
     let color = "primary";
 
     const metadata = chartData?.metaData;
-
-    function getLuminance(color) {
-      const rgb = color
-        .replace(/^#/, "")
-        .match(/.{2}/g)
-        .map((hex) => parseInt(hex, 16) / 255);
-      const [r, g, b] = rgb.map((c) =>
-        c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-      );
-      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    }
-
-    function getContrastColor(bgColor) {
-      const luminance = getLuminance(bgColor);
-      return luminance > 0.5 ? "black" : "white";
-    }
 
     if (chartInfo.legend?.strategy != "BY_DATA_ITEM") {
       color = chartInfo?.legend?.set?.legends.find(

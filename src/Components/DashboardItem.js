@@ -84,7 +84,13 @@ import ScatterChartComponent from "./ScatterChartComponent";
 import MapComponent from "./MapComponent";
 import RadarChartComponent from "./RadarChartComponent";
 
-import { toCSVText, getObjectItems, loess, getItemName } from "../utils/common";
+import {
+  toCSVText,
+  getObjectItems,
+  loess,
+  getItemName,
+  getContrastColor,
+} from "../utils/common";
 import { getFilters, getOuDimensions, getDimensions } from "../utils/filters";
 import SingleValueChart from "./SingleValueChart";
 import ShareModal from "./ShareModal";
@@ -857,24 +863,35 @@ function DashboardItem(props) {
                           {row.label}
                         </TableCell>
                       </TableHead>
-                      {row.data.map((data, i) => (
-                        <TableCell
-                          sx={{
-                            backgroundColor:
-                              chartInfo?.legend?.strategy != "BY_DATA_ITEM"
-                                ? chartInfo?.legend?.set?.legends.find(
-                                    (leg) =>
-                                      data >= leg.startValue &&
-                                      data < leg.endValue
-                                  )?.color ?? "lightgray"
-                                : "white",
-                          }}
-                          key={"data" + i}
-                          align="right"
-                        >
-                          {data + ""}
-                        </TableCell>
-                      ))}
+                      {row.data.map((data, i) => {
+                        const backgroundColor =
+                          chartInfo?.legend?.strategy !== "BY_DATA_ITEM"
+                            ? chartInfo?.legend?.set?.legends.find(
+                                (leg) =>
+                                  data >= leg.startValue && data < leg.endValue
+                              )?.color ?? "lightgray"
+                            : "white";
+                            console.log("background color", backgroundColor)
+                        return (
+                          <TableCell
+                            sx={{
+                              backgroundColor:
+                                chartInfo?.legend?.strategy != "BY_DATA_ITEM"
+                                  ? chartInfo?.legend?.set?.legends.find(
+                                      (leg) =>
+                                        data >= leg.startValue &&
+                                        data < leg.endValue
+                                    )?.color ?? "lightgray"
+                                  : "white",
+                              color: getContrastColor(backgroundColor),
+                            }}
+                            key={"data" + i}
+                            align="right"
+                          >
+                            {data + ""}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>
