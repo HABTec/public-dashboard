@@ -121,7 +121,13 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
       });
       console.log("split_data", data);
       setSplitPeriodData(data);
-      setLegendRange({ mn, mx, displayName, name });
+      setLegendRange({
+        mn,
+        mx,
+        displayName,
+        name,
+        periodName: data[0].periodName,
+      });
     }
   }, []);
 
@@ -176,7 +182,10 @@ const Map = ({ mapViews, chartDatas, shapes, basemap }) => {
             />
 
             {parsedMapViews?.map((viewData) => {
-              legendSet = viewData?.legendSet;
+              legendSet = {
+                ...viewData?.legendSet,
+                periodName: viewData?.periodName,
+              };
               if (viewData?.renderingStrategy !== "TIMELINE") {
                 console.log("is it called", viewData, selectedTimeline);
                 switch (viewData?.layer) {

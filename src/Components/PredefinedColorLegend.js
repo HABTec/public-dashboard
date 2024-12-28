@@ -34,6 +34,11 @@ const PredefinedColorLegend = ({ legendSet, thematicType = null }) => {
         <TableRow>
           <TableCell colSpan={3} align="center">
             {legendSet.name}
+            {legendSet.periodName && (
+              <Typography align="left" fontSize={12} margin={0.5}>
+                {legendSet.periodName}
+              </Typography>
+            )}
           </TableCell>
         </TableRow>
         <TableBody>
@@ -55,11 +60,6 @@ const PredefinedColorLegend = ({ legendSet, thematicType = null }) => {
 
   // Bubble legend rendering
   const renderBubbleLegend = () => {
-    // const maxEndValue = Math.max(
-    //   ...sortedLegends.map((legend) => legend.endValue)
-    // );
-    // const maxRadius = calculateBubbleRadius(maxEndValue, maxEndValue);
-
     const maxRadius = Math.max(
       ...sortedLegends.map((legend) =>
         calculateBubbleRadius(legend.startValue, legend.endValue)
@@ -69,7 +69,7 @@ const PredefinedColorLegend = ({ legendSet, thematicType = null }) => {
       <Box
         sx={{
           position: "relative",
-          height: `${maxRadius * 2 + 20}px`,
+          height: `${maxRadius * 2 + 45}px`,
           // overflow: "visible",
           overflow: "wrap",
           p: 1,
@@ -77,6 +77,11 @@ const PredefinedColorLegend = ({ legendSet, thematicType = null }) => {
         }}
       >
         <b>{legendSet.name}</b>
+        {legendSet.periodName && (
+          <Typography fontSize={12} margin={0.5}>
+            {legendSet.periodName}
+          </Typography>
+        )}
         <Box
           sx={{
             position: "relative",
@@ -106,7 +111,7 @@ const PredefinedColorLegend = ({ legendSet, thematicType = null }) => {
                       ? "translateY(-50%)"
                       : "translateX(-100%) translateY(-50%)",
                     zIndex: sortedLegends.length - idx, // Higher zIndex for smaller circles
-                    mb: "0.3rem",
+                    mb: "2.3rem",
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -127,7 +132,7 @@ const PredefinedColorLegend = ({ legendSet, thematicType = null }) => {
                     bottom: 0,
                     zIndex: sortedLegends.length - idx,
                     border: "1px solid #999",
-                    mb: "1.5rem",
+                    mb: "3.5rem",
                     padding: "0.5rem",
                   }}
                   title={`${legend.startValue.toFixed(

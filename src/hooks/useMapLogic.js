@@ -360,7 +360,8 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
     layer,
     thematicMapType,
     renderingStrategy,
-    legendSet = null
+    legendSet = null,
+    periodName = null
   ) => {
     console.log("chartConfig", chartConfig);
     const mapData = chartConfig?.series;
@@ -486,6 +487,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
       thematicMapType,
       renderingStrategy,
       legendSet,
+      periodName,
     };
   };
 
@@ -494,6 +496,7 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
   const parsedMapViews = mapViews
     ?.map((view) => {
       const chartConfig = processChartData(chartDatas[view.id]);
+      console.log("view all", view);
 
       if (view.layer === "thematic" && chartConfig.series.length === 0) {
         return null;
@@ -508,7 +511,10 @@ export const useMapLogic = (mapViews, chartDatas, shapes) => {
         view.layer,
         view?.thematicMapType,
         view?.renderingStrategy,
-        view?.legendSet
+        view?.legendSet,
+        chartDatas[view.id]?.metaData?.items[
+          view?.filters?.[0]?.items[0]?.id
+        ] ?? view?.filters?.[0]?.items[0]?.id?.name
       );
     })
     .filter(Boolean)

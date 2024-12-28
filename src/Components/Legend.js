@@ -20,7 +20,7 @@ const Legend = ({ legendDatas, legendSet = null }) => {
 
     legendDatas.forEach((legendData, index) => {
       if (legendData.name === "thematic")
-        if (legendSet) {
+        if (legendSet?.legends) {
           items.push(
             <PredefinedColorLegend
               key={legendSet}
@@ -52,6 +52,8 @@ const Legend = ({ legendDatas, legendSet = null }) => {
 
     return items;
   }, [legendDatas, legendSet]);
+
+  console.log("accumulatedLegendItems");
 
   useEffect(() => {
     const legendDiv = L.DomUtil.create("div", "info legend");

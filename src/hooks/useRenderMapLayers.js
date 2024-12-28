@@ -216,6 +216,7 @@ export const useRenderMapLayers = (
 
     legendData.push({
       name: "thematic",
+      periodName: viewData?.periodName,
       displayName: viewData.displayName,
       colorScaleArray: viewData.colorScaleArray,
       mn: legendMn,
@@ -291,6 +292,7 @@ export const useRenderMapLayers = (
     legendData.push({
       name: "bubble",
       displayName: viewData.displayName,
+      periodName: viewData?.periodName,
       mn: legendMn,
       mx: legendMx,
       colorScaleArray: viewData.colorScaleArray,
@@ -316,7 +318,7 @@ export const useRenderMapLayers = (
       const dataValue =
         regionListIndex !== -1 ? viewData.mapData[0].data[regionListIndex] : 0;
 
-      let radius = (dataValue + 20 ) * 2;
+      let radius = (dataValue + 20) * 2;
 
       if (Number.isNaN(radius)) radius = 0;
 
