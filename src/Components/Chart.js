@@ -8,6 +8,8 @@ import {
   Select,
   MenuItem,
   Paper,
+  ButtonGroup,
+  Button,
 } from "@mui/material";
 import { DashboardItems, DashboardItem } from "./DashboardItem";
 import Title from "./Title";
@@ -128,9 +130,15 @@ export default function Chart({
     );
 
     return dashboardToRender.map((dashboard) => (
-      <MenuItem key={dashboard.id} value={dashboard.id}>
+      <Button
+        key={dashboard.id}
+        value={dashboard.id}
+        onClick={() => {
+          handleChartChange({ target: { value: dashboard.id } });
+        }}
+      >
         {dashboard.name}
-      </MenuItem>
+      </Button>
     ));
   };
 
@@ -169,24 +177,9 @@ export default function Chart({
           }}
         >
           <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">
-              {"Select Dashboard"}
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={dashboard?.id}
-              label="Select Dashboard"
-              onChange={handleChartChange}
-            >
-              {loading ? (
-                <MenuItem disabled>
-                  <CircularProgress size={24} />
-                </MenuItem>
-              ) : (
-                dashboardMenuList()
-              )}
-            </Select>
+            <ButtonGroup variant="outlined" aria-label="Select Dashbaord here">
+              {loading ? <CircularProgress size={24} /> : dashboardMenuList()}
+            </ButtonGroup>
           </FormControl>
 
           <OrgUnitFilterModal
