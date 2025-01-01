@@ -14,7 +14,6 @@ import {
 import { DashboardItems, DashboardItem } from "./DashboardItem";
 import Title from "./Title";
 import { useSnackbar } from "material-ui-snackbar-provider";
-import OrgUnitFilterModal from "./OrgUnitFilterModal";
 import ReactGA from "react-ga4";
 import DynamicBreadcrumbs from "./DynamicBreadcrumbs";
 
@@ -142,19 +141,6 @@ export default function Chart({
     ));
   };
 
-  const handelFilterSelect = (
-    orgunitFilters,
-    orgunitGroupFilters,
-    orgunitLevelFilters,
-    hideEmptyCharts
-  ) => {
-    setFilters({
-      orgunits: orgunitFilters,
-      orgunitGroup: orgunitGroupFilters,
-      orgunitLevel: orgunitLevelFilters,
-      hideEmptyCharts: hideEmptyCharts,
-    });
-  };
 
   return (
     <React.Fragment>
@@ -182,10 +168,6 @@ export default function Chart({
             </ButtonGroup>
           </FormControl>
 
-          <OrgUnitFilterModal
-            settings={settings}
-            onConfirmed={handelFilterSelect}
-          />
         </Paper>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
@@ -206,12 +188,13 @@ export default function Chart({
       <DashboardItems
         savedReports={savedReports}
         setSavedReports={setSavedReports}
+        settings={settings}
         items={
           selectedSavedChart ? selectedSavedChart : dashboard?.dashboardItems
         }
         filters={filters}
         dashboard={dashboard}
-      ></DashboardItems>
+      > </DashboardItems>
     </React.Fragment>
   );
 }
