@@ -2,6 +2,7 @@ import React from "react";
 import Typography from "@mui/material/Typography";
 import Legend from "./Legend";
 import Chip from "@mui/material/Chip";
+import { getContrastColor } from "../utils/common";
 
 const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
   try {
@@ -19,13 +20,16 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
       )?.color;
 
       textColor =
-        chartInfo?.legend?.style == "FILL" ? "black" : color || "black";
+        chartInfo?.legend?.style == "FILL"
+          ? getContrastColor(color || "#000000")
+          : color || "black";
       if (chartInfo?.legend?.style == "FILL") {
         componentRef.current.style.backgroundColor = color;
         componentRef.current.firstChild.firstChild.firstChild.style.color =
           "black";
       }
     }
+    console.log("text color", textColor, "background color", color);
 
     let title =
       chartData &&
@@ -101,7 +105,9 @@ const SingleValueChart = ({ chartData, componentRef, chartInfo }) => {
         }}
       >
         {text}
-        <Typography align="center">{title}</Typography>
+        <Typography align="center" color={textColor}>
+          {title}
+        </Typography>
       </div>
     );
   } catch (error) {
