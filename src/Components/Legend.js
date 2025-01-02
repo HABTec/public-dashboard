@@ -24,12 +24,23 @@ const Legend = ({ legendDatas, legendSet = null }) => {
           items.push(
             <PredefinedColorLegend
               key={legendSet}
-              legendSet={legendSet}
+              legendSet={{
+                ...legendSet,
+                periodName: legendSet.periodName.name,
+              }}
               thematicType={"thematic"}
             />
           );
         } else {
-          items.push(<ThematicLegend key={index} legendData={legendData} />);
+          items.push(
+            <ThematicLegend
+              key={index}
+              legendData={{
+                ...legendData,
+                periodName: legendData.periodName.name,
+              }}
+            />
+          );
         }
       else if (legendData.name === "bubble") {
         if (legendSet) {
@@ -41,19 +52,34 @@ const Legend = ({ legendDatas, legendSet = null }) => {
             />
           );
         } else {
-          items.push(<BubbleLegend key={index} legendData={legendData} />);
+          items.push(
+            <BubbleLegend
+              key={index}
+              legendData={{
+                ...legendData,
+                periodName: legendData.periodName.name,
+              }}
+            />
+          );
         }
       } else if (legendData.name === "facility")
-        items.push(<FacilityLegend key={index} legendData={legendData} />);
+        items.push(
+          <FacilityLegend
+            key={index}
+            legendData={{
+              ...legendData,
+              periodName: legendData.periodName.name,
+            }}
+          />
+        );
       else if (legendData.name === "orgUnit")
         items.push(<OrgUnitLegend key={index} />);
     });
-    // }
 
     return items;
   }, [legendDatas, legendSet]);
 
-  console.log("accumulatedLegendItems");
+  console.log("accumulatedLegendItems", accumulatedLegendItems);
 
   useEffect(() => {
     const legendDiv = L.DomUtil.create("div", "info legend");
@@ -69,7 +95,14 @@ const Legend = ({ legendDatas, legendSet = null }) => {
           <FormatListBulletedIcon />
           {showDetails && " Legend"}
         </Box>
-        {showDetails && accumulatedLegendItems}
+        {/* {showDetails && accumulatedLegendItems} */}
+        {showDetails && (
+          <>
+            {accumulatedLegendItems?.map((item, index) => (
+              <React.Fragment key={index}>{item}</React.Fragment>
+            ))}
+          </>
+        )}
       </Paper>,
       legendDiv
     );
