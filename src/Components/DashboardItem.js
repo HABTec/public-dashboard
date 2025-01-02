@@ -887,7 +887,7 @@ function DashboardItem(props) {
                                   data >= leg.startValue && data < leg.endValue
                               )?.color ?? "lightgray"
                             : "white";
-                            console.log("background color", backgroundColor)
+                        console.log("background color", backgroundColor);
                         return (
                           <TableCell
                             sx={{
@@ -1237,10 +1237,6 @@ function DashboardItem(props) {
               </Title>
             </Grid>
             <Grid item xs={2} sm={1}>
-              <OrgUnitFilterModal
-                settings={props.settings}
-                onConfirmed={handelFilterSelect}
-              />
               {fullScreenItem ? (
                 <IconButton
                   style={{
@@ -1366,6 +1362,15 @@ function DashboardItem(props) {
                     <Share />
                   </ListItemIcon>
                   <ListItemText primary="Share" />
+                </MenuItem>
+                <MenuItem>
+                  <ListItemIcon>
+                    <OrgUnitFilterModal
+                      settings={props.settings}
+                      onConfirmed={handelFilterSelect}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary="Filter" />
                 </MenuItem>
 
                 <MenuItem>

@@ -174,7 +174,7 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
               visiable={hasFilters}
               title="Number of Filters Applied"
             >
-              <FilterListIcon />
+              <FilterListIcon sx={{color:"black"}}/>
             </Badge>
           </IconButton>
         </Tooltip>
