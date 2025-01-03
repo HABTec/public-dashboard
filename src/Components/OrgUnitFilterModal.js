@@ -106,10 +106,12 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
 
   useEffect(() => {
     if (settings === null) return;
+    if (!open) return;
+    if (open && data != null) return;
     fetchData();
     fetchOrgUnitGroups();
     fetchOrgUnitLevels();
-  }, [settings]);
+  }, [settings, open]);
 
   const handleClickOpen = () => {
     setOpen(true);
