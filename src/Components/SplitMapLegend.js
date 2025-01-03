@@ -32,7 +32,7 @@ const SplitMapLegend = ({
       return (
         <PredefinedColorLegend
           key={legendSet}
-          legendSet={legendSet}
+          legendSet={{...legendSet, periodName : legendSet.periodName.name}}
           thematicType={thematicType}
         />
       );

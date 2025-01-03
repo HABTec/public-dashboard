@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import chroma from "chroma-js";
 
 const ThematicLegend = ({ legendData }) => {
+  console.log("legendData in thematic", legendData);
   const intervalCount = legendData.colorScaleArray.length / 3 + 1;
   const intervals =
     legendData.mn === legendData.mx
