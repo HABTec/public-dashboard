@@ -1370,7 +1370,6 @@ function DashboardItem(props) {
                       onConfirmed={handelFilterSelect}
                     />
                   </ListItemIcon>
-                  <ListItemText primary="Filter" />
                 </MenuItem>
 
                 <MenuItem>

@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
 import useSetting from "../hooks/useSettings";
+import {ListItemText} from "@mui/material"
 
 const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   const [open, setOpen] = useState(false);
@@ -174,7 +175,12 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
               visiable={hasFilters}
               title="Number of Filters Applied"
             >
+              
+              <Box display={"flex"} justifyContent={"space-between"}>
               <FilterListIcon sx={{color:"black"}}/>
+              <ListItemText primary="Filter" sx={{color:"black", ml:"0.5rem"}}/>
+
+              </Box>
             </Badge>
           </IconButton>
         </Tooltip>
