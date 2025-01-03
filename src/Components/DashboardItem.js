@@ -1363,15 +1363,11 @@ function DashboardItem(props) {
                   </ListItemIcon>
                   <ListItemText primary="Share" />
                 </MenuItem>
-                <MenuItem>
-                  <ListItemIcon>
-                    <OrgUnitFilterModal
-                      settings={props.settings}
-                      onConfirmed={handelFilterSelect}
-                    />
-                  </ListItemIcon>
-                  <ListItemText primary="Filter" />
-                </MenuItem>
+
+                <OrgUnitFilterModal
+                  settings={props.settings}
+                  onConfirmed={handelFilterSelect}
+                />
 
                 <MenuItem>
                   <ListItemIcon>
@@ -1595,7 +1591,6 @@ function DashboardItems(props) {
   //check if it is detail page and disable tab
   if (params.get("fullDetail")) {
     return props?.items?.map((item, i) => {
-      console.log("item +", item, "props work ", props);
       return (
         <DashboardItem
           {...props}

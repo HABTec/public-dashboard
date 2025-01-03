@@ -13,6 +13,9 @@ import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
 import useSetting from "../hooks/useSettings";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 
 const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   const [open, setOpen] = useState(false);
@@ -143,7 +146,7 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
 
   return (
     <Box minHeight="2rem">
-      <div
+      {/*<div
         style={{
           display: "flex",
           alignItems: "center",
@@ -153,7 +156,7 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
           gap: "2%",
         }}
       >
-        <Tooltip
+         <Tooltip
           arrow={false}
           color="neutral"
           placement="bottom"
@@ -174,7 +177,7 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
               visiable={hasFilters}
               title="Number of Filters Applied"
             >
-              <FilterListIcon sx={{color:"black"}}/>
+              <FilterListIcon sx={{ color: "black" }} />
             </Badge>
           </IconButton>
         </Tooltip>
@@ -200,8 +203,52 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
           </Tooltip>
         ) : (
           ""
-        )}
-      </div>
+        )} 
+      </div>*/}
+      <MenuItem>
+        <ListItemIcon>
+          <Tooltip
+            arrow={false}
+            color="neutral"
+            placement="bottom"
+            size="sm"
+            variant="plain"
+            title="Apply Filter"
+          >
+            <Badge
+              badgeContent={filterCount}
+              visiable={hasFilters}
+              title="Number of Filters Applied"
+            >
+              <FilterListIcon onClick={handleClickOpen} />
+            </Badge>
+          </Tooltip>
+
+          {hasFilters ? (
+            <Tooltip
+              arrow={false}
+              color="neutral"
+              placement="bottom"
+              size="sm"
+              variant="plain"
+              title="Clear Filter"
+            >
+              <IconButton
+                size="small"
+                variant="outlined"
+                aria-label="clear filter"
+                color="secondary"
+                onClick={handelClearFitler}
+              >
+                <ClearIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            ""
+          )}
+        </ListItemIcon>
+        <ListItemText onClick={handleClickOpen} primary="Filter" />
+      </MenuItem>
       <Dialog
         sx={{ minHeight: "50vh", padding: "10px" }}
         open={open}
