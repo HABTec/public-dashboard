@@ -94,6 +94,7 @@ import {
 import { getFilters, getOuDimensions, getDimensions } from "../utils/filters";
 import SingleValueChart from "./SingleValueChart";
 import ShareModal from "./ShareModal";
+import OrgUnitFilterModal from "./OrgUnitFilterModal";
 
 const apiBase = process.env.REACT_APP_BASE_URI;
 
@@ -114,7 +115,21 @@ function DashboardItem(props) {
   const [shape, setShape] = React.useState(null);
   const [customeChartType, setCustomChartType] = React.useState(undefined);
   const [openLegendKey, setOpenLegendKey] = React.useState(false);
+  const [filters_, setFilters_] = React.useState(props?.filters);
 
+  const handelFilterSelect = (
+    orgunitFilters,
+    orgunitGroupFilters,
+    orgunitLevelFilters,
+    hideEmptyCharts
+  ) => {
+    setFilters_({
+      orgunits: orgunitFilters,
+      orgunitGroup: orgunitGroupFilters,
+      orgunitLevel: orgunitLevelFilters,
+      hideEmptyCharts: hideEmptyCharts,
+    });
+  };
   const toggleLegendKeyDisplay = () => {
     setOpenLegendKey(!openLegendKey);
   };
@@ -184,10 +199,10 @@ function DashboardItem(props) {
         }
 
         setChartInfo(data);
-
         let filters = getFilters(
           data.filters,
-          props?.filters,
+          // props?.filters,
+          filters_,
           data?.aggregationType
         );
         let dimension = getDimensions(data);
@@ -226,7 +241,6 @@ function DashboardItem(props) {
           return;
         }
 
-        console.log("filters", filters);
         url += dimension + filters + "&includeMetadataDetails=true";
 
         fetch(encodeURI(url))
@@ -252,7 +266,10 @@ function DashboardItem(props) {
         );
         setLoading(false);
       });
-  }, [props.filters]);
+  }, [
+    // props.filters
+    filters_,
+  ]);
 
   const type = props?.item?.type?.toLowerCase();
   let title = props?.item[type]?.displayName;
@@ -267,7 +284,6 @@ function DashboardItem(props) {
   const id = item[type]?.id;
   item.id = id;
   let chartConfig = {};
-  // console.log(props, "props", item, "changed item")
 
   const renderChart = () => {
     console.log(
@@ -289,7 +305,7 @@ function DashboardItem(props) {
         <MapComponent
           data={mapData}
           setMapData={setMapData}
-          mainProps={props}
+          mainProps={{ ...props, filters: filters_ }}
           setLoading={setLoading}
           setChartData={setChartData}
           setChartInfo={setChartInfo}
@@ -303,7 +319,7 @@ function DashboardItem(props) {
     }
 
     if (chartData.status || chartData?.rows?.length < 1) {
-      if (props?.filters?.hideEmptyCharts) {
+      if (filters_?.hideEmptyCharts) {
         if (
           componentRef.current &&
           componentRef.current?.parentElement &&
@@ -871,7 +887,7 @@ function DashboardItem(props) {
                                   data >= leg.startValue && data < leg.endValue
                               )?.color ?? "lightgray"
                             : "white";
-                            console.log("background color", backgroundColor)
+                        console.log("background color", backgroundColor);
                         return (
                           <TableCell
                             sx={{
@@ -1347,7 +1363,10 @@ function DashboardItem(props) {
                   </ListItemIcon>
                   <ListItemText primary="Share" />
                 </MenuItem>
-
+                <OrgUnitFilterModal
+                  settings={props.settings}
+                  onConfirmed={handelFilterSelect}
+                />
                 <MenuItem>
                   <ListItemIcon>
                     <FileDownloadIcon />
@@ -1570,7 +1589,6 @@ function DashboardItems(props) {
   //check if it is detail page and disable tab
   if (params.get("fullDetail")) {
     return props?.items?.map((item, i) => {
-      console.log("item +", item, "props work ", props);
       return (
         <DashboardItem
           {...props}
