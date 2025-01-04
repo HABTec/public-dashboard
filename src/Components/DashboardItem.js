@@ -922,12 +922,6 @@ function DashboardItem(props) {
     if (chartType == "gauge" && chartData.rows[0] && chartData.rows[0][1]) {
       const dataItem =
         chartData.metaData.items[chartData.metaData.dimensions.dx]?.name;
-      const period = chartData?.metaData?.dimensions?.pe?.map((pe) => (
-        <Chip label={chartData.metaData.items[pe]?.name} />
-      ));
-      const orgunit = chartData?.metaData?.dimensions?.ou?.map((ou) => (
-        <Chip label={chartData.metaData.items[ou]?.name} />
-      ));
 
       const value = parseFloat(chartData.rows[0][1]);
       const percent = value / 100;
@@ -963,8 +957,6 @@ function DashboardItem(props) {
           <div align="center" style={{ padding: "10px" }}>
             <span align="center">
               {dataItem} <br />
-              {orgunit} <br />
-              {period}
             </span>
           </div>
         </>
