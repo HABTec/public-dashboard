@@ -44,17 +44,35 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   };
 
   const fetchOrgUnitGroups = async () => {
-    if (settings?.orgUnitLimit?.groups) {
-      setOrgUnitGroups(settings?.orgUnitLimit?.groups);
+    const storedData = localStorage.getItem("orgUnitGroups");
+
+    if (storedData) {
+      setOrgUnitGroups(JSON.parse(storedData));
+    } else if (settings?.orgUnitLimit?.groups) {
+      setOrgUnitGroups(settings.orgUnitLimit.groups);
+      localStorage.setItem(
+        "orgUnitGroups",
+        JSON.stringify(settings.orgUnitLimit.groups)
+      );
     } else {
       const url = `${apiBase}api/organisationUnitGroups?paging=false`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
 
-      const data = await response.json();
-      setOrgUnitGroups(data.organisationUnitGroups);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const data = await response.json();
+
+        localStorage.setItem(
+          "orgUnitGroups",
+          JSON.stringify(data.organisationUnitGroups)
+        );
+        setOrgUnitGroups(data.organisationUnitGroups);
+      } catch (error) {
+        console.error("Error fetching organisation unit groups:", error);
+      }
     }
   };
 
