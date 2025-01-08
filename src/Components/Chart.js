@@ -10,6 +10,8 @@ import {
   Paper,
   ButtonGroup,
   Button,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { DashboardItems, DashboardItem } from "./DashboardItem";
 import Title from "./Title";
@@ -128,19 +130,26 @@ export default function Chart({
       (dashboard) => dashboard.name.slice(-1) === "."
     );
 
-    return dashboardToRender.map((dashboard) => (
-      <Button
-        key={dashboard.id}
+    return (
+      <Tabs
+        variant="scrollable"
+        scrollButtons
+        allowScrollButtonsMobile
         value={dashboard.id}
-        onClick={() => {
-          handleChartChange({ target: { value: dashboard.id } });
-        }}
       >
-        {dashboard.name}
-      </Button>
-    ));
+        {dashboardToRender.map((dashboard) => (
+          <Tab
+            key={dashboard.id}
+            value={dashboard.id}
+            onClick={() => {
+              handleChartChange({ target: { value: dashboard.id } });
+            }}
+            label={dashboard.name}
+          />
+        ))}
+      </Tabs>
+    );
   };
-
 
   return (
     <React.Fragment>
@@ -167,7 +176,6 @@ export default function Chart({
               {loading ? <CircularProgress size={24} /> : dashboardMenuList()}
             </ButtonGroup>
           </FormControl>
-
         </Paper>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
@@ -194,7 +202,9 @@ export default function Chart({
         }
         filters={filters}
         dashboard={dashboard}
-      > </DashboardItems>
+      >
+        {" "}
+      </DashboardItems>
     </React.Fragment>
   );
 }
