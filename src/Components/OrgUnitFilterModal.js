@@ -17,62 +17,96 @@ import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
+const useCache = (key, fetcher, dependencies = []) => {
+  const [cachedData, setCachedData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const storedData = localStorage.getItem(key);
+
+      if (storedData) {
+        setCachedData(JSON.parse(storedData));
+      } else {
+        try {
+          const data = await fetcher();
+          localStorage.setItem(key, JSON.stringify(data));
+          console.log("orgUnitData", data, localStorage.getItem(key));
+          setCachedData(data);
+        } catch (error) {
+          console.error(`Error fetching data for ${key}:`, error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [key, ...dependencies]);
+
+  return cachedData;
+};
+
 const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState(null);
-  const [orgUnitGroups, setOrgUnitGroups] = useState([]);
-  const [orgUnitLevels, setOrgUnitLevels] = useState([]);
   const apiBase = process.env.REACT_APP_BASE_URI;
   const [selected, setSelected] = useState([]);
   const [selectedOrgUnitGroup, setSelectedOrgUnitGroup] = useState([]);
   const [selectedOrgUnitLevel, setSelectedOrgUnitLevel] = useState([]);
   const [hideEmptyCharts, setHideEmptyCharts] = useState(false);
 
+  useEffect(() => {
+    if (!settings) return;
+
+    // Function to clear the relevant cached items
+    const invalidateCache = () => {
+      console.log("Invalidating cache due to settings change");
+      localStorage.removeItem("orgUnitData");
+      localStorage.removeItem("orgUnitGroups");
+      localStorage.removeItem("orgUnitLevels");
+    };
+
+    invalidateCache();
+  }, [settings]);
+
   const fetchData = async () => {
-    const url = `${apiBase}api/organisationUnits/b3aCK1PTn5S?fields=displayName, path, id, children%5Bid%2Cpath%2CdisplayName%5D&paging=false ${
+    const url = `${apiBase}api/organisationUnits/b3aCK1PTn5S?fields=displayName,path,id,children[id,path,displayName]&paging=false$${
       settings?.orgUnitLimit?.level
-        ? `&filter=children.level:lt:${settings?.orgUnitLimit?.level}&filter=level:lt:${settings?.orgUnitLimit?.level}`
+        ? `&filter=children.level:lt:${settings?.orgUnitLimit?.level}`
         : ""
     }`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Failed to fetch data");
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch organisation units");
+      const fetchedData = await response.json();
+      const updatedData = await hasChildren(fetchedData.children);
+      setData({ ...fetchedData, children: updatedData });
+      console.log(
+        "real orgUnitData",
+        { ...fetchedData, children: updatedData },
+        "fetchedData",
+        fetchedData
+      );
+      localStorage.setItem(
+        "orgUnitData",
+        JSON.stringify({ ...fetchedData, children: updatedData })
+      );
+    } catch (error) {
+      console.error("Error fetching organisation units:", error);
     }
-    const fetchedData = await response.json();
-    const updatedData = await hasChildren(fetchedData.children);
-    setData({ ...fetchedData, children: updatedData });
   };
 
   const fetchOrgUnitGroups = async () => {
-    const storedData = localStorage.getItem("orgUnitGroups");
-
-    if (storedData) {
-      setOrgUnitGroups(JSON.parse(storedData));
-    } else if (settings?.orgUnitLimit?.groups) {
-      setOrgUnitGroups(settings.orgUnitLimit.groups);
-      localStorage.setItem(
-        "orgUnitGroups",
-        JSON.stringify(settings.orgUnitLimit.groups)
-      );
+    if (settings?.orgUnitLimit?.groups) {
+      return settings.orgUnitLimit.groups;
     } else {
       const url = `${apiBase}api/organisationUnitGroups?paging=false`;
-
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-
-        const data = await response.json();
-
-        localStorage.setItem(
-          "orgUnitGroups",
-          JSON.stringify(data.organisationUnitGroups)
-        );
-        setOrgUnitGroups(data.organisationUnitGroups);
-      } catch (error) {
-        console.error("Error fetching organisation unit groups:", error);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
       }
+
+      const data = await response.json();
+      return data.organisationUnitGroups;
     }
   };
 
@@ -88,9 +122,15 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
       throw new Error("Failed to fetch data");
     }
     const data = await response.json();
-
-    setOrgUnitLevels(data.organisationUnitLevels);
+    return data.organisationUnitLevels;
   };
+
+  const orgUnitGroups = useCache("orgUnitGroups", fetchOrgUnitGroups, [
+    settings,
+  ]);
+  const orgUnitLevels = useCache("orgUnitLevels", fetchOrgUnitLevels, [
+    settings,
+  ]);
 
   const hasChildren = async (nodes) => {
     console.log("nodes:", nodes);
@@ -123,12 +163,14 @@ const OrgUnitFilterModal = ({ onConfirmed, settings }) => {
   };
 
   useEffect(() => {
-    if (settings === null) return;
-    if (!open) return;
-    if (open && data != null) return;
-    fetchData();
-    fetchOrgUnitGroups();
-    fetchOrgUnitLevels();
+    if (settings == null || !open || (open && data != null)) return;
+
+    const cachedOrgUnitData = localStorage.getItem("orgUnitData");
+    if (cachedOrgUnitData) {
+      setData(JSON.parse(cachedOrgUnitData));
+    } else {
+      fetchData();
+    }
   }, [settings, open]);
 
   const handleClickOpen = () => {
