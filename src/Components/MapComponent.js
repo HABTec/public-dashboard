@@ -58,9 +58,10 @@ function MapComponent({
                 encodeURI(url + dimension + filters + aggregationTypeFilter)
               );
               let chartData_ = await analyticsData.json();
-              console.log("chartData", analyticsData, chartData_);
-              console.log("url guessed", url + dimension + filters);
-              setChartData(chartData_);
+              setChartData((prevChartData) => ({
+                ...prevChartData, // keep existing data
+                [view.id]: chartData_,
+              }));
               setChartInfo((prevChartInfo) => ({
                 ...prevChartInfo,
                 interpretations: data?.interpretations,
@@ -68,7 +69,8 @@ function MapComponent({
               }));
               setChartData_((prevChartData) => ({
                 ...prevChartData,
-                [view.id]: chartData_,
+                ...(view.layer !== "orgUnit" &&
+                  view.layer !== "facility" && { [view.id]: chartData_ }),
               }));
             } catch (error) {
               console.error("Error fetching data:", error);

@@ -68,7 +68,7 @@ const Legend = ({ legendDatas, legendSet = null }) => {
             key={index}
             legendData={{
               ...legendData,
-              periodName: legendData.periodName.name,
+              periodName: legendData?.periodName?.name,
             }}
           />
         );

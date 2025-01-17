@@ -95,6 +95,7 @@ import { getFilters, getOuDimensions, getDimensions } from "../utils/filters";
 import SingleValueChart from "./SingleValueChart";
 import ShareModal from "./ShareModal";
 import OrgUnitFilterModal from "./OrgUnitFilterModal";
+import MapInterpretationComponent from "./MapInterpretationComponent";
 
 const apiBase = process.env.REACT_APP_BASE_URI;
 
@@ -1513,11 +1514,19 @@ function DashboardItem(props) {
       {params.get("fullDetail") ? (
         <>
           <Grid item xs={12} md={fullWidth ? 12 : 6} lg={fullWidth ? 12 : 6}>
-            <InterpretationComponent
-              interpretations={chartInfo?.interpretations}
-              chartDescription={chartInfo?.description}
-              chartData={chartData}
-            />
+            {item?.type == "MAP" ? (
+              <MapInterpretationComponent
+                interpretations={chartInfo?.interpretations}
+                chartDescription={chartInfo?.description}
+                chartData={chartData}
+              />
+            ) : (
+              <InterpretationComponent
+                interpretations={chartInfo?.interpretations}
+                chartDescription={chartInfo?.description}
+                chartData={chartData}
+              />
+            )}
           </Grid>
         </>
       ) : (
