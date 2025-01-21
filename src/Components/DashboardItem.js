@@ -511,17 +511,32 @@ function DashboardItem(props) {
             });
           }
           if (chartType == "area") {
-            chartConfig.series = chartConfig?.series?.map((series, i) => ({
-              ...series,
-              area: true,
-            }));
+            chartConfig.series = chartConfig?.series?.map((series, i) => {
+              const numSeries = chartConfig?.series?.length || 1;
+              const uniqueColor = `hsl(${
+                ((i + 100) * (360 / numSeries)) % 360
+              }, 70%, 50%)`;
+              return {
+                ...series,
+                area: true,
+                color : uniqueColor ? uniqueColor : "blue",
+              };
+            });
           }
           if (chartType == "stacked_area") {
-            chartConfig.series = chartConfig?.series?.map((series, i) => ({
-              ...series,
-              area: true,
-              stack: "total",
-            }));
+            chartConfig.series = chartConfig?.series?.map((series, i) => {
+              const numSeries = chartConfig?.series?.length || 1;
+              const uniqueColor = `hsl(${
+                ((i + 100) * (360 / numSeries)) % 360
+              }, 70%, 50%)`;
+              console.log("unique color", uniqueColor);
+              return {
+                ...series,
+                area: true,
+                stack: "total",
+                color: uniqueColor ? uniqueColor : "blue",
+              };
+            });
           }
           return (
             <LineChart
