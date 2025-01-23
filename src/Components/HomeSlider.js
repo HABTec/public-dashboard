@@ -41,7 +41,13 @@ function HomeSlider() {
 
   return (
     <div className="slider-container">
-      <Typography variant="h2" component="h1" gutterBottom color="black">
+      <Typography
+        sx={{ textAlign: "center" }}
+        variant="h2"
+        component="h1"
+        gutterBottom
+        color="black"
+      >
         Your Gateway to National Health Trends and Insights
       </Typography>
       <Slider {...settings}>

@@ -1214,7 +1214,7 @@ function DashboardItem(props) {
                   display: "flex",
                   flexDirection: "column",
                   height: props?.homePageMode
-                    ? "13cm"
+                    ? "max(65vh,13cm)"
                     : fullWidth
                     ? "max(75vh,13cm)"
                     : "13cm",

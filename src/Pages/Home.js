@@ -186,7 +186,7 @@ const Home = () => {
   return (
     <Box>
       <AppBar position="sticky" theme={theme}>
-        <Container>
+        <Container maxWidth="xxl">
           <Box
             py={2}
             display="flex"
@@ -265,7 +265,7 @@ const Home = () => {
         {renderNavItems()}
       </Drawer>
       <StyledHeroSection>
-        <Container>
+        <Container maxWidth="xxl">
           <HomeSlider></HomeSlider>
         </Container>
       </StyledHeroSection>
