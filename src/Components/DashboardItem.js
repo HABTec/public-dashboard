@@ -18,6 +18,7 @@ import {
   MarkPlot,
   ChartsAxisHighlight,
   barLabelClasses,
+  axisClasses,
 } from "@mui/x-charts";
 import {
   lineElementClasses,
@@ -691,6 +692,11 @@ function DashboardItem(props) {
         } else if (chartType === "column") {
           //calcualte the trend line for each series
           console.log("hit color");
+          let xAxisLongestText = 0;
+          chartConfig.yAxis.categories.forEach((text) => {
+            if (text.length > xAxisLongestText) xAxisLongestText = text.length;
+          });
+
           let ChartStyle = {
             [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
               strokeWidth: 1,
@@ -833,10 +839,16 @@ function DashboardItem(props) {
                     barGapRatio: 0.4,
                     scaleType: "band",
                     ...xAxisMaxMin,
+                    tickLabelStyle: {
+                      angle: -70 - 10 * Math.log10(xAxisLongestText),
+                      textAnchor: "end",
+                      fontSize: 12,
+                    },
                   },
                 ]}
                 margin={{
                   top: 40 + 100 * Math.log10(chartConfig.series.length),
+                  bottom: xAxisLongestText * 7,
                 }}
                 yAxis={[{ ...yAxisMaxMin, ...colorMap }]}
                 sx={ChartStyle}
@@ -1229,10 +1241,10 @@ function DashboardItem(props) {
                   display: "flex",
                   flexDirection: "column",
                   height: props?.homePageMode
-                    ? "max(65vh,13cm)"
+                    ? "max(65vh,15cm)"
                     : fullWidth
-                    ? "max(75vh,13cm)"
-                    : "13cm",
+                    ? "max(75vh,15cm)"
+                    : "15cm",
                   width: "100%",
                   position: "relative",
                 }
