@@ -88,7 +88,7 @@ function HomeSlider(props) {
                   </Link>
                 </Grid>
               )}
-              <Grid item xs={12} md={12}>
+              <Grid item xs={12} md={mode == "home" ? 8 : 12}>
                 <Box
                   alt="Hero section illustration"
                   sx={{ width: "100%", height: "auto" }}
