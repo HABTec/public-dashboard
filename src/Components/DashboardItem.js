@@ -1243,6 +1243,7 @@ function DashboardItem(props) {
                   height: props?.homePageMode
                     ? props?.mode?.toLowerCase() == "slideshow"
                       ? "max(85vh,17cm)"
+                      : "max(75vh,15cm)"
                     : fullWidth
                     ? "max(75vh,15cm)"
                     : "15cm",
