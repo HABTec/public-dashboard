@@ -98,6 +98,7 @@ function HomeSlider(props) {
                     item={item}
                     fullWidth={true}
                     homePageMode={true}
+                    mode={mode}
                   />
                 </Box>
               </Grid>
