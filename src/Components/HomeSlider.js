@@ -11,7 +11,7 @@ const apiBase = process.env.REACT_APP_BASE_URI;
 const url =
   apiBase +
   "api/dashboards.json?paging=false&fields=id,name,favorite,displayDescription,dashboardItems[id,resources[id,%20name],type,shape,x,y,width,height,text,visualization[id,displayName,displayDescription],map[id,displayName],eventReport[id,displayName],eventChart[id,displayName]]&filter=favorite:eq:true";
-function HomeSlider() {
+function HomeSlider(props) {
   var settings = {
     dots: true,
     infinite: true,
@@ -21,6 +21,8 @@ function HomeSlider() {
     autoplaySpeed: 5000,
     pauseOnHover: true,
   };
+
+  let mode = props.mode ?? "home";
 
   const [dashboard, setDashboard] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -33,6 +35,12 @@ function HomeSlider() {
       })
       .then((data) => {
         if (data?.dashboards.length > 0) {
+          // merge all dashboards in to the dashboard object
+          let dashboardItems = [];
+          data.dashboards.forEach((dashboard) => {
+            dashboardItems = dashboardItems.concat(dashboard.dashboardItems);
+          });
+          data.dashboards[0].dashboardItems = dashboardItems;
           setDashboard(data.dashboards[0]);
         }
       })
@@ -41,41 +49,46 @@ function HomeSlider() {
 
   return (
     <div className="slider-container">
-      <Typography
-        sx={{ textAlign: "center" }}
-        variant="h2"
-        component="h1"
-        gutterBottom
-        color="black"
-      >
-        Your Gateway to National Health Trends and Insights
-      </Typography>
+      {mode === "home" && (
+        <Typography
+          sx={{ textAlign: "center" }}
+          variant="h2"
+          component="h1"
+          gutterBottom
+          color="black"
+        >
+          Your Gateway to National Health Trends and Insights
+        </Typography>
+      )}
       <Slider {...settings}>
         {loading && <div>Loading...</div>}
         {dashboard?.dashboardItems?.map((item) => (
           <div>
             <Grid p={1} container key={item.id} spacing={4} alignItems="center">
-              <Grid item xs={12} md={4}>
-                <Typography variant="h5" paragraph color="black">
-                  Health Data Hub: Empowering Communities with Data Transparency
-                </Typography>
-                <Typography variant="h6" paragraph color="black">
-                  {item.visualization?.displayDescription}
-                </Typography>
-                <Link to="/dashboard" style={{ textDecoration: "none" }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    sx={{
-                      backgroundColor: "#ff9800",
-                      "&:hover": { backgroundColor: "#f57c00" },
-                    }}
-                  >
-                    Explore Health Data
-                  </Button>
-                </Link>
-              </Grid>
-              <Grid item xs={12} md={8}>
+              {mode === "home" && (
+                <Grid item xs={12} md={4}>
+                  <Typography variant="h5" paragraph color="black">
+                    Health Data Hub: Empowering Communities with Data
+                    Transparency
+                  </Typography>
+                  <Typography variant="h6" paragraph color="black">
+                    {item.visualization?.displayDescription}
+                  </Typography>
+                  <Link to="/dashboard" style={{ textDecoration: "none" }}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      sx={{
+                        backgroundColor: "#ff9800",
+                        "&:hover": { backgroundColor: "#f57c00" },
+                      }}
+                    >
+                      Explore Health Data
+                    </Button>
+                  </Link>
+                </Grid>
+              )}
+              <Grid item xs={12} md={12}>
                 <Box
                   alt="Hero section illustration"
                   sx={{ width: "100%", height: "auto" }}

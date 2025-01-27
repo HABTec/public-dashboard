@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Dashboard from "./Components/Dashboard";
 import SavedReports from "./Pages/SavedReports";
+import SlideShowPage from "./Pages/SlideShowPage";
 import RequestForm from "./Pages/RequestForm";
 import useServiceWorker from "./hooks/useServiceWorker";
 import ReactGA from "react-ga4";
@@ -32,9 +33,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/slide-show" element={<SlideShowPage />} />
             <Route path="/request-form" element={<RequestForm />} />
             <Route path="/feedback" element={<FeedBack />} />
-            <Route path="/saved-report" element={<SavedReports />}/>
+            <Route path="/saved-report" element={<SavedReports />} />
           </Routes>
         </Router>
       </div>
