@@ -1241,6 +1241,7 @@ function DashboardItem(props) {
                   display: "flex",
                   flexDirection: "column",
                   height: props?.homePageMode
+                    ? props?.mode?.toLowerCase() == "slideshow"
                     : fullWidth
                     ? "max(75vh,15cm)"
                     : "15cm",
