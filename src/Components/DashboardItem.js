@@ -520,7 +520,7 @@ function DashboardItem(props) {
               return {
                 ...series,
                 area: true,
-                color : uniqueColor ? uniqueColor : "blue",
+                color: uniqueColor ? uniqueColor : "blue",
               };
             });
           }
@@ -539,6 +539,10 @@ function DashboardItem(props) {
               };
             });
           }
+          let xAxisLongestText = 0;
+          chartConfig.yAxis.categories.forEach((text) => {
+            if (text.length > xAxisLongestText) xAxisLongestText = text.length;
+          });
           return (
             <LineChart
               layout="vertical"
@@ -555,10 +559,16 @@ function DashboardItem(props) {
                   barGapRatio: 0.4,
                   scaleType: "band",
                   ...xAxisMaxMin,
+                  tickLabelStyle: {
+                    angle: -70 - 10 * Math.log10(xAxisLongestText),
+                    textAnchor: "end",
+                    fontSize: 12,
+                  },
                 },
               ]}
               margin={{
                 top: 40 + 100 * Math.log10(chartConfig.series.length),
+                bottom: xAxisLongestText * 7,
               }}
             >
               {chartInfo.targetLineValue ? (
@@ -783,10 +793,18 @@ function DashboardItem(props) {
                     scaleType: "band",
                     id: "x-axis-id",
                     ...xAxisMaxMin,
+                    tickLabelStyle: {
+                      angle: -70 - 10 * Math.log10(xAxisLongestText),
+                      textAnchor: "end",
+                      fontSize: 12,
+                    },
                   },
                 ]}
                 series={chartConfig.series}
-                margin={{ top: 40 + 30 * chartConfig.series.length }}
+                margin={{
+                  top: 40 + 30 * chartConfig.series.length,
+                  bottom: xAxisLongestText * 7,
+                }}
                 sx={ChartStyle}
                 yAxis={[
                   {
