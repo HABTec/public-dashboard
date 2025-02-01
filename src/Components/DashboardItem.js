@@ -245,22 +245,44 @@ function DashboardItem(props) {
         }
 
         url += dimension + filters + "&includeMetadataDetails=true";
+        console.log("url to be tested", url);
 
-        fetch(encodeURI(url))
-          .then((response) => {
-            return response.json();
-          })
-          .then((analyticsData) => {
-            setChartData(analyticsData);
+        const urlSkipData = encodeURI(url + "&skipData=true");
+        const urlSkipMeta = encodeURI(url + "&skipMeta=true");
+        console.log("urlSkipData", urlSkipData, "urlSkipMeta", urlSkipMeta);
+
+        Promise.all([
+          fetch(encodeURI(urlSkipData)).then((res) => res.json()),
+          fetch(encodeURI(urlSkipMeta)).then((res) => res.json()),
+        ])
+          .then(([metaData, rowData]) => {
+            if (metaData.status === "ERROR" || rowData.status === "ERROR") {
+              throw new Error("Error fetching data");
+            }
+
+            console.log("rowData", rowData, "metaData", metaData);  
+            // Replace rows in metaData with rows from rowData
+            metaData.rows = rowData.rows;
+            metaData.headers = rowData.headers;
+
+            setChartData(metaData);
             setLoading(false);
           })
           .catch((error) => {
+            snackbar.showMessage(
+              "Failed to load data! " + error,
+              undefined,
+              undefined,
+              {
+                type: "error",
+              }
+            );
             setLoading(false);
           });
       })
-      .catch((data) => {
+      .catch((error) => {
         snackbar.showMessage(
-          "Failed to load data! " + data,
+          "Failed to load data! " + error,
           undefined,
           undefined,
           {
@@ -268,12 +290,36 @@ function DashboardItem(props) {
           }
         );
         setLoading(false);
+
+        //   fetch(encodeURI(url))
+        //     .then((response) => {
+        //       return response.json();
+        //     })
+        //     .then((analyticsData) => {
+        //       setChartData(analyticsData);
+        //       setLoading(false);
+        //     })
+        //     .catch((error) => {
+        //       setLoading(false);
+        //     });
+        // })
+        // .catch((data) => {
+        //   snackbar.showMessage(
+        //     "Failed to load data! " + data,
+        //     undefined,
+        //     undefined,
+        //     {
+        //       type: "error",
+        //     }
+        //   );
+        //   setLoading(false);
       });
   }, [
     // props.filters
     filters_,
   ]);
 
+  console.log("chart data tested", chartData)
   const type = props?.item?.type?.toLowerCase();
   let title = props?.item[type]?.displayName;
 
