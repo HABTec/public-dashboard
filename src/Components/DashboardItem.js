@@ -84,6 +84,7 @@ import ResourceComponent from "./ResourceComponent";
 import ScatterChartComponent from "./ScatterChartComponent";
 import MapComponent from "./MapComponent";
 import RadarChartComponent from "./RadarChartComponent";
+import CustomBarLabel from "./CustomBarLabel";
 
 import {
   toCSVText,
@@ -871,6 +872,10 @@ function DashboardItem(props) {
                 yAxis={[{ ...yAxisMaxMin, ...colorMap }]}
                 sx={ChartStyle}
                 barLabel={chartInfo?.showData ? "value" : ""}
+                slots={{
+                  barLabel: CustomBarLabel,
+                }}
+                skipAnimation={true}
               >
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
