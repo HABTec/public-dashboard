@@ -84,6 +84,7 @@ import ResourceComponent from "./ResourceComponent";
 import ScatterChartComponent from "./ScatterChartComponent";
 import MapComponent from "./MapComponent";
 import RadarChartComponent from "./RadarChartComponent";
+import assignColors from "../utils/assignColors";
 
 import {
   toCSVText,
@@ -147,7 +148,7 @@ function DashboardItem(props) {
       item.type === "REPORT_TABLE"
     ) {
       id = item.visualization.id;
-      url += `api/visualizations/${id}.json?fields=id,displayName,aggregationType${
+      url += `api/visualizations/${id}.json?fields=id,colorSet,displayName,aggregationType${
         params.get("fullDetail") ? interpretationParam : ``
       },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
     } else if (item.type === "EVENT_CHART") {
@@ -382,12 +383,14 @@ function DashboardItem(props) {
         highlightScope: { faded: "global", highlighted: "item" },
         faded: { innerRadius: 10, additionalRadius: -30, color: "gray" },
       };
-
+      let i = 0;
       for (const row of rows) {
         chartConfig?.data.push({
           label: getItemName(chartData, row[0]),
           value: Number(row[1]),
+          color: assignColors(chartInfo?.colorSet, i),
         });
+        i++;
       }
       return chartConfig.data.length > 0 ? (
         <>
@@ -450,12 +453,15 @@ function DashboardItem(props) {
             chartConfig.yAxis.categories.push(xAxisNames);
           }
         }
-
+        console.log("columnSeries", columnSeries);
+        let i = 0;
         for (const key of Object.keys(columnSeries)) {
           chartConfig.series.push({
             data: columnSeries[key],
             label: key,
+            color: assignColors(chartInfo?.colorSet, i),
           });
+          i++;
         }
 
         if (
@@ -514,28 +520,30 @@ function DashboardItem(props) {
           if (chartType == "area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-              const uniqueColor = `hsl(${
-                ((i + 100) * (360 / numSeries)) % 360
-              }, 70%, 50%)`;
+              // const uniqueColor = `hsl(${
+              //   ((i + 100) * (360 / numSeries)) % 360
+              // }, 70%, 50%)`;
+
               return {
                 ...series,
                 area: true,
-                color: uniqueColor ? uniqueColor : "blue",
+                color: assignColors(chartInfo?.colorSet, i),
+                // color: uniqueColor ? uniqueColor : "blue",
               };
             });
           }
           if (chartType == "stacked_area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-              const uniqueColor = `hsl(${
-                ((i + 100) * (360 / numSeries)) % 360
-              }, 70%, 50%)`;
-              console.log("unique color", uniqueColor);
+              // const uniqueColor = `hsl(${
+              //   ((i + 100) * (360 / numSeries)) % 360
+              // }, 70%, 50%)`;
               return {
                 ...series,
                 area: true,
                 stack: "total",
-                color: uniqueColor ? uniqueColor : "blue",
+                // color: uniqueColor ? uniqueColor : "blue",
+                color: assignColors(chartInfo?.colorSet, i),
               };
             });
           }
@@ -630,7 +638,7 @@ function DashboardItem(props) {
               },
             };
           }
-
+          console.log("colorScale chart", chartInfo?.colorSet);
           return (
             <BarChart
               axisHighlight={{
