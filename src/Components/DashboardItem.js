@@ -98,6 +98,7 @@ import SingleValueChart from "./SingleValueChart";
 import ShareModal from "./ShareModal";
 import OrgUnitFilterModal from "./OrgUnitFilterModal";
 import MapInterpretationComponent from "./MapInterpretationComponent";
+import YearOverYearChartComponent from "./YearOverYearChartComponent";
 
 const apiBase = process.env.REACT_APP_BASE_URI;
 
@@ -150,7 +151,7 @@ function DashboardItem(props) {
       id = item.visualization.id;
       url += `api/visualizations/${id}.json?fields=id,displayName,aggregationType${
         params.get("fullDetail") ? interpretationParam : ``
-      },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
+      },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,yearlySeries,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -182,7 +183,7 @@ function DashboardItem(props) {
       setChartInfo(null);
       return;
     }
-
+    console.log("entrance line line url 0", url);
     fetch(encodeURI(url))
       .then((response) => {
         return response.json();
@@ -202,6 +203,7 @@ function DashboardItem(props) {
         }
 
         setChartInfo(data);
+        console.log("entrance line line data", data);
         let filters = getFilters(
           data.filters,
           // props?.filters,
@@ -209,10 +211,11 @@ function DashboardItem(props) {
           data?.aggregationType
         );
         let dimension = getDimensions(data);
+        console.log("entrance line line data", data);
         let ou_dimension = getOuDimensions(data.rows, { type: "map" });
 
         let url = apiBase;
-
+        console.log("entrance line line", item);
         if (
           item.type === "VISUALIZATION" ||
           item.type === "CHART" ||
@@ -243,9 +246,24 @@ function DashboardItem(props) {
           setChartData(null);
           return;
         }
-
-        url += dimension + filters + "&includeMetadataDetails=true";
-
+        console.log("entrance line line url", data);
+        if (
+          data?.type == "YEAR_OVER_YEAR_LINE" ||
+          data?.type == "YEAR_OVER_YEAR_COLUMN"
+        ) {
+          const dimentions = data?.yearlySeries.map((year) => {
+            return `dimension=pe:${year};`;
+          });
+          console.log("entrance line line dime", dimentions);
+          url +=
+            `dimension=pe:${data?.yearlySeries.join(";")}` +
+            filters +
+            "&includeMetadataDetails=true";
+          console.log("entrance line line url very", url);
+        } else {
+          url += dimension + filters + "&includeMetadataDetails=true";
+        }
+        console.log("entrance line line url2", url);
         fetch(encodeURI(url))
           .then((response) => {
             return response.json();
@@ -313,6 +331,21 @@ function DashboardItem(props) {
           setChartData={setChartData}
           setChartInfo={setChartInfo}
           chartInfo={chartInfo}
+        />
+      );
+    }
+    if (
+      chartType === "year_over_year_line" ||
+      chartType === "year_over_year_column"
+    ) {
+      return (
+        <YearOverYearChartComponent
+          yearsData={chartData}
+          chartInfo={{ ...chartInfo }}
+          filters_={filters_}
+          item={item}
+          setLoading={setLoading}
+          chartType={chartType}
         />
       );
     }
