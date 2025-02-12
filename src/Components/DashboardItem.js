@@ -128,6 +128,7 @@ function DashboardItem(props) {
     orgunitLevelFilters,
     hideEmptyCharts
   ) => {
+    setLoading(true);
     setFilters_({
       orgunits: orgunitFilters,
       orgunitGroup: orgunitGroupFilters,
@@ -135,6 +136,13 @@ function DashboardItem(props) {
       hideEmptyCharts: hideEmptyCharts,
     });
   };
+
+  React.useEffect(() => {
+    if (filters_?.length > 0) {
+      setLoading(false);
+    }
+  }, [filters_]);
+
   const toggleLegendKeyDisplay = () => {
     setOpenLegendKey(!openLegendKey);
   };
