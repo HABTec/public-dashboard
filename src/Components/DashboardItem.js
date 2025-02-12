@@ -84,6 +84,7 @@ import ResourceComponent from "./ResourceComponent";
 import ScatterChartComponent from "./ScatterChartComponent";
 import MapComponent from "./MapComponent";
 import RadarChartComponent from "./RadarChartComponent";
+import {assignColors, ColorPattern, colorPattern} from "../utils/assignColors";
 import CustomBarLabel from "./CustomBarLabel";
 
 import {
@@ -149,7 +150,7 @@ function DashboardItem(props) {
       item.type === "REPORT_TABLE"
     ) {
       id = item.visualization.id;
-      url += `api/visualizations/${id}.json?fields=id,displayName,aggregationType${
+      url += `api/visualizations/${id}.json?fields=id,colorSet,displayName,aggregationType${
         params.get("fullDetail") ? interpretationParam : ``
       },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,yearlySeries,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
     } else if (item.type === "EVENT_CHART") {
@@ -416,12 +417,14 @@ function DashboardItem(props) {
         highlightScope: { faded: "global", highlighted: "item" },
         faded: { innerRadius: 10, additionalRadius: -30, color: "gray" },
       };
-
+      let i = 0;
       for (const row of rows) {
         chartConfig?.data.push({
           label: getItemName(chartData, row[0]),
           value: Number(row[1]),
+          color: assignColors(chartInfo?.colorSet, i),
         });
+        i++;
       }
       return chartConfig.data.length > 0 ? (
         <>
@@ -438,7 +441,9 @@ function DashboardItem(props) {
             }}
             series={[chartConfig]}
             align="center"
-          />
+          >
+            <ColorPattern />
+          </PieChart>
         </>
       ) : (
         <span style={{ color: "#DDD" }}>No Data</span>
@@ -484,12 +489,15 @@ function DashboardItem(props) {
             chartConfig.yAxis.categories.push(xAxisNames);
           }
         }
-
+        console.log("columnSeries", columnSeries);
+        let i = 0;
         for (const key of Object.keys(columnSeries)) {
           chartConfig.series.push({
             data: columnSeries[key],
             label: key,
+            color: assignColors(chartInfo?.colorSet, i),
           });
+          i++;
         }
 
         if (
@@ -542,34 +550,32 @@ function DashboardItem(props) {
                 label: series.label + " (trend)",
                 type: "line",
                 id: `trend${i}`,
+                color: assignColors(chartInfo?.colorSet, i),
               });
             });
           }
           if (chartType == "area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-              const uniqueColor = `hsl(${
-                ((i + 100) * (360 / numSeries)) % 360
-              }, 70%, 50%)`;
+             
+
               return {
                 ...series,
                 area: true,
-                color: uniqueColor ? uniqueColor : "blue",
+                color: chartInfo?.colorSet === "PATTERNS" ? assignColors("DEFAULT", i) : assignColors(chartInfo?.colorSet, i),
+                
               };
             });
           }
           if (chartType == "stacked_area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-              const uniqueColor = `hsl(${
-                ((i + 100) * (360 / numSeries)) % 360
-              }, 70%, 50%)`;
-              console.log("unique color", uniqueColor);
+             
               return {
                 ...series,
                 area: true,
                 stack: "total",
-                color: uniqueColor ? uniqueColor : "blue",
+                color: chartInfo?.colorSet === "PATTERNS" ? assignColors("DEFAULT", i) : assignColors(chartInfo?.colorSet, i),
               };
             });
           }
@@ -605,6 +611,7 @@ function DashboardItem(props) {
                 bottom: xAxisLongestText * 7,
               }}
             >
+              <ColorPattern />
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
                   lineStyle={{ strokeDasharray: "10 5" }}
@@ -664,7 +671,7 @@ function DashboardItem(props) {
               },
             };
           }
-
+          console.log("colorScale chart", chartInfo?.colorSet);
           return (
             <BarChart
               axisHighlight={{
@@ -708,6 +715,7 @@ function DashboardItem(props) {
                 },
               })}
             >
+              <ColorPattern />
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
                   lineStyle={{ strokeDasharray: "10 5" }}
@@ -847,6 +855,7 @@ function DashboardItem(props) {
                   },
                 ]}
               >
+                
                 <BarPlot layout="horizontal" />
                 <LinePlot />
                 <MarkPlot showMark={(point) => point} />
@@ -910,6 +919,7 @@ function DashboardItem(props) {
                 }}
                 skipAnimation={true}
               >
+                <ColorPattern />
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
                     lineStyle={{ strokeDasharray: "10 5" }}
