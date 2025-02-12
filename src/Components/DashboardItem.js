@@ -84,7 +84,7 @@ import ResourceComponent from "./ResourceComponent";
 import ScatterChartComponent from "./ScatterChartComponent";
 import MapComponent from "./MapComponent";
 import RadarChartComponent from "./RadarChartComponent";
-import assignColors from "../utils/assignColors";
+import {assignColors, ColorPattern, colorPattern} from "../utils/assignColors";
 import CustomBarLabel from "./CustomBarLabel";
 
 import {
@@ -408,7 +408,9 @@ function DashboardItem(props) {
             }}
             series={[chartConfig]}
             align="center"
-          />
+          >
+            <ColorPattern />
+          </PieChart>
         </>
       ) : (
         <span style={{ color: "#DDD" }}>No Data</span>
@@ -515,36 +517,32 @@ function DashboardItem(props) {
                 label: series.label + " (trend)",
                 type: "line",
                 id: `trend${i}`,
+                color: assignColors(chartInfo?.colorSet, i),
               });
             });
           }
           if (chartType == "area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-              // const uniqueColor = `hsl(${
-              //   ((i + 100) * (360 / numSeries)) % 360
-              // }, 70%, 50%)`;
+             
 
               return {
                 ...series,
                 area: true,
-                color: assignColors(chartInfo?.colorSet, i),
-                // color: uniqueColor ? uniqueColor : "blue",
+                color: chartInfo?.colorSet === "PATTERNS" ? assignColors("DEFAULT", i) : assignColors(chartInfo?.colorSet, i),
+                
               };
             });
           }
           if (chartType == "stacked_area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-              // const uniqueColor = `hsl(${
-              //   ((i + 100) * (360 / numSeries)) % 360
-              // }, 70%, 50%)`;
+             
               return {
                 ...series,
                 area: true,
                 stack: "total",
-                // color: uniqueColor ? uniqueColor : "blue",
-                color: assignColors(chartInfo?.colorSet, i),
+                color: chartInfo?.colorSet === "PATTERNS" ? assignColors("DEFAULT", i) : assignColors(chartInfo?.colorSet, i),
               };
             });
           }
@@ -580,6 +578,7 @@ function DashboardItem(props) {
                 bottom: xAxisLongestText * 7,
               }}
             >
+              <ColorPattern />
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
                   lineStyle={{ strokeDasharray: "10 5" }}
@@ -683,6 +682,7 @@ function DashboardItem(props) {
                 },
               })}
             >
+              <ColorPattern />
               {chartInfo.targetLineValue ? (
                 <ChartsReferenceLine
                   lineStyle={{ strokeDasharray: "10 5" }}
@@ -822,6 +822,7 @@ function DashboardItem(props) {
                   },
                 ]}
               >
+                
                 <BarPlot layout="horizontal" />
                 <LinePlot />
                 <MarkPlot showMark={(point) => point} />
@@ -885,6 +886,7 @@ function DashboardItem(props) {
                 }}
                 skipAnimation={true}
               >
+                <ColorPattern />
                 {chartInfo.targetLineValue ? (
                   <ChartsReferenceLine
                     lineStyle={{ strokeDasharray: "10 5" }}
