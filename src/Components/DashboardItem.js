@@ -1469,10 +1469,6 @@ function DashboardItem(props) {
                   </ListItemIcon>
                   <ListItemText primary="Share" />
                 </MenuItem>
-                <OrgUnitFilterModal
-                  settings={props.settings}
-                  onConfirmed={handelFilterSelect}
-                />
                 <MenuItem>
                   <ListItemIcon>
                     <FileDownloadIcon />
