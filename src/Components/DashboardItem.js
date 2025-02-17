@@ -84,7 +84,11 @@ import ResourceComponent from "./ResourceComponent";
 import ScatterChartComponent from "./ScatterChartComponent";
 import MapComponent from "./MapComponent";
 import RadarChartComponent from "./RadarChartComponent";
-import {assignColors, ColorPattern, colorPattern} from "../utils/assignColors";
+import {
+  assignColors,
+  ColorPattern,
+  colorPattern,
+} from "../utils/assignColors";
 import CustomBarLabel from "./CustomBarLabel";
 
 import {
@@ -434,6 +438,9 @@ function DashboardItem(props) {
         });
         i++;
       }
+      chartConfig.arcLabel = (item) => `${item.value}`;
+      chartConfig.arcLabelMinAngle = 5;
+      chartConfig.arcLabelRadius = "100%";
       return chartConfig.data.length > 0 ? (
         <>
           <PieChart
@@ -565,25 +572,29 @@ function DashboardItem(props) {
           if (chartType == "area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-             
 
               return {
                 ...series,
                 area: true,
-                color: chartInfo?.colorSet === "PATTERNS" ? assignColors("DEFAULT", i) : assignColors(chartInfo?.colorSet, i),
-                
+                color:
+                  chartInfo?.colorSet === "PATTERNS"
+                    ? assignColors("DEFAULT", i)
+                    : assignColors(chartInfo?.colorSet, i),
               };
             });
           }
           if (chartType == "stacked_area") {
             chartConfig.series = chartConfig?.series?.map((series, i) => {
               const numSeries = chartConfig?.series?.length || 1;
-             
+
               return {
                 ...series,
                 area: true,
                 stack: "total",
-                color: chartInfo?.colorSet === "PATTERNS" ? assignColors("DEFAULT", i) : assignColors(chartInfo?.colorSet, i),
+                color:
+                  chartInfo?.colorSet === "PATTERNS"
+                    ? assignColors("DEFAULT", i)
+                    : assignColors(chartInfo?.colorSet, i),
               };
             });
           }
@@ -863,7 +874,6 @@ function DashboardItem(props) {
                   },
                 ]}
               >
-                
                 <BarPlot layout="horizontal" />
                 <LinePlot />
                 <MarkPlot showMark={(point) => point} />
