@@ -18,7 +18,7 @@ const CustomBarLabel = (props) => {
       y={labelY} // Adjust label above the bar
       textAnchor="middle"
       fill={props.color || "black"}
-      fontSize={12}
+      fontSize={"1.1rem"}
     >
       {props.children}
     </text>
