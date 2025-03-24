@@ -92,7 +92,6 @@ const SlideShowPage = () => {
   const navigationItems = [
     { label: "Dashboard", to: "/dashboard" },
     { label: "Features", id: "features" },
-    { label: "Key Messages", id: "key messages" },
     { label: "Contact", id: "contact" },
     { label: "             ", id: "none" },
     { label: "             ", id: "none" },

@@ -19,9 +19,9 @@ function Copyright(props) {
   return (
     <Typography variant="body2" align="center" {...props}>
       Copyright © {new Date().getFullYear()}{" "}
-      <Link color="inherit" href="https://moh.gov.et/">
+      {/* <Link color="inherit" href="https://moh.gov.et/">
         Ministry of Health
-      </Link>{" "}
+      </Link>{" "} */}
       {"."} All rights reserved. Powered by{" "}
       <Link color="inherit" href="https://habtechsolution.com/">
         HABTech solutions
@@ -64,7 +64,6 @@ function Footer1() {
         <Grid item xs={12} sm={4} md={2}>
           <Link
             color="text.secondary"
-            href="https://moh.gov.et"
             underline="none"
           >
             Home
@@ -114,11 +113,10 @@ function Footer2() {
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
-              <img src="./moh.png" alt="moh logo" width="100%" />
+              <img src="./generic-logo.png" alt="logo" width="100%" />
             </Typography>
             <Typography variant="body2">
-              Our Vision is to see Healthy, Productive, and Prosperous Citizens
-              of Ethiopia.
+            Our Vision is to see Healthy, Productive, and Prosperous People.
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -137,40 +135,14 @@ function Footer2() {
               </Box>
               <Box component="span" sx={{ display: "block", mb: 1 }}>
                 <Link
-                  href="http://ermp.moh.gov.et"
+                  href="#"
                   underline="none"
                   color="inherit"
                 >
-                  ERMP
+                  About Us
                 </Link>
               </Box>
-              <Box component="span" sx={{ display: "block", mb: 1 }}>
-                <Link
-                  href="http://pts.moh.gov.et"
-                  underline="none"
-                  color="inherit"
-                >
-                  PTS
-                </Link>
-              </Box>
-              <Box component="span" sx={{ display: "block", mb: 1 }}>
-                <Link
-                  href="https://cpd.moh.gov.et"
-                  underline="none"
-                  color="inherit"
-                >
-                  CPD
-                </Link>
-              </Box>
-              <Box component="span" sx={{ display: "block", mb: 1 }}>
-                <Link
-                  href="http://196.188.120.145:8000"
-                  underline="none"
-                  color="inherit"
-                >
-                  LIPH
-                </Link>
-              </Box>
+              
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -180,7 +152,7 @@ function Footer2() {
             <Box justifyContent="center" gap={2}>
               <Box component="span" sx={{ display: "block" }}>
                 <Link
-                  href="https://www.facebook.com/EthiopiaFMoH"
+                  href="#"
                   underline="none"
                   color="inherit"
                 >
@@ -191,7 +163,7 @@ function Footer2() {
               </Box>
               <Box component="span" sx={{ display: "block" }}>
                 <Link
-                  href="https://twitter.com/fmohealth"
+                  href="#"
                   underline="none"
                   color="inherit"
                 >
@@ -202,7 +174,7 @@ function Footer2() {
               </Box>
               <Box component="span" sx={{ display: "block" }}>
                 <Link
-                  href="https://www.youtube.com/@FMoHealthEthiopia"
+                  href="#"
                   underline="none"
                   color="inherit"
                 >

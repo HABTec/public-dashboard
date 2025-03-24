@@ -7,7 +7,7 @@ import SendTimeExtensionIcon from "@mui/icons-material/SendTimeExtension";
 import HomeIcon from "@mui/icons-material/Home";
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import { Link } from "@mui/material";
-import FeedbackIcon from "@mui/icons-material/Feedback";
+
 
 export const mainListItems = (
   <React.Fragment>
@@ -35,12 +35,6 @@ export const mainListItems = (
         <PermContactCalendarIcon />
       </ListItemIcon>
       <ListItemText primary="Contact Us" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/feedback">
-      <ListItemIcon>
-        <FeedbackIcon />
-      </ListItemIcon>
-      <ListItemText primary="Feedback" />
     </ListItemButton>
   </React.Fragment>
 );

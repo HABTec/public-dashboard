@@ -139,7 +139,6 @@ const Home = () => {
   const navigationItems = [
     { label: "Dashboard", to: "/dashboard" },
     { label: "Features", id: "features" },
-    { label: "Key Messages", id: "key messages" },
     { label: "Contact", id: "contact" },
     { label: "             ", id: "none" },
     { label: "             ", id: "none" },
@@ -192,15 +191,8 @@ const Home = () => {
             display="flex"
             justifyContent="space-between"
             alignItems="center"
-            style={{
-              background: "url(/ethiopian-flag.webp)",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPositionX: "right",
-              backgroundColor: theme.palette.primary.main,
-            }}
           >
-            <div
+            <div 
               style={{ display: "flex", alignItems: "center", maxWidth: "90%" }}
             >
               <img
@@ -209,8 +201,11 @@ const Home = () => {
                   boxShadow: "0 0 10px rgb(255 255 255 / 50%)",
                   borderRadius: "50%",
                 }}
-                src="./mini-moh.png"
-                alt="moh logo"
+                src="./generic_logo.svg"
+                width={40}
+                height={40}
+                margin={4}
+                alt="logo"
               />
               <Typography
                 alignItems="left"
@@ -227,6 +222,7 @@ const Home = () => {
                 {title}
               </Typography>
             </div>
+           
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               {navigationItems.map((item) =>
                 item.to ? (
@@ -294,45 +290,6 @@ const Home = () => {
                     {feature.description}
                   </Typography>
                 </FeatureCard>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </StyledSection>
-
-      <StyledSection id="key messages" sx={{ backgroundColor: "#f5f5f5" }}>
-        <Container>
-          <Typography
-            variant="h3"
-            align="center"
-            gutterBottom
-            className="animate-on-scroll"
-          >
-            Key Messages
-          </Typography>
-
-          <Grid container spacing={4}>
-            {testimonials.map((testimonial, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <Card>
-                  <CardContent>
-                    <Box display="flex" alignItems="center" mb={2}>
-                      <Avatar
-                        src={testimonial.avatar}
-                        sx={{ width: 56, height: 56, mr: 2 }}
-                      />
-                      <Box>
-                        <Typography variant="h6">{testimonial.name}</Typography>
-                        <Typography color="text.secondary">
-                          {testimonial.role}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Typography variant="body1">
-                      "{testimonial.quote}"
-                    </Typography>
-                  </CardContent>
-                </Card>
               </Grid>
             ))}
           </Grid>

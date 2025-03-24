@@ -57,7 +57,7 @@ function HomeSlider(props) {
           gutterBottom
           color="black"
         >
-          Your Gateway to National Health Trends and Insights
+          Your Gateway to Health Trends and Insights
         </Typography>
       )}
       <Slider {...settings}>

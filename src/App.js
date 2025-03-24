@@ -14,7 +14,6 @@ import ReactGA from "react-ga4";
 import Home from "./Pages/Home";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import { createTheme } from "@mui/material/styles";
-import FeedBack from "./Pages/Feedback";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -35,7 +34,6 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/slide-show" element={<SlideShowPage />} />
             <Route path="/request-form" element={<RequestForm />} />
-            <Route path="/feedback" element={<FeedBack />} />
             <Route path="/saved-report" element={<SavedReports />} />
           </Routes>
         </Router>
