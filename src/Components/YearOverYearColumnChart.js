@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { BarChart } from "@mui/x-charts";
+import { assignColors } from "../utils/assignColors";
 
-const YearOverYearColumnChart = ({ processedData, periodNames }) => {
+const YearOverYearColumnChart = ({ processedData, periodNames, colorSet }) => {
   const yoyGrowth = processedData.map((currentYear, idx) => ({
     year: currentYear.year,
     data: currentYear.data.map((currentD, i) => {
@@ -28,11 +29,12 @@ const YearOverYearColumnChart = ({ processedData, periodNames }) => {
           scaleType: "band",
         },
       ]}
-      series={yoyGrowth.map((yearData) => ({
+      series={yoyGrowth.map((yearData, index_) => ({
         data: yearData.data,
         label: `${yearData.year}`,
 
         valueFormatter: (v) => (v !== null ? `${v}` : "N/A"),
+        color: assignColors(colorSet, index_),
       }))}
       height={400}
       margin={{ left: 70}}

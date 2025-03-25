@@ -59,7 +59,7 @@ const YearOverYearChartComponent = ({
       };
     });
   }, [chartDatas]);
-  console.log("entrance line line chartDatas", chartDatas);
+  console.log("entrance line line chartDatas", chartInfo);
 
   const periodNames = useMemo(() => {
     if (!chartDatas.length) return [];
@@ -80,11 +80,13 @@ const YearOverYearChartComponent = ({
         <YearOverYearLineChart
           processedData={processedData}
           periodNames={periodNames}
+          colorSet={chartInfo.colorSet}
         />
       ) : (
         <YearOverYearColumnChart
           processedData={processedData}
           periodNames={periodNames}
+          colorSet={chartInfo.colorSet}
         />
       )}
     </div>

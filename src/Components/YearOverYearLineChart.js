@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import { LineChart } from "@mui/x-charts";
+import { assignColors } from "../utils/assignColors";
 
-const YearOverYearLineChart = ({ processedData, periodNames }) => {
-  const lineSeries = processedData.map((yearData) => ({
+const YearOverYearLineChart = ({ processedData, periodNames, colorSet }) => {
+  const lineSeries = processedData.map((yearData, index_) => ({
     data: yearData.data.map((d) => d.value),
     label: yearData.year,
+    color:assignColors(colorSet, index_),
   }));
 
   lineSeries.sort((a, b) => a.label - b.label);
