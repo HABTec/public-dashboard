@@ -164,7 +164,7 @@ function DashboardItem(props) {
       id = item.visualization.id;
       url += `api/visualizations/${id}.json?fields=id,colorSet,displayName,aggregationType${
         params.get("fullDetail") ? interpretationParam : ``
-      },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,yearlySeries,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
+      },showData,sortOrder,legend[style,strategy,showKey,set[name,legends[name,color,startValue,endValue]]],dataDimensionItems,yearlySeries,series,targetLineValue,axes,regressionType,targetLineLabel,baseLineValue,baseLineLabel,type,columns[:all],columnDimensions[:all],filters[:all],rows[:all]`;
     } else if (item.type === "EVENT_CHART") {
       id = item.eventChart.id;
       url +=
@@ -507,13 +507,39 @@ function DashboardItem(props) {
         console.log("columnSeries", columnSeries);
         let i = 0;
         for (const key of Object.keys(columnSeries)) {
+          const matchedSeries = chartInfo?.series?.find(
+            (s) => s?.dimensionItem === rows[i][0]
+          );
           chartConfig.series.push({
             data: columnSeries[key],
             label: key,
             color: assignColors(chartInfo?.colorSet, i),
+            yAxisId: matchedSeries?.axis
+              ? matchedSeries?.axis === 0 || matchedSeries?.axis === 2
+                ? "left"
+                : "right"
+              : "left",
+            xAxisId: matchedSeries?.axis
+              ? matchedSeries?.axis === 0 || matchedSeries?.axis === 2
+                ? "left"
+                : "right"
+              : "left",
           });
           i++;
         }
+
+        console.log(
+          "columnSeries",
+          columnSeries,
+          "rows",
+          rows,
+          "chartData",
+          chartData,
+          "chartInfo",
+          chartInfo,
+          "chartConfig",
+          chartConfig
+        );
 
         if (
           chartType === "line" ||
@@ -611,9 +637,24 @@ function DashboardItem(props) {
                 {
                   ...yAxisMaxMin,
                 },
+                { id: "left" },
+                { id: "right" },
               ]}
               xAxis={[
                 {
+                  id: "left",
+                  data: chartConfig.yAxis.categories,
+                  barGapRatio: 0.4,
+                  scaleType: "band",
+                  ...xAxisMaxMin,
+                  tickLabelStyle: {
+                    angle: -70 - 10 * Math.log10(xAxisLongestText),
+                    textAnchor: "end",
+                    fontSize: 12,
+                  },
+                },
+                {
+                  id: "right",
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
@@ -625,6 +666,8 @@ function DashboardItem(props) {
                   },
                 },
               ]}
+              leftAxis={"left"}
+              rightAxis={"right"}
               margin={{
                 top: 40 + 100 * Math.log10(chartConfig.series.length),
                 bottom: xAxisLongestText * 7,
@@ -709,15 +752,33 @@ function DashboardItem(props) {
                 {
                   ...xAxisMaxMin,
                   ...colorMap,
+                  id: "left",
+                },
+                {
+                  ...xAxisMaxMin,
+                  ...colorMap,
+                  id: "right",
                 },
               ]}
               margin={{
-                top: 0 + 30 * chartConfig.series.length,
+                top: 21 + 30 * chartConfig.series.length,
                 left: longestText * 7 + 20,
               }}
               yAxis={[
                 {
                   ...yAxisMaxMin,
+                  id: "left",
+                  data: chartConfig.yAxis.categories,
+                  barGapRatio: 0.4,
+                  scaleType: "band",
+                  tickLabelStyle: {
+                    angle: 0,
+                    textAnchor: "end",
+                  },
+                },
+                {
+                  ...yAxisMaxMin,
+                  id: "right",
                   data: chartConfig.yAxis.categories,
                   barGapRatio: 0.4,
                   scaleType: "band",
@@ -733,6 +794,8 @@ function DashboardItem(props) {
                   fill: "#311B92",
                 },
               })}
+              bottomAxis={"left"}
+              topAxis={"right"}
             >
               <ColorPattern />
               {chartInfo.targetLineValue ? (
@@ -914,6 +977,19 @@ function DashboardItem(props) {
                 series={chartConfig.series}
                 xAxis={[
                   {
+                    id: "right",
+                    data: chartConfig.yAxis.categories,
+                    barGapRatio: 0.4,
+                    scaleType: "band",
+                    ...xAxisMaxMin,
+                    tickLabelStyle: {
+                      angle: -70 - 10 * Math.log10(xAxisLongestText),
+                      textAnchor: "end",
+                      fontSize: 12,
+                    },
+                  },
+                  {
+                    id: "left",
                     data: chartConfig.yAxis.categories,
                     barGapRatio: 0.4,
                     scaleType: "band",
@@ -929,12 +1005,17 @@ function DashboardItem(props) {
                   top: 40 + 100 * Math.log10(chartConfig.series.length),
                   bottom: xAxisLongestText * 7,
                 }}
-                yAxis={[{ ...yAxisMaxMin, ...colorMap }]}
+                yAxis={[
+                  { ...yAxisMaxMin, ...colorMap, id: "left" },
+                  { ...yAxisMaxMin, ...colorMap, id: "right" },
+                ]}
                 sx={ChartStyle}
                 barLabel={chartInfo?.showData ? "value" : ""}
                 slots={{
                   barLabel: CustomBarLabel,
                 }}
+                leftAxis={"left"}
+                rightAxis={"right"}
                 skipAnimation={true}
               >
                 <ColorPattern />
