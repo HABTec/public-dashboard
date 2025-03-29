@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   Link,
@@ -9,20 +10,17 @@ import {
 
 import {
   Facebook,
-  Twitter,
   Instagram,
   LinkedIn,
   YouTube,
 } from "@mui/icons-material";
+import XIcon from '@mui/icons-material/X';
 
 function Copyright(props) {
   return (
     <Typography variant="body2" align="center" {...props}>
-      Copyright © {new Date().getFullYear()}{" "}
-      {/* <Link color="inherit" href="https://moh.gov.et/">
-        Ministry of Health
-      </Link>{" "} */}
-      {"."} All rights reserved. Powered by{" "}
+      Copyright © {new Date().getFullYear()} {"."} All rights reserved. Powered
+      by{" "}
       <Link color="inherit" href="https://habtechsolution.com/">
         HABTech solutions
       </Link>
@@ -62,10 +60,7 @@ function Footer1() {
         lg="6"
       >
         <Grid item xs={12} sm={4} md={2}>
-          <Link
-            color="text.secondary"
-            underline="none"
-          >
+          <Link color="text.secondary" underline="none">
             Home
           </Link>
         </Grid>
@@ -104,6 +99,22 @@ function Footer1() {
 }
 
 function Footer2() {
+  const [socialConfig, setSocialConfig] = useState({});
+
+  useEffect(() => {
+    fetch("/config.json")
+      .then((res) => res.json())
+      .then((data) => setSocialConfig(data.socialMedia || {}))
+      .catch((error) => console.error("Error loading config:", error));
+  }, []);
+
+  const iconMap = {
+    facebook: Facebook,
+    twitter: XIcon,
+    instagram: Instagram,
+    linkedin: LinkedIn,
+    youtube: YouTube,
+  };
   return (
     <Box
       component="footer"
@@ -116,7 +127,7 @@ function Footer2() {
               <img src="./generic-logo.png" alt="logo" width="100%" />
             </Typography>
             <Typography variant="body2">
-            Our Vision is to see Healthy, Productive, and Prosperous People.
+              Our Vision is to see Healthy, Productive, and Prosperous People.
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -125,64 +136,57 @@ function Footer2() {
             </Typography>
             <Typography variant="body2" component="div">
               <Box component="span" sx={{ display: "block", mb: 1 }}>
-                <Link
-                  color="inherit"
-                  href="https://moh.gov.et"
-                  underline="none"
-                >
+                <Link color="inherit" href="/" underline="none">
                   Home
                 </Link>
               </Box>
               <Box component="span" sx={{ display: "block", mb: 1 }}>
-                <Link
-                  href="#"
-                  underline="none"
-                  color="inherit"
-                >
-                  About Us
+                <Link color="inherit" href="/dashboard" underline="none">
+                  Dashboard
                 </Link>
               </Box>
-              
+              <Box component="span" sx={{ display: "block", mb: 1 }}>
+                <Link href="/#contact" underline="none" color="inherit">
+                  Contact Us
+                </Link>
+              </Box>
+              <Box component="span" sx={{ display: "block", mb: 1 }}>
+                <Link href="/request-form" underline="none" color="inherit">
+                  Request Form
+                </Link>
+              </Box>
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
               Connect With Us
             </Typography>
-            <Box justifyContent="center" gap={2}>
-              <Box component="span" sx={{ display: "block" }}>
-                <Link
-                  href="#"
-                  underline="none"
-                  color="inherit"
-                >
-                  <IconButton color="inherit" aria-label="Facebook">
-                    <Facebook />
-                  </IconButton>
-                </Link>
-              </Box>
-              <Box component="span" sx={{ display: "block" }}>
-                <Link
-                  href="#"
-                  underline="none"
-                  color="inherit"
-                >
-                  <IconButton color="inherit" aria-label="Twitter">
-                    <Twitter />
-                  </IconButton>
-                </Link>
-              </Box>
-              <Box component="span" sx={{ display: "block" }}>
-                <Link
-                  href="#"
-                  underline="none"
-                  color="inherit"
-                >
-                  <IconButton color="inherit" aria-label="YouTube">
-                    <YouTube />
-                  </IconButton>
-                </Link>
-              </Box>
+
+            <Box display="flex" gap={2}>
+              {Object.entries(socialConfig).map(([platform, url]) => {
+                const IconComponent = iconMap[platform];
+                return (
+                  url && (
+                    <Box component="span" sx={{ display: "block" }}>
+                      <Link
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        color="inherit"
+                        underline="none"
+                      >
+                        <IconButton
+                          color="inherit"
+                          aria-label={`${platform} link`}
+                        >
+                          <IconComponent />
+                        </IconButton>
+                      </Link>
+                    </Box>
+                  )
+                );
+              })}
             </Box>
           </Grid>
         </Grid>
